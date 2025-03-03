@@ -1,6 +1,7 @@
 package com.example.galleryexample3;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -53,13 +54,14 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1,
                                     int position, long arg3) {
-                if (null != images && !images.isEmpty())
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "position " + position + " " + images.get(position),
-                            Toast.LENGTH_SHORT).show();
-                ;
-
+                if (null != images && !images.isEmpty()){
+                    Toast.makeText(getApplicationContext(),"position " + position + " " + images.get(position), Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, SingleImageView.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("imageURI", images.get(position));
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -97,7 +99,7 @@ public class MainActivity extends Activity {
                 picturesView = new ImageView(context);
                 picturesView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 picturesView
-                        .setLayoutParams(new GridView.LayoutParams(270, 270));
+                        .setLayoutParams(new GridView.LayoutParams(360, 360));
 
             } else {
                 picturesView = (ImageView) convertView;
@@ -122,6 +124,7 @@ public class MainActivity extends Activity {
                 } else if (!cursor.moveToFirst()) {
                     // no media on the device
                 } else {
+                    int i = 0;
                     int titleColumn = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
                     int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
                     int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
@@ -133,7 +136,8 @@ public class MainActivity extends Activity {
                         String pathGot = cursor.getString(dataColumnIndex);
                         Log.i("NOTI", pathGot);
                         arrPath.add(pathGot);
-                    } while (cursor.moveToNext());
+                        i++;
+                    } while (cursor.moveToNext() && i < 10);
                 }
             }
 
