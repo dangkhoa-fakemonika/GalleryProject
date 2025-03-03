@@ -1,58 +1,53 @@
 package com.example.galleryexample3;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
-import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.CallLog;
+import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+
 import com.bumptech.glide.Glide;
 
-public class MainActivity extends Activity {
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Objects;
 
+public class Albums extends Activity {
     /** The images. */
     private ArrayList<String> images;
     final int PICK_FROM_GALLERY = 101;
     private EditText rowNum;
     private Button changeRows;
-    private Button goAlbums;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.album_view);
 
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
+        if (ActivityCompat.checkSelfPermission(Albums.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Albums.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
         }
 
 
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
         rowNum = (EditText) findViewById(R.id.rowNum);
         changeRows = (Button) findViewById(R.id.changeRowButton);
-        goAlbums = (Button) findViewById(R.id.gotoAlbums);
 
         gallery.setAdapter(new ImageAdapter(this));
 
@@ -64,18 +59,14 @@ public class MainActivity extends Activity {
             gallery.setNumColumns(numVal);
         });
 
-        goAlbums.setOnClickListener((l) ->{
-            Intent intent = new Intent(MainActivity.this, Albums.class);
-            startActivity(intent);
-        });
-
-        gallery.setOnItemClickListener(new OnItemClickListener() {
+        gallery.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1,
                                     int position, long arg3) {
-                if (null != images && !images.isEmpty()){
-                    Intent intent = new Intent(MainActivity.this, SingleImageView.class);
+                if (null != images && !images.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "position " + position + " " + images.get(position), Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Albums.this, SingleImageView.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("imageURI", images.get(position));
                     intent.putExtras(bundle);
@@ -83,12 +74,8 @@ public class MainActivity extends Activity {
                 }
             }
         });
-
     }
 
-    /**
-     * The Class ImageAdapter.
-     */
     private class ImageAdapter extends BaseAdapter {
 
         private Activity context;
@@ -133,36 +120,18 @@ public class MainActivity extends Activity {
         private ArrayList<String> getAllShownImagesPath(Activity activity) {
             ArrayList<String> arrPath = new ArrayList<>();
 
-            ContentResolver contentResolver = getContentResolver();
-            Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            SharedPreferences albums = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
+            if (albums == null)
+                return arrPath;
 
-            // use MediaStore.Images.Media.<Attribute> to query and stuff
-            // contentResolver is the sqlite database
-
-            try (Cursor cursor = contentResolver.query(uri, null, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")){
-                if (cursor == null) {
-                    // query failed, handle error.
-                } else if (!cursor.moveToFirst()) {
-                    // no media on the device
-                } else {
-                    int i = 0;
-                    int titleColumn = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
-                    int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                    int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-
-                    do {
-                        long thisId = cursor.getLong(idColumn);
-                        String thisTitle = cursor.getString(titleColumn);
-                        // ...process entry...
-                        String pathGot = cursor.getString(dataColumnIndex);
-                        Log.i("NOTI", pathGot);
-                        arrPath.add(pathGot);
-                        i++;
-                    } while (cursor.moveToNext() && i < 20);
-                }
-            }
+            HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet("dummy", null)));
+            arrPath.addAll(hashSet);
 
             return arrPath;
         }
     }
 }
+
+
+
+
