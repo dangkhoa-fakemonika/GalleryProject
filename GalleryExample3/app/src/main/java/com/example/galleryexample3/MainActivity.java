@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.CallLog;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,14 +34,14 @@ public class MainActivity extends Activity {
 
     /** The images. */
     private ArrayList<String> images;
-    TextView tv;
     final int PICK_FROM_GALLERY = 101;
+    private EditText rowNum;
+    private Button changeRows;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv = (TextView) findViewById(R.id.theTextView);
 
         if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
@@ -46,8 +49,18 @@ public class MainActivity extends Activity {
 
 
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
+        rowNum = (EditText) findViewById(R.id.rowNum);
+        changeRows = (Button) findViewById(R.id.changeRowButton);
 
         gallery.setAdapter(new ImageAdapter(this));
+
+        // Change columns of the thing (not restricted yet)
+        changeRows.setOnClickListener((l) -> {
+            String val = String.valueOf(rowNum.getText());
+            int numVal = Integer.parseInt(val);
+
+            gallery.setNumColumns(numVal);
+        });
 
         gallery.setOnItemClickListener(new OnItemClickListener() {
 
@@ -65,7 +78,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        tv.setText("Pics: " + gallery.getCount());
     }
 
     /**
@@ -118,7 +130,10 @@ public class MainActivity extends Activity {
             ContentResolver contentResolver = getContentResolver();
             Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-            try (Cursor cursor = contentResolver.query(uri, null, null, null, null)){
+            // use MediaStore.Images.Media.<Attribute> to query and stuff
+            // contentResolver is the sqlite database
+
+            try (Cursor cursor = contentResolver.query(uri, null, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")){
                 if (cursor == null) {
                     // query failed, handle error.
                 } else if (!cursor.moveToFirst()) {
