@@ -42,7 +42,7 @@
         <GridView
             android:id="@+id/galleryGridView"
             android:layout_width="match_parent"
-            android:layout_height="626dp"
+            android:layout_height="550dp"
             android:columnWidth="280dp"
             android:gravity="center"
             android:horizontalSpacing="2dp"
@@ -57,7 +57,13 @@
             android:id="@+id/gotoAlbums"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="gotoAlbums" />
+            android:text="Album Management" />
+
+        <Button
+            android:id="@+id/clearData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Clear Data" />
     </LinearLayout>
 
 </RelativeLayout>

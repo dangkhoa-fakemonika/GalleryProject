@@ -44,7 +44,6 @@ public class Albums extends Activity {
             ActivityCompat.requestPermissions(Albums.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
         }
 
-
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
         rowNum = (EditText) findViewById(R.id.rowNum);
         changeRows = (Button) findViewById(R.id.changeRowButton);
@@ -124,9 +123,14 @@ public class Albums extends Activity {
             if (albums == null)
                 return arrPath;
 
-            HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet("dummy", null)));
-            arrPath.addAll(hashSet);
+            Intent gotIntent = getIntent();
+            Bundle gotBundle = gotIntent.getExtras();
+            if (gotBundle != null){
+                String getAlbumName = gotBundle.getString("albumSavedName");
+                HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet(getAlbumName, null)));
 
+                arrPath.addAll(hashSet);
+            }
             return arrPath;
         }
     }

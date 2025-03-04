@@ -28,6 +28,7 @@
         </activity>
         <activity android:name=".SingleImageView" android:exported="true"/>
         <activity android:name=".Albums" android:exported="true"/>
+        <activity android:name=".AlbumSelection" android:exported="true"/>
     </application>
 
 

@@ -2,11 +2,14 @@ package com.example.galleryexample3;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Objects;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -38,6 +41,7 @@ public class MainActivity extends Activity {
     private EditText rowNum;
     private Button changeRows;
     private Button goAlbums;
+    private Button clearData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,11 +52,27 @@ public class MainActivity extends Activity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
         }
 
+        SharedPreferences albums = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
+        if (albums != null && !albums.contains("albums_list")){
+            Log.i("SP check", "bad");
+            SharedPreferences.Editor editor = albums.edit();
+            HashSet<String> test = new HashSet<>();
+            test.add("actual dummy");
+
+            editor.putStringSet("albums_list", test);
+
+            editor.apply();
+
+        }
+        else {
+            Log.i("SP check", "good");
+        }
 
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
         rowNum = (EditText) findViewById(R.id.rowNum);
         changeRows = (Button) findViewById(R.id.changeRowButton);
         goAlbums = (Button) findViewById(R.id.gotoAlbums);
+        clearData = (Button) findViewById(R.id.clearData);
 
         gallery.setAdapter(new ImageAdapter(this));
 
@@ -65,22 +85,32 @@ public class MainActivity extends Activity {
         });
 
         goAlbums.setOnClickListener((l) ->{
-            Intent intent = new Intent(MainActivity.this, Albums.class);
+            Intent intent = new Intent(MainActivity.this, AlbumSelection.class);
             startActivity(intent);
         });
 
-        gallery.setOnItemClickListener(new OnItemClickListener() {
+        clearData.setOnClickListener((l) ->{
+            if (albums != null){
+                SharedPreferences.Editor editor = albums.edit();
+                editor.clear();
+                editor.apply();
+            }
+            SharedPreferences albumEditor = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
+            if (albumEditor != null){
+                SharedPreferences.Editor editor = albumEditor.edit();
+                editor.clear();
+                editor.apply();
+            }
+        });
 
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1,
-                                    int position, long arg3) {
-                if (null != images && !images.isEmpty()){
-                    Intent intent = new Intent(MainActivity.this, SingleImageView.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("imageURI", images.get(position));
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-                }
+
+        gallery.setOnItemClickListener((arg0, arg1, position, arg3) -> {
+            if (null != images && !images.isEmpty()){
+                Intent intent = new Intent(MainActivity.this, SingleImageView.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("imageURI", images.get(position));
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
 
@@ -155,7 +185,7 @@ public class MainActivity extends Activity {
                         String thisTitle = cursor.getString(titleColumn);
                         // ...process entry...
                         String pathGot = cursor.getString(dataColumnIndex);
-                        Log.i("NOTI", pathGot);
+//                        Log.i("NOTI", pathGot);
                         arrPath.add(pathGot);
                         i++;
                     } while (cursor.moveToNext() && i < 20);

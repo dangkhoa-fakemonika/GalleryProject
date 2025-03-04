@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -20,25 +21,16 @@ public class SingleImageView extends Activity {
     private Button backButton;
     private String imageURI;
     private Button addDummyAlbum;
+    private EditText albumName;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
 
-        SharedPreferences albums = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
-        if (albums != null && !albums.contains("dummy")){
-            Log.i("SP check", "bad");
-            SharedPreferences.Editor editor = albums.edit();
-            editor.putStringSet("dummy", new HashSet<>());
-            editor.apply();
-        }
-        else {
-            Log.i("SP check", "good");
-        }
-
         imgView = (ImageView) findViewById(R.id.imageView);
         backButton = (Button) findViewById(R.id.backButton);
         addDummyAlbum = (Button) findViewById(R.id.addAlbum);
+        albumName = (EditText) findViewById(R.id.albumNameAdd);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -48,17 +40,52 @@ public class SingleImageView extends Activity {
             startActivity(intent);
         });
 
-        addDummyAlbum.setOnClickListener((l) -> {
-            if (albums == null)
-                return;
-            SharedPreferences.Editor editor2 = albums.edit();
-            HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet("dummy", null)));
-            hashSet.add(imageURI);
-            editor2.putStringSet("dummy", hashSet);
-            hashSet.forEach((i) -> {Log.i("SP check", i);});
+        SharedPreferences collectiveData = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
+        if (collectiveData != null && !collectiveData.contains("albums_list")){
+            Log.i("SP check", "bad");
+            SharedPreferences.Editor editor = collectiveData.edit();
+            HashSet<String> test = new HashSet<>();
+            test.add("actual dummy");
 
+            editor.putStringSet("albums_list", test);
+
+            editor.apply();
+
+        }
+        else {
+            Log.i("SP check", "good");
+        }
+
+        addDummyAlbum.setOnClickListener((l) -> {
+
+            String albumNameGot = albumName.getText().toString();
+            SharedPreferences albumSet = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
+
+            if (!albumSet.contains(albumNameGot)){
+                SharedPreferences.Editor editor2 = albumSet.edit();
+                HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albumSet.getStringSet("albums_list", null)));
+                hashSet.add(albumNameGot);
+                editor2.putStringSet("albums_list", hashSet);
+                editor2.apply();
+
+                SharedPreferences albumNew = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
+                SharedPreferences.Editor editor1 = albumNew.edit();
+                editor1.putStringSet(albumNameGot, new HashSet<>());
+                editor1.apply();
+            }
+            else {
+                Log.i("SP check", "good");
+            }
+
+            SharedPreferences albums = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor2 = albums.edit();
+            HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet(albumNameGot, null)));
+            hashSet.add(imageURI);
+            editor2.putStringSet(albumNameGot, hashSet);
             editor2.apply();
-            Toast.makeText(this, "added " + imageURI + " to dummy", Toast.LENGTH_SHORT).show();
+
+            albumName.setText("");
+            Toast.makeText(this, "added " + imageURI + " to " + albumNameGot, Toast.LENGTH_SHORT).show();
         });
 
         if (gotBundle == null)

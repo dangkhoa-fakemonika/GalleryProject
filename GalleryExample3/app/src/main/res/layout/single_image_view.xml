@@ -27,7 +27,15 @@
             android:id="@+id/addAlbum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add to Dummy Album" />
+            android:text="Add Album" />
+
+        <EditText
+            android:id="@+id/albumNameAdd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Album Name"
+            android:inputType="text" />
 
     </LinearLayout>
 
