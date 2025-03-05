@@ -52,20 +52,15 @@ public class MainActivity extends Activity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
         }
 
+        // collective_data -> Map name
+        // albums_list -> key
         SharedPreferences albums = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
         if (albums != null && !albums.contains("albums_list")){
-            Log.i("SP check", "bad");
             SharedPreferences.Editor editor = albums.edit();
+            // test HashSet -> value
             HashSet<String> test = new HashSet<>();
-            test.add("actual dummy");
-
             editor.putStringSet("albums_list", test);
-
             editor.apply();
-
-        }
-        else {
-            Log.i("SP check", "good");
         }
 
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
@@ -120,7 +115,6 @@ public class MainActivity extends Activity {
      * The Class ImageAdapter.
      */
     private class ImageAdapter extends BaseAdapter {
-
         private Activity context;
         public ImageAdapter(Activity localContext) {
             context = localContext;
@@ -188,7 +182,7 @@ public class MainActivity extends Activity {
 //                        Log.i("NOTI", pathGot);
                         arrPath.add(pathGot);
                         i++;
-                    } while (cursor.moveToNext() && i < 20);
+                    } while (cursor.moveToNext() && i < 20); // Load limit
                 }
             }
 

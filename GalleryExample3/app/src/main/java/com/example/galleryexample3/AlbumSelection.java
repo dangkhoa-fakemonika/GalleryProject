@@ -31,13 +31,9 @@ public class AlbumSelection extends Activity {
         HashSet<String> hashSet = new HashSet<>();
         SharedPreferences albums = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
         if (albums != null && !albums.contains("albums_list")){
-            Log.i("SP check", "bad");
             SharedPreferences.Editor editor = albums.edit();
             editor.putStringSet("albums_list", new HashSet<>());
             editor.apply();
-        }
-        else {
-            Log.i("SP check", "good");
         }
 
         if (albums != null)

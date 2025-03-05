@@ -40,13 +40,13 @@ public class SingleImageView extends Activity {
             startActivity(intent);
         });
 
+
+
         SharedPreferences collectiveData = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
         if (collectiveData != null && !collectiveData.contains("albums_list")){
             Log.i("SP check", "bad");
             SharedPreferences.Editor editor = collectiveData.edit();
             HashSet<String> test = new HashSet<>();
-            test.add("actual dummy");
-
             editor.putStringSet("albums_list", test);
 
             editor.apply();
@@ -59,27 +59,35 @@ public class SingleImageView extends Activity {
         addDummyAlbum.setOnClickListener((l) -> {
 
             String albumNameGot = albumName.getText().toString();
+
+            // Find the list of albums
             SharedPreferences albumSet = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = albumSet.edit();
+            HashSet<String> temp;
 
-            if (!albumSet.contains(albumNameGot)){
-                SharedPreferences.Editor editor2 = albumSet.edit();
-                HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albumSet.getStringSet("albums_list", null)));
-                hashSet.add(albumNameGot);
-                editor2.putStringSet("albums_list", hashSet);
-                editor2.apply();
-
-                SharedPreferences albumNew = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
-                SharedPreferences.Editor editor1 = albumNew.edit();
-                editor1.putStringSet(albumNameGot, new HashSet<>());
-                editor1.apply();
+            if (albumSet.contains("albums_list")){
+                temp = new HashSet<>(Objects.requireNonNull(albumSet.getStringSet("albums_list", null)));
             }
             else {
-                Log.i("SP check", "good");
+                temp = new HashSet<>();
             }
+
+            temp.add(albumNameGot);
+            editor.putStringSet("albums_list", temp);
+            editor.apply();
 
             SharedPreferences albums = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
             SharedPreferences.Editor editor2 = albums.edit();
-            HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet(albumNameGot, null)));
+            HashSet<String> hashSet;
+
+            // Find list of images in the albums
+            if (albums.contains(albumNameGot)){
+                hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet(albumNameGot, null)));
+            }
+            else {
+                hashSet = new HashSet<>();
+            }
+
             hashSet.add(imageURI);
             editor2.putStringSet(albumNameGot, hashSet);
             editor2.apply();
