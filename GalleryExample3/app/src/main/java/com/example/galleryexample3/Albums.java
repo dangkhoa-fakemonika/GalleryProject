@@ -1,15 +1,9 @@
 package com.example.galleryexample3;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,10 +17,9 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
+import com.example.galleryexample3.datamanagement.AlbumsController;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Objects;
 
 public class Albums extends Activity {
     /** The images. */
@@ -34,6 +27,8 @@ public class Albums extends Activity {
     final int PICK_FROM_GALLERY = 101;
     private EditText rowNum;
     private Button changeRows;
+
+    private AlbumsController albumsController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +43,10 @@ public class Albums extends Activity {
         rowNum = (EditText) findViewById(R.id.rowNum);
         changeRows = (Button) findViewById(R.id.changeRowButton);
 
+        albumsController = new AlbumsController(this);
+
         gallery.setAdapter(new ImageAdapter(this));
+
 
         // Change columns of the thing (not restricted yet)
         changeRows.setOnClickListener((l) -> {
@@ -119,17 +117,11 @@ public class Albums extends Activity {
         private ArrayList<String> getAllShownImagesPath(Activity activity) {
             ArrayList<String> arrPath = new ArrayList<>();
 
-            SharedPreferences albums = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
-            if (albums == null)
-                return arrPath;
-
             Intent gotIntent = getIntent();
             Bundle gotBundle = gotIntent.getExtras();
             if (gotBundle != null){
                 String getAlbumName = gotBundle.getString("albumSavedName");
-                HashSet<String> hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet(getAlbumName, null)));
-
-                arrPath.addAll(hashSet);
+                arrPath.addAll(albumsController.getImagesInAlbums(getAlbumName));
             }
             return arrPath;
         }

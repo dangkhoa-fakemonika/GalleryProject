@@ -2,76 +2,64 @@ package com.example.galleryexample3;
 
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Objects;
 
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.CallLog;
 import android.provider.MediaStore;
-import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import com.bumptech.glide.Glide;
+import com.example.galleryexample3.datamanagement.AlbumsController;
 
 public class MainActivity extends Activity {
 
-    /** The images. */
     private ArrayList<String> images;
-    final int PICK_FROM_GALLERY = 101;
     private EditText rowNum;
     private Button changeRows;
     private Button goAlbums;
     private Button clearData;
+
+    final int PICK_FROM_GALLERY = 101; // This could be any non-0 number lol
+    final int NUM_IMAGE_LOAD_LIMIT = 20; // Number of images per load
+
+    private AlbumsController albumsController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set permission to get images
         if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
         }
 
-        // collective_data -> Map name
-        // albums_list -> key
-        SharedPreferences albums = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
-        if (albums != null && !albums.contains("albums_list")){
-            SharedPreferences.Editor editor = albums.edit();
-            // test HashSet -> value
-            HashSet<String> test = new HashSet<>();
-            editor.putStringSet("albums_list", test);
-            editor.apply();
-        }
+        albumsController = new AlbumsController(this);
 
+        // Element assignment
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
         rowNum = (EditText) findViewById(R.id.rowNum);
         changeRows = (Button) findViewById(R.id.changeRowButton);
         goAlbums = (Button) findViewById(R.id.gotoAlbums);
         clearData = (Button) findViewById(R.id.clearData);
 
-        gallery.setAdapter(new ImageAdapter(this));
+        // Load adapter
+        gallery.setAdapter(new ImageAdapter(this, NUM_IMAGE_LOAD_LIMIT));
 
-        // Change columns of the thing (not restricted yet)
+        // Change number of columns of grid view (no restriction of data types)
         changeRows.setOnClickListener((l) -> {
             String val = String.valueOf(rowNum.getText());
             int numVal = Integer.parseInt(val);
@@ -84,21 +72,13 @@ public class MainActivity extends Activity {
             startActivity(intent);
         });
 
+
+        // Clear all data
         clearData.setOnClickListener((l) ->{
-            if (albums != null){
-                SharedPreferences.Editor editor = albums.edit();
-                editor.clear();
-                editor.apply();
-            }
-            SharedPreferences albumEditor = getSharedPreferences("dummy", Activity.MODE_PRIVATE);
-            if (albumEditor != null){
-                SharedPreferences.Editor editor = albumEditor.edit();
-                editor.clear();
-                editor.apply();
-            }
+            albumsController.clearData();
         });
 
-
+        // Single image view
         gallery.setOnItemClickListener((arg0, arg1, position, arg3) -> {
             if (null != images && !images.isEmpty()){
                 Intent intent = new Intent(MainActivity.this, SingleImageView.class);
@@ -111,15 +91,12 @@ public class MainActivity extends Activity {
 
     }
 
-    /**
-     * The Class ImageAdapter.
-     */
     private class ImageAdapter extends BaseAdapter {
-        private Activity context;
-        public ImageAdapter(Activity localContext) {
+        private final Activity context;
+
+        public ImageAdapter(Activity localContext, int setLoadLimit) {
             context = localContext;
-            images = getAllShownImagesPath(context);
-//            images = new ArrayList<String>();
+            images = getAllShownImagesPath(context, setLoadLimit);
         }
 
         public int getCount() {
@@ -154,7 +131,8 @@ public class MainActivity extends Activity {
             return picturesView;
         }
 
-        private ArrayList<String> getAllShownImagesPath(Activity activity) {
+
+        private ArrayList<String> getAllShownImagesPath(Activity activity, int loadLimit) {
             ArrayList<String> arrPath = new ArrayList<>();
 
             ContentResolver contentResolver = getContentResolver();
@@ -165,24 +143,24 @@ public class MainActivity extends Activity {
 
             try (Cursor cursor = contentResolver.query(uri, null, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")){
                 if (cursor == null) {
-                    // query failed, handle error.
+                    // query failed, handle error
                 } else if (!cursor.moveToFirst()) {
                     // no media on the device
                 } else {
                     int i = 0;
-                    int titleColumn = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
-                    int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+//                    How to set attribute of
+//                    int titleColumn = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
+//                    int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
                     int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 
                     do {
-                        long thisId = cursor.getLong(idColumn);
-                        String thisTitle = cursor.getString(titleColumn);
-                        // ...process entry...
+//                        How to get attributes
+//                        long thisId = cursor.getLong(idColumn);
+//                        String thisTitle = cursor.getString(titleColumn);
                         String pathGot = cursor.getString(dataColumnIndex);
-//                        Log.i("NOTI", pathGot);
                         arrPath.add(pathGot);
                         i++;
-                    } while (cursor.moveToNext() && i < 20); // Load limit
+                    } while (cursor.moveToNext() && i < loadLimit); // Load limit
                 }
             }
 
