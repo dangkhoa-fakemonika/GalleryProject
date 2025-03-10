@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.example.galleryexample3.datamanagement.AlbumsController;
 
 public class SingleImageView extends Activity {
@@ -58,6 +59,8 @@ public class SingleImageView extends Activity {
 
         // Set image
         imageURI = gotBundle.getString("imageURI");
-        imgView.setImageURI(Uri.parse(imageURI));
+        Glide.with(this).load(imageURI)
+                .placeholder(R.drawable.uoh).centerCrop()
+                .into(imgView);
     }
 }

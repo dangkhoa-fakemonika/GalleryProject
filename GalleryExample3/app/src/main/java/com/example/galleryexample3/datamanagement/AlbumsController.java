@@ -2,6 +2,7 @@ package com.example.galleryexample3.datamanagement;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import androidx.annotation.NonNull;

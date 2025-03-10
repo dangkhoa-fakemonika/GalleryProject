@@ -42,7 +42,7 @@
         <GridView
             android:id="@+id/galleryGridView"
             android:layout_width="match_parent"
-            android:layout_height="550dp"
+            android:layout_height="423dp"
             android:columnWidth="280dp"
             android:gravity="center"
             android:horizontalSpacing="2dp"
@@ -52,6 +52,36 @@
             android:verticalSpacing="2dp">
 
         </GridView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/previousPage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Previous" />
+
+            <TextView
+                android:id="@+id/pageNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Page 1"
+                android:textAlignment="center"
+                android:textSize="24sp" />
+
+            <Button
+                android:id="@+id/nextPage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Next" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/gotoAlbums"
@@ -64,6 +94,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Clear Data" />
+
     </LinearLayout>
 
 </RelativeLayout>

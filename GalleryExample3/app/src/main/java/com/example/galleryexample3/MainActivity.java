@@ -1,6 +1,7 @@
 package com.example.galleryexample3;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,14 +12,19 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import com.bumptech.glide.Glide;
@@ -28,14 +34,26 @@ public class MainActivity extends Activity {
 
     private ArrayList<String> images;
     private EditText rowNum;
-    private Button changeRows;
+    private Button changeColumns;
     private Button goAlbums;
     private Button clearData;
+    private Button previousPage;
+    private Button nextPage;
+    private TextView pageNumber;
+
+    private ImageAdapter imageAdapter;
 
     final int PICK_FROM_GALLERY = 101; // This could be any non-0 number lol
-    final int NUM_IMAGE_LOAD_LIMIT = 20; // Number of images per load
+    final int NUM_IMAGE_LOAD_LIMIT = 20;
+
+    int SCREEN_WIDTH = 1; // Number of images per load
+    int SCREEN_HEIGHT = 1;
+
+    private ScaleGestureDetector mScaleDetector;
+    private float mScaleFactor = 1.f;
 
     private AlbumsController albumsController;
+    private int pageNum = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,19 +70,34 @@ public class MainActivity extends Activity {
         // Element assignment
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
         rowNum = (EditText) findViewById(R.id.rowNum);
-        changeRows = (Button) findViewById(R.id.changeRowButton);
+        changeColumns = (Button) findViewById(R.id.changeRowButton);
         goAlbums = (Button) findViewById(R.id.gotoAlbums);
         clearData = (Button) findViewById(R.id.clearData);
+        previousPage = (Button) findViewById(R.id.previousPage);
+        nextPage = (Button) findViewById(R.id.nextPage);
+        pageNumber = (TextView) findViewById(R.id.pageNumber);
+
+        WindowManager mWinMgr = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        SCREEN_WIDTH = displaymetrics.widthPixels;
+        SCREEN_HEIGHT = displaymetrics.heightPixels;
 
         // Load adapter
-        gallery.setAdapter(new ImageAdapter(this, NUM_IMAGE_LOAD_LIMIT));
+
+
+        imageAdapter = new ImageAdapter(this, NUM_IMAGE_LOAD_LIMIT);
+        gallery.setAdapter(imageAdapter);
+        mScaleDetector = new ScaleGestureDetector(gallery.getContext(), new ScaleListener(imageAdapter, gallery));
+
 
         // Change number of columns of grid view (no restriction of data types)
-        changeRows.setOnClickListener((l) -> {
+        changeColumns.setOnClickListener((l) -> {
             String val = String.valueOf(rowNum.getText());
             int numVal = Integer.parseInt(val);
 
             gallery.setNumColumns(numVal);
+            imageAdapter.setColumns(numVal);
         });
 
         goAlbums.setOnClickListener((l) ->{
@@ -72,6 +105,19 @@ public class MainActivity extends Activity {
             startActivity(intent);
         });
 
+        previousPage.setOnClickListener((l) -> {
+            pageNum = (pageNum > 0) ? pageNum - 1 : pageNum;
+            pageNumber.setText("Page " + (pageNum + 1));
+            imageAdapter.setPage(pageNum);
+            imageAdapter.notifyDataSetChanged();
+        });
+
+        nextPage.setOnClickListener((l) -> {
+            pageNum = (pageNum < imageAdapter.getMaxPage()) ? pageNum + 1 : pageNum;
+            pageNumber.setText("Page " + (pageNum + 1));
+            imageAdapter.setPage(pageNum);
+            imageAdapter.notifyDataSetChanged();
+        });
 
         // Clear all data
         clearData.setOnClickListener((l) ->{
@@ -91,16 +137,50 @@ public class MainActivity extends Activity {
 
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        // Let the ScaleGestureDetector inspect all events.
+        mScaleDetector.onTouchEvent(ev);
+        return true;
+    }
+
+
     private class ImageAdapter extends BaseAdapter {
         private final Activity context;
+        private int columns;
+        private int page;
+        private final int maxPage;
+        private final int loadLimit;
+
+        private ArrayList<String> pageImages;
 
         public ImageAdapter(Activity localContext, int setLoadLimit) {
             context = localContext;
-            images = getAllShownImagesPath(context, setLoadLimit);
+            images = getAllShownImagesPath(context);
+            columns = 2;
+            page = 0;
+            maxPage = images.size() / setLoadLimit;
+            loadLimit = setLoadLimit;
+        }
+
+        public void setColumns(int columns) {
+            this.columns = columns;
+        }
+
+        public void setPage(int page) {
+            this.page = page;
+        }
+
+        public int getMaxPage() {
+            return maxPage;
+        }
+
+        public int getColumns() {
+            return columns;
         }
 
         public int getCount() {
-            return images.size();
+            return loadLimit;
         }
 
         public Object getItem(int position) {
@@ -117,14 +197,17 @@ public class MainActivity extends Activity {
             if (convertView == null) {
                 picturesView = new ImageView(context);
                 picturesView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
                 picturesView
-                        .setLayoutParams(new GridView.LayoutParams(360, 360));
+                        .setLayoutParams(new GridView.LayoutParams(SCREEN_WIDTH / columns, SCREEN_WIDTH / columns));
 
             } else {
                 picturesView = (ImageView) convertView;
             }
 
-            Glide.with(context).load(images.get(position))
+            pageImages = new ArrayList<>(images.subList(page * loadLimit, Math.min((page + 1) * loadLimit, images.size())));
+
+            Glide.with(context).load(pageImages.get(position))
                     .placeholder(R.drawable.uoh).centerCrop()
                     .into(picturesView);
 
@@ -132,7 +215,7 @@ public class MainActivity extends Activity {
         }
 
 
-        private ArrayList<String> getAllShownImagesPath(Activity activity, int loadLimit) {
+        private ArrayList<String> getAllShownImagesPath(Activity activity) {
             ArrayList<String> arrPath = new ArrayList<>();
 
             ContentResolver contentResolver = getContentResolver();
@@ -152,7 +235,6 @@ public class MainActivity extends Activity {
 //                    int titleColumn = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
 //                    int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
                     int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-
                     do {
 //                        How to get attributes
 //                        long thisId = cursor.getLong(idColumn);
@@ -160,11 +242,39 @@ public class MainActivity extends Activity {
                         String pathGot = cursor.getString(dataColumnIndex);
                         arrPath.add(pathGot);
                         i++;
-                    } while (cursor.moveToNext() && i < loadLimit); // Load limit
+                    } while (cursor.moveToNext()); // Load limit
                 }
             }
 
             return arrPath;
+        }
+    }
+
+    private static class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+
+        private final ImageAdapter imageAdapter;
+        private final GridView gridView;
+
+        public ScaleListener(ImageAdapter imageAdapter, GridView gridView){
+            super();
+            this.imageAdapter = imageAdapter;
+            this.gridView = gridView;
+        }
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            int col = imageAdapter.getColumns();
+            Log.i("SCALE", "" + detector.getScaleFactor());
+
+            if (detector.getScaleFactor() < 0.98f && col > 2)
+                col--;
+            else if (detector.getScaleFactor() > 1.02f && col < 6)
+                col++;
+
+            imageAdapter.setColumns(col);
+            gridView.setNumColumns(col);
+
+            return true;
         }
     }
 }
