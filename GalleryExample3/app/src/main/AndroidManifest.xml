@@ -27,8 +27,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".SingleImageView" android:exported="true"/>
-        <activity android:name=".Albums" android:exported="true"/>
+        <activity android:name=".AlbumDisplay" android:exported="true"/>
         <activity android:name=".AlbumSelection" android:exported="true"/>
+        <activity android:name=".imageediting.ImageFilters" android:exported="true"/>
+
     </application>
 
 

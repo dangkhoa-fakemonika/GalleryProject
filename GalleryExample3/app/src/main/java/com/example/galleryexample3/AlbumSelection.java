@@ -45,7 +45,7 @@ public class AlbumSelection extends Activity {
         theListView.setAdapter(new ArrayAdapter<>(this, R.layout.album_item_view, R.id.textView2, sArray));
 
         theListView.setOnItemClickListener((arg0, arg1, position, arg3) ->{
-            Intent intent = new Intent(AlbumSelection.this, Albums.class);
+            Intent intent = new Intent(AlbumSelection.this, AlbumDisplay.class);
             Bundle bundle = new Bundle();
             bundle.putString("albumSavedName", (String) sArray[position]);
             intent.putExtras(bundle);

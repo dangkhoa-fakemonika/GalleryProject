@@ -58,6 +58,12 @@
             android:hint="Add tag"
             android:inputType="text" />
 
+        <Button
+            android:id="@+id/filterButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Apply Filter" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

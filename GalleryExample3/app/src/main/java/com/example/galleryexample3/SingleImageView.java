@@ -13,11 +13,13 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.example.galleryexample3.datamanagement.AlbumsController;
+import com.example.galleryexample3.imageediting.ImageFilters;
 
 public class SingleImageView extends Activity {
     private String imageURI;
     private EditText albumName;
     private EditText tagName;
+
 
     private AlbumsController albumsController;
 
@@ -33,6 +35,7 @@ public class SingleImageView extends Activity {
         albumName = (EditText) findViewById(R.id.albumNameAdd);
         Button addDummyTag = (Button) findViewById(R.id.addTagButton);
         tagName = (EditText) findViewById(R.id.tagAdd);
+        Button filterButton = (Button) findViewById(R.id.filterButton);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -52,6 +55,15 @@ public class SingleImageView extends Activity {
             Toast.makeText(this, "added " + imageURI + " to " + albumNameGot, Toast.LENGTH_SHORT).show();
         });
 
+        filterButton.setOnClickListener((l) -> {
+            Intent intent = new Intent(SingleImageView.this, ImageFilters.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("imageURI", imageURI);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
+
+
 
         // Image null so won't load
         if (gotBundle == null)
@@ -62,5 +74,7 @@ public class SingleImageView extends Activity {
         Glide.with(this).load(imageURI)
                 .placeholder(R.drawable.uoh).centerCrop()
                 .into(imgView);
+
+
     }
 }
