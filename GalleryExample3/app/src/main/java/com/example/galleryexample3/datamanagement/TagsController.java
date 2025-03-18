@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import java.util.HashSet;
 import java.util.Objects;
 
+@Deprecated
 public class TagsController {
     SharedPreferences collectiveData;
     SharedPreferences tagData;

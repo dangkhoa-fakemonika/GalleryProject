@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
+import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.datamanagement.AlbumsController;
 import com.example.galleryexample3.userinterface.ImageBaseAdapter;
 import com.example.galleryexample3.userinterface.ScaleListener;
@@ -30,7 +31,6 @@ public class AlbumDisplay extends Activity {
     private Button nextPage;
     private TextView pageNumber;
 
-    private AlbumsController albumsController;
     private ScaleGestureDetector mScaleDetector;
 
     final int PICK_FROM_GALLERY = 101; // This could be any non-0 number lol
@@ -57,14 +57,16 @@ public class AlbumDisplay extends Activity {
         nextPage = (Button) findViewById(R.id.nextPage);
         pageNumber = (TextView) findViewById(R.id.pageNumber);
 
-        albumsController = new AlbumsController(this);
+        DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
         ArrayList<String> albumImages = new ArrayList<>();
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
+
+
         if (gotBundle != null){
             String getAlbumName = gotBundle.getString("albumSavedName");
-            albumImages.addAll(albumsController.getImagesInAlbums(getAlbumName));
+            albumImages.addAll(databaseHandler.albums().getImagesOfAlbum(getAlbumName));
         }
 
         imageAdapter = new ImageBaseAdapter(this, 20, albumImages);

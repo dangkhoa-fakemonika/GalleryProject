@@ -31,24 +31,10 @@
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/addAlbum"
+            android:id="@+id/filterButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Album" />
-
-        <EditText
-            android:id="@+id/albumNameAdd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Album Name"
-            android:inputType="text" />
-
-        <Button
-            android:id="@+id/addTagButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Tag" />
+            android:text="Apply Filter" />
 
         <EditText
             android:id="@+id/tagAdd"
@@ -59,10 +45,24 @@
             android:inputType="text" />
 
         <Button
-            android:id="@+id/filterButton"
+            android:id="@+id/addTagButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Apply Filter" />
+            android:text="Add Tag" />
+
+        <EditText
+            android:id="@+id/albumNameAdd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Album Name"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/addAlbum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Album" />
 
     </LinearLayout>
 

@@ -11,15 +11,32 @@
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="1dp">
 
+        <ListView
+            android:id="@+id/albumListView"
+            android:layout_width="match_parent"
+            android:layout_height="510dp">
+
+        </ListView>
+
+        <Button
+            android:id="@+id/newAlbum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Album" />
+
+        <EditText
+            android:id="@+id/albumeNameText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Name"
+            android:inputType="text" />
+
         <Button
             android:id="@+id/goBackButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Back" />
 
-        <ListView
-            android:id="@+id/albumListView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

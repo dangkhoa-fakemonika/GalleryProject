@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -89,8 +87,10 @@ public class ImageFilters extends Activity {
                     FileOutputStream out = new FileOutputStream(tempFile.getAbsolutePath());
                     displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
                     // PNG is a lossless format, the compression factor (100) is ignored
+                    out.close();
                     Toast.makeText(this, "New file created: " + tempFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
+                    Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             }

@@ -5,14 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.datamanagement.AlbumsController;
 
 
 public class AlbumSelection extends Activity {
-
-    AlbumsController albumsController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -20,27 +21,24 @@ public class AlbumSelection extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_list_activity);
         Button backButton = (Button) findViewById(R.id.goBackButton);
+        Button addAlbum = (Button) findViewById(R.id.newAlbum);
+        EditText albumNameText = (EditText) findViewById(R.id.albumeNameText);
 
+        DatabaseHandler databaseHandler = new DatabaseHandler(this);
         backButton.setOnClickListener((l) ->{
             Intent intent = new Intent(AlbumSelection.this, MainActivity.class);
             startActivity(intent);
         });
 
-        albumsController = new AlbumsController(this);
+        addAlbum.setOnClickListener((l) -> {
+            String temp = albumNameText.getText().toString();
+            databaseHandler.albums().createAlbum(temp);
+            Toast.makeText(this, "Album created: " + temp, Toast.LENGTH_SHORT).show();
+            albumNameText.setText("");
+        });
 
-//
-//        HashSet<String> hashSet = new HashSet<>();
-//        SharedPreferences albums = getSharedPreferences("collective_data", Activity.MODE_PRIVATE);
-//        if (albums != null && !albums.contains("albums_list")){
-//            SharedPreferences.Editor editor = albums.edit();
-//            editor.putStringSet("albums_list", new HashSet<>());
-//            editor.apply();
-//        }
 
-//        if (albums != null)
-//             hashSet = new HashSet<>(Objects.requireNonNull(albums.getStringSet("albums_list", null)));
-
-        Object[] sArray =  albumsController.getAllAlbums().toArray();
+        Object[] sArray = databaseHandler.albums().getAllAlbums().toArray();
         ListView theListView = (ListView) findViewById(R.id.albumListView);
         theListView.setAdapter(new ArrayAdapter<>(this, R.layout.album_item_view, R.id.textView2, sArray));
 
