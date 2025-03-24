@@ -64,6 +64,12 @@
             android:layout_height="wrap_content"
             android:text="Add Album" />
 
+        <Button
+            android:id="@+id/scanText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Scan Text" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

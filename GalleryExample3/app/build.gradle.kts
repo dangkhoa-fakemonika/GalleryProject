@@ -42,4 +42,14 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.glide)
     annotationProcessor(libs.compiler)
+
+    // Text rec
+    implementation(libs.text.recognition)
+    implementation(libs.mlkit.text.recognition.chinese)
+    implementation(libs.text.recognition.devanagari)
+    implementation(libs.text.recognition.japanese)
+    implementation(libs.text.recognition.korean)
+
+    // Tag sorting
+    implementation(libs.mlkit.image.labeling)
 }

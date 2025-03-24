@@ -17,6 +17,8 @@ import com.bumptech.glide.Glide;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.datamanagement.AlbumsController;
 import com.example.galleryexample3.imageediting.ImageFilters;
+import com.example.galleryexample3.imageediting.TagAnalyzerClass;
+import com.example.galleryexample3.imageediting.TextRecognitionClass;
 
 public class SingleImageView extends Activity {
     private String imageURI;
@@ -37,9 +39,13 @@ public class SingleImageView extends Activity {
         tagName = (EditText) findViewById(R.id.tagAdd);
         TextView tagTextView = (TextView) findViewById(R.id.tagTextView);
         Button filterButton = (Button) findViewById(R.id.filterButton);
+        Button scanText = (Button) findViewById(R.id.scanText);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
+
+        TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
+        TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
 
         backButton.setOnClickListener((l) ->{
             Intent intent = new Intent(SingleImageView.this, MainActivity.class);
@@ -87,6 +93,10 @@ public class SingleImageView extends Activity {
             startActivity(intent);
         });
 
+        scanText.setOnClickListener((l) -> {
+//            textRecognitionClass.getTextFromImage(this, imageURI);
+            tagAnalyzerClass.getTags(this, imageURI);
+        });
 
 
         Glide.with(this).load(imageURI)
