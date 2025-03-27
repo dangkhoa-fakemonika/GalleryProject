@@ -20,6 +20,8 @@ import com.example.galleryexample3.imageediting.ImageFilters;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
 
+import java.util.List;
+
 public class SingleImageView extends Activity {
     private String imageURI;
     private EditText albumName;

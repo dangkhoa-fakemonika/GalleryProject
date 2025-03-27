@@ -65,21 +65,13 @@ public class ImageFilters extends Activity {
         });
 
         saveButton.setOnClickListener((l) -> {
+
             String[] temp = imageURI.split("/");
             String path = "";
             for (int i = 0; i < temp.length - 1; i ++){
                 path += "/" + temp[i];
             }
 
-
-//            String[] temp2 = temp[temp.length - 1].split("\\.");
-//
-//            temp2[temp2.length - 2] =  "Copy_of_" + temp2[temp2.length - 2];
-//            String finalName = String.join(".", temp2);
-//            temp[temp.length - 1] = finalName;
-//            String finalUri = String.join("/", temp);
-//
-//            Log.i("Test", finalUri);
 
                 try {
                     File tempFile = File.createTempFile("Copy_of_", ".png", new File(path));
@@ -123,7 +115,6 @@ public class ImageFilters extends Activity {
             pixels[i] = Color.rgb(average, average, average);
         }
 
-
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
@@ -155,4 +146,97 @@ public class ImageFilters extends Activity {
 
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
+
+    private Bitmap rotateRight(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
+
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        int[] newPixels = new int[width * height];
+
+        for (int i = 0; i < height; i++){
+            for (int j = 0; j < width; j++)
+                newPixels[j * height + (height - i - 1)] = pixels[i * width + j];
+        }
+
+        return Bitmap.createBitmap(newPixels, height, width, cf);
+    }
+
+    private Bitmap rotateLeft(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
+
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        int[] newPixels = new int[width * height];
+
+        for (int i = 0; i < height; i++){
+            for (int j = 0; j < width; j++)
+//                newPixels[j * height + (height - i - 1)] = pixels[i * width + j];
+                newPixels[j * height + i] = pixels[i * width + (width - j - 1)];
+        }
+
+        return Bitmap.createBitmap(newPixels, height, width, cf);
+    }
+
+    private Bitmap flipHorizontal(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
+
+        int[] pixels = new int[width * height];
+
+        for (int i = 0; i < height; i++){
+            for (int j = 0; j < width / 2; j++){
+                int temp = pixels[i * width + j];
+                pixels[i * width + j] = pixels[i * width + (width - j - 1)];
+                pixels[i * width + (width - j - 1)] = temp;
+            }
+        }
+
+        return Bitmap.createBitmap(pixels, width, height, cf);
+    }
+
+    private Bitmap flipVertical(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
+
+        int[] pixels = new int[width * height];
+
+        for (int i = 0; i < height / 2; i++){
+            for (int j = 0; j < width; j++){
+                int temp = pixels[i * width + j];
+                pixels[i * width + j] = pixels[(height - i - 1) * width + j];
+                pixels[(height - i - 1) * width + j] = temp;
+            }
+        }
+
+        return Bitmap.createBitmap(pixels, width, height, cf);
+    }
+
+    // TODO : Implement these methods
+    private Bitmap blurImage(){
+
+        return null;
+    }
+
+    private Bitmap sharpenImage(){
+
+        return null;
+    }
+
+    private Bitmap adjustBrightness(){
+
+        return null;
+    }
+
+    private Bitmap adjustContrast(){
+
+        return null;
+    }
+
 }
