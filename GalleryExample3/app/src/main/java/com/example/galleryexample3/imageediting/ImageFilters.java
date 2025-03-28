@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -51,7 +52,7 @@ public class ImageFilters extends Activity {
         grayscaleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                displayBitmap = applyGrayscale();
+                displayBitmap = adjustContrast();
                 imageView.setImageBitmap(displayBitmap);
             }
         });
@@ -59,7 +60,7 @@ public class ImageFilters extends Activity {
         sepiaButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                displayBitmap = applySepia();
+                displayBitmap = adjustBrightness();
                 imageView.setImageBitmap(displayBitmap);
             }
         });
@@ -220,23 +221,95 @@ public class ImageFilters extends Activity {
 
     // TODO : Implement these methods
     private Bitmap blurImage(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
 
-        return null;
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        int kernel_size = 7;
+        kernel_size = Math.max(Math.min(kernel_size, 31), 3);
+        int[] new_pixels = new int[width * height];
+        for (int y = 0; y < height; y++){
+            for (int x = 0; x < width; x++) {
+                double rSum = 0, gSum = 0, bSum = 0;
+                for (int j = -kernel_size / 2; j <= kernel_size / 2; j++) {
+                    for (int k = -kernel_size / 2; k <= kernel_size / 2; k++) {
+                        int new_x = Math.min(Math.max(x + j, 0), width - 1);
+                        int new_y = Math.min(Math.max(y + k, 0), height - 1);
+                        int color = pixels[new_y * width + new_x];
+                        rSum += Color.red(color);
+                        gSum += Color.green(color);
+                        bSum += Color.blue(color);
+                    }
+                }
+                int r = (int) Math.min(255, Math.max(0, Math.round(rSum / (kernel_size * kernel_size))));
+                int g = (int) Math.min(255, Math.max(0, Math.round(gSum / (kernel_size * kernel_size))));
+                int b = (int) Math.min(255, Math.max(0, Math.round(bSum / (kernel_size * kernel_size))));
+                new_pixels[y * width + x] = Color.rgb(r, g, b);
+                //Log.i("debug", r + " " + g + " " + b);
+            }
+        }
+
+        Log.i("debug", "blur done");
+        return Bitmap.createBitmap(new_pixels, width, height, cf);
     }
 
     private Bitmap sharpenImage(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
 
-        return null;
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        Bitmap blurredBitmap = blurImage();
+        int[] blurred = new int[width * height];
+        blurredBitmap.getPixels(blurred, 0, width, 0, 0, width, height);
+        int sharpness = 1;
+        for (int i = 0; i < width * height; i++){
+            int r = Math.min(255, Math.max(0, (Color.red(pixels[i]) - Color.red(blurred[i])) * sharpness + Color.red(pixels[i])));
+            int g = Math.min(255, Math.max(0, (Color.green(pixels[i]) - Color.green(blurred[i])) * sharpness + Color.green(pixels[i])));
+            int b = Math.min(255, Math.max(0, (Color.blue(pixels[i]) - Color.blue(blurred[i])) * sharpness + Color.blue(pixels[i])));
+            pixels[i] = Color.rgb(r, g, b);
+        }
+
+        return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
     private Bitmap adjustBrightness(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
 
-        return null;
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        double brightness = 1.5;
+        for (int i = 0; i < width * height; i++){
+            int r = (int) Math.min(255, Math.max(0, (Color.red(pixels[i]) * brightness)));
+            int g = (int) Math.min(255, Math.max(0, (Color.green(pixels[i]) * brightness)));
+            int b = (int) Math.min(255, Math.max(0, (Color.blue(pixels[i]) * brightness)));
+            pixels[i] = Color.rgb(r, g, b);
+        }
+
+        return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
     private Bitmap adjustContrast(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
 
-        return null;
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        double contrast = 1.5;
+        for (int i = 0; i < width * height; i++){
+            int r = (int) Math.min(255, Math.max(0, ((Color.red(pixels[i]) - 128) * contrast + 128)));
+            int g = (int) Math.min(255, Math.max(0, ((Color.green(pixels[i]) - 128) * contrast + 128)));
+            int b = (int) Math.min(255, Math.max(0, ((Color.blue(pixels[i]) - 128) * contrast + 128)));
+            pixels[i] = Color.rgb(r, g, b);
+        }
+
+        return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
 }
