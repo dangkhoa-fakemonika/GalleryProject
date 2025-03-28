@@ -95,6 +95,12 @@
             android:layout_height="wrap_content"
             android:text="Clear Data" />
 
+        <Button
+            android:id="@+id/useCamera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Take Image" />
+
     </LinearLayout>
 
 </RelativeLayout>

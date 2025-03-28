@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
     private Button clearData;
     private Button previousPage;
     private Button nextPage;
+    private Button useCamera;
     private TextView pageNumber;
 
     private ImageBaseAdapter imageAdapter;
@@ -50,8 +51,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         // Set permission to get images
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
+        if (this.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            this.requestPermissions(new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
         }
 
         albumsController = new AlbumsController(this);
@@ -65,6 +66,7 @@ public class MainActivity extends Activity {
         previousPage = (Button) findViewById(R.id.previousPage);
         nextPage = (Button) findViewById(R.id.nextPage);
         pageNumber = (TextView) findViewById(R.id.pageNumber);
+        useCamera = (Button) findViewById(R.id.useCamera);
 
 
         // Load adapter
@@ -108,6 +110,12 @@ public class MainActivity extends Activity {
         clearData.setOnClickListener((l) ->{
             albumsController.clearData();
         });
+
+        useCamera.setOnClickListener((l) -> {
+            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+            startActivity(intent);
+        });
+
 
         // Single image view
         gallery.setOnItemClickListener((arg0, arg1, position, arg3) -> {
