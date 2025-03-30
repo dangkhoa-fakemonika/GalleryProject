@@ -3,73 +3,119 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:paddingVertical="24dp">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/utilityLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true">
+
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:background="@android:color/transparent"
+                android:text="Back"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/dateAddedText"
+                android:text="Date Added"
+                android:textColor="@color/white"
+                android:textAlignment="center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/moreOptionButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:background="@android:color/transparent"
+                android:text="More"
+                android:textColor="@color/white"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <Button
+                android:id="@+id/editModeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:text="Edit"
+                android:textColor="@color/white"/>
+
+            <Button
+                android:id="@+id/likeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:text="Like"
+                android:textColor="@color/white"/>
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:text="Delete"
+                android:textColor="@color/white"/>
+
+            <Button
+                android:id="@+id/tagButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:text="Tag"
+                android:textColor="@color/white"/>
+
+            <Button
+                android:id="@+id/albumButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:text="Album"
+                android:textColor="@color/white"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/imageLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="10sp">
-
-        <Button
-            android:id="@+id/backButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Back" />
+        >
 
         <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="349dp"
-            android:layout_height="332dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <TextView
-            android:id="@+id/tagTextView"
+            android:id="@+id/selectedImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tags: "
-            android:textSize="24sp" />
-
-        <Button
-            android:id="@+id/filterButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Apply Filter" />
-
-        <EditText
-            android:id="@+id/tagAdd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Add tag"
-            android:inputType="text" />
-
-        <Button
-            android:id="@+id/addTagButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Tag" />
-
-        <EditText
-            android:id="@+id/albumNameAdd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Album Name"
-            android:inputType="text" />
-
-        <Button
-            android:id="@+id/addAlbum"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Album" />
-
-        <Button
-            android:id="@+id/scanText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Scan Text" />
-
-    </LinearLayout>
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            tools:ignore="ContentDescription" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,47 +1,39 @@
 package com.example.galleryexample3;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
-import com.example.galleryexample3.datamanagement.AlbumsController;
-import com.example.galleryexample3.imageediting.ImageFilters;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
-
-import java.util.List;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class SingleImageView extends Activity {
     private String imageURI;
-    private EditText albumName;
-    private EditText tagName;
-
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
 
-
-        ImageView imgView = (ImageView) findViewById(R.id.imageView);
+        ImageView imgView = (ImageView) findViewById(R.id.selectedImage);
         Button backButton = (Button) findViewById(R.id.backButton);
-        Button addAlbum = (Button) findViewById(R.id.addAlbum);
-        albumName = (EditText) findViewById(R.id.albumNameAdd);
-        Button addTag = (Button) findViewById(R.id.addTagButton);
-        tagName = (EditText) findViewById(R.id.tagAdd);
-        TextView tagTextView = (TextView) findViewById(R.id.tagTextView);
-        Button filterButton = (Button) findViewById(R.id.filterButton);
-        Button scanText = (Button) findViewById(R.id.scanText);
+        Button albumButton = (Button) findViewById(R.id.albumButton);
+        Button tagButton = (Button) findViewById(R.id.tagButton);
+        Button editModeButton = (Button) findViewById(R.id.editModeButton);
+        TextView dateAddedText = (TextView) findViewById(R.id.dateAddedText);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -49,62 +41,77 @@ public class SingleImageView extends Activity {
         TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
         TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
 
-        backButton.setOnClickListener((l) ->{
+        backButton.setOnClickListener((l) -> {
             Intent intent = new Intent(SingleImageView.this, MainActivity.class);
             startActivity(intent);
         });
 
+        tagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.one_field_dialog_layout, null);
+                TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
+                TextInputEditText editText = dialogView.findViewById(R.id.editText);
+                inputTextLayout.setHint("Enter Tag Name");
+                AlertDialog alertDialog = new AlertDialog.Builder(SingleImageView.this)
+                        .setTitle("Add Tag")
+                        .setView(dialogView)
+                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String tagName = editText.getText().toString();
+                                Log.i("TAG", tagName);
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Log.i("TAG", "Cancel");
+                                dialogInterface.dismiss();
+                            }
+                        }).create();
+                alertDialog.show();
+            }
+        });
 
-        // Image null so won't load
+        albumButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.one_field_dialog_layout, null);
+                TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
+                TextInputEditText editText = dialogView.findViewById(R.id.editText);
+                inputTextLayout.setHint("Enter Album Name");
+                AlertDialog alertDialog = new AlertDialog.Builder(SingleImageView.this)
+                        .setTitle("Add Album")
+                        .setView(dialogView)
+                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String albumName = editText.getText().toString();
+                                Log.i("ALBUM", albumName);
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Log.i("ALBUM", "Cancel");
+                                dialogInterface.dismiss();
+                            }
+                        }).create();
+                alertDialog.show();
+            }
+        });
+
         if (gotBundle == null)
             return;
 
-        // Set image
         imageURI = gotBundle.getString("imageURI");
-
         DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
-        StringBuilder tagList = new StringBuilder("Tags: ");
-        databaseHandler.tags().getTagsOfImage(imageURI).forEach((i) -> {tagList.append(i).append(" ");});
-        tagTextView.setText(tagList.toString());
-
-        addAlbum.setOnClickListener((l) -> {
-            String albumNameGot = albumName.getText().toString();
-            databaseHandler.albums().addImageToAlbum(albumNameGot, imageURI);
-            albumName.setText("");
-            Toast.makeText(this, "added " + imageURI + " to " + albumNameGot, Toast.LENGTH_SHORT).show();
-        });
-
-        addTag.setOnClickListener((l) -> {
-            String tagNameGot = tagName.getText().toString();
-            databaseHandler.tags().addTagsToImage(tagNameGot, imageURI);
-            tagName.setText("");
-
-            StringBuilder newTagList = new StringBuilder("Tags: ");
-            databaseHandler.tags().getTagsOfImage(imageURI).forEach((i) -> {Log.i("TAG CHECK", i); newTagList.append(i).append(" ");});
-            tagTextView.setText(newTagList.toString());
-
-            Toast.makeText(this, "added tag " + tagNameGot, Toast.LENGTH_SHORT).show();
-        });
-
-        filterButton.setOnClickListener((l) -> {
-            Intent intent = new Intent(SingleImageView.this, ImageFilters.class);
-            Bundle bundle = new Bundle();
-            bundle.putString("imageURI", imageURI);
-            intent.putExtras(bundle);
-            startActivity(intent);
-        });
-
-        scanText.setOnClickListener((l) -> {
-//            textRecognitionClass.getTextFromImage(this, imageURI);
-            tagAnalyzerClass.getTags(this, imageURI);
-        });
-
-
         Glide.with(this).load(imageURI)
-                .placeholder(R.drawable.uoh).centerCrop()
+                .placeholder(R.drawable.uoh)
                 .into(imgView);
-
-
     }
 }

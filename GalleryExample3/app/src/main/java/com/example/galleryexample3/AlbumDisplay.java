@@ -16,7 +16,6 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
-import com.example.galleryexample3.datamanagement.AlbumsController;
 import com.example.galleryexample3.userinterface.ImageBaseAdapter;
 import com.example.galleryexample3.userinterface.ScaleListener;
 
