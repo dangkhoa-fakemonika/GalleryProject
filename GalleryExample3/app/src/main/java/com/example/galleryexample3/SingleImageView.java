@@ -1,5 +1,8 @@
 package com.example.galleryexample3;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -7,9 +10,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -24,29 +31,37 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class SingleImageView extends Activity {
     private String imageURI;
+    private int shortAnimationDuration;
 
+    @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
+        shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
+        RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
         ImageView imgView = (ImageView) findViewById(R.id.selectedImage);
-        Button backButton = (Button) findViewById(R.id.backButton);
-        Button albumButton = (Button) findViewById(R.id.albumButton);
-        Button tagButton = (Button) findViewById(R.id.tagButton);
-        Button editModeButton = (Button) findViewById(R.id.editModeButton);
+
+        RelativeLayout utilityLayout = (RelativeLayout) findViewById(R.id.utilityLayout);
+        ImageButton backButton = (ImageButton) findViewById(R.id.backButton);
         TextView dateAddedText = (TextView) findViewById(R.id.dateAddedText);
 
-        Intent gotIntent = getIntent();
-        Bundle gotBundle = gotIntent.getExtras();
+        ImageButton editModeButton = (ImageButton) findViewById(R.id.editModeButton);
+        ImageButton drawModeButton = (ImageButton) findViewById(R.id.drawModeButton);
+        ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
+        ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
 
         TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
         TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
 
-        backButton.setOnClickListener((l) -> {
+        Intent gotIntent = getIntent();
+        Bundle gotBundle = gotIntent.getExtras();
+
+        backButton.setOnClickListener(listener -> {
             Intent intent = new Intent(SingleImageView.this, MainActivity.class);
             startActivity(intent);
         });
-
+        /*
         tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -104,6 +119,7 @@ public class SingleImageView extends Activity {
                 alertDialog.show();
             }
         });
+        */
 
         editModeButton.setOnClickListener((l) -> {
             Intent intent = new Intent(SingleImageView.this, ImageFilters.class);
@@ -116,6 +132,36 @@ public class SingleImageView extends Activity {
         if (gotBundle == null)
             return;
 
+        // View/Hide utility buttons
+        screenLayout.setOnTouchListener((view, event) -> {
+            view.performClick();
+                if (utilityLayout.getVisibility() == View.VISIBLE)
+                    utilityLayout.animate()
+                            .alpha(0f)
+                            .setDuration(shortAnimationDuration)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    utilityLayout.setVisibility(View.GONE);
+                                }
+                            });
+                else {
+                    utilityLayout.setAlpha(0f);
+                    utilityLayout.setVisibility(View.VISIBLE);
+                    utilityLayout.animate()
+                            .alpha(1f)
+                            .setDuration(shortAnimationDuration)
+                            .setListener(null);
+                }
+                return view.onTouchEvent(event);
+        });
+
+        moreOptionButton.setOnClickListener(view -> {
+            PopupMenu popup = new PopupMenu(this, view);
+            popup.getMenuInflater().inflate(R.menu.single_image_view_menu, popup.getMenu());
+            popup.show();
+        });
+
         imageURI = gotBundle.getString("imageURI");
         DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
@@ -123,4 +169,5 @@ public class SingleImageView extends Activity {
                 .placeholder(R.drawable.uoh)
                 .into(imgView);
     }
+
 }

@@ -1,106 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/screenLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
     android:paddingVertical="24dp">
-
-    <RelativeLayout
-        android:id="@+id/utilityLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/topBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true">
-
-            <Button
-                android:id="@+id/backButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:background="@android:color/transparent"
-                android:text="Back"
-                android:textColor="@color/white"/>
-
-            <TextView
-                android:id="@+id/dateAddedText"
-                android:text="Date Added"
-                android:textColor="@color/white"
-                android:textAlignment="center"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/moreOptionButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:background="@android:color/transparent"
-                android:text="More"
-                android:textColor="@color/white"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/bottomBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
-
-            <Button
-                android:id="@+id/editModeButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:text="Edit"
-                android:textColor="@color/white"/>
-
-            <Button
-                android:id="@+id/likeButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:text="Like"
-                android:textColor="@color/white"/>
-
-            <Button
-                android:id="@+id/deleteButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:text="Delete"
-                android:textColor="@color/white"/>
-
-            <Button
-                android:id="@+id/tagButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:text="Tag"
-                android:textColor="@color/white"/>
-
-            <Button
-                android:id="@+id/albumButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:text="Album"
-                android:textColor="@color/white"/>
-
-        </LinearLayout>
-
-    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/imageLayout"
@@ -118,4 +24,95 @@
             tools:ignore="ContentDescription" />
     </FrameLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <RelativeLayout
+        android:id="@+id/utilityLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/black">
+
+            <ImageButton
+                android:id="@+id/backButton"
+                android:src="@drawable/arrow_back_24dp"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"/>
+
+            <TextView
+                android:id="@+id/dateAddedText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:text="Date Added"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textAlignment="center" />
+            
+            <Space
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/black">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"/>
+            
+            <ImageButton
+                android:id="@+id/editModeButton"
+                android:src="@drawable/tune_24dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"/>
+
+            <ImageButton
+                android:id="@+id/drawModeButton"
+                android:src="@drawable/edit_24dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"/>
+            
+            <ImageButton
+                android:id="@+id/deleteButton"
+                android:src="@drawable/delete_24dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"/>
+
+            <ImageButton
+                android:id="@+id/moreOptionButton"
+                android:src="@drawable/more_vert_24dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>
