@@ -1,11 +1,14 @@
 package com.example.galleryexample3.imageediting;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,10 +16,12 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.galleryexample3.R;
+import com.example.galleryexample3.SingleImageView;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 
 public class ImageFilters extends Activity {
@@ -37,6 +42,7 @@ public class ImageFilters extends Activity {
         Button grayscaleButton = (Button) findViewById(R.id.grayscaleButton);
         Button sepiaButton = (Button) findViewById(R.id.sepiaButton);
         Button saveButton = (Button) findViewById(R.id.saveButton);
+        Button drawButton = (Button) findViewById(R.id.drawButton);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -66,33 +72,63 @@ public class ImageFilters extends Activity {
         });
 
         saveButton.setOnClickListener((l) -> {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "image_" + System.currentTimeMillis() + ".png");
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/HeavensDoor");
 
-            String[] temp = imageURI.split("/");
-            String path = "";
-            for (int i = 0; i < temp.length - 1; i ++){
-                path += "/" + temp[i];
-            }
+            Uri result = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
 
-
+            if (result != null){
                 try {
-                    File tempFile = File.createTempFile("Copy_of_", ".png", new File(path));
-
-                    FileOutputStream out = new FileOutputStream(tempFile.getAbsolutePath());
-                    displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                    // PNG is a lossless format, the compression factor (100) is ignored
-                    out.close();
-                    Toast.makeText(this, "New file created: " + tempFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
-                    Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+                    OutputStream outputStream = getContentResolver().openOutputStream(result, "w");
+                    if (outputStream != null){
+                        displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        outputStream.close();
+                        Toast.makeText(this, "Image saved!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                catch (Exception e){
+                    Toast.makeText(this, "Can't save image.", Toast.LENGTH_SHORT).show();
                 }
             }
+
+//            String[] temp = imageURI.split("/");
+//            String path = "";
+//            for (int i = 0; i < temp.length - 1; i ++){
+//                path += "/" + temp[i];
+//            }
+//
+//
+//                try {
+//                    File tempFile = File.createTempFile("Copy_of_", ".png", new File(path));
+//
+//                    FileOutputStream out = new FileOutputStream(tempFile.getAbsolutePath());
+//                    displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+//                    // PNG is a lossless format, the compression factor (100) is ignored
+//                    out.close();
+//                    Toast.makeText(this, "New file created: " + tempFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+//                } catch (IOException e) {
+//                    Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+//                    e.printStackTrace();
+//                }
+            }
         );
+
+
 
         if (gotBundle == null)
             return;
 
         imageURI = gotBundle.getString("imageURI");
+
+        drawButton.setOnClickListener((l) -> {
+            Intent intent = new Intent(ImageFilters.this, PaintingActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("imageURI", imageURI);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
 
 //        imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample);
         imageBitmap = BitmapFactory.decodeFile(imageURI);

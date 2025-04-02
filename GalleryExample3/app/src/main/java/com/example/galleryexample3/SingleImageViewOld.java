@@ -18,6 +18,7 @@ import com.example.galleryexample3.imageediting.ImageFilters;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
 
+@Deprecated
 public class SingleImageViewOld extends Activity {
     private String imageURI;
     private EditText albumName;

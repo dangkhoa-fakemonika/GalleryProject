@@ -42,6 +42,7 @@
         <activity android:name=".AlbumSelection" android:exported="true"/>
         <activity android:name=".imageediting.ImageFilters" android:exported="true"/>
         <activity android:name=".CameraActivity" android:exported="true"/>
+        <activity android:name=".imageediting.PaintingActivity"/>
 
     </application>
 

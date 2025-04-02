@@ -70,7 +70,6 @@ public class MainActivity extends Activity {
 
 
         // Load adapter
-
         ArrayList<String> localImages = ImageManager.getImages(this);
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);

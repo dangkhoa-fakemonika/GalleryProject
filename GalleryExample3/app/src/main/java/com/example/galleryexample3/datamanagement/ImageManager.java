@@ -18,7 +18,7 @@ public class ImageManager {
 
         // use MediaStore.Images.Media.<Attribute> to query and stuff
         // contentResolver is the sqlite database
-
+        
         try (Cursor cursor = contentResolver.query(uri, null, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")){
             if (cursor == null) {
                 // query failed, handle error

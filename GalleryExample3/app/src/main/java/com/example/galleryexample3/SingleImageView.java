@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
+import com.example.galleryexample3.imageediting.ImageFilters;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
 import com.google.android.material.textfield.TextInputEditText;
@@ -102,6 +103,14 @@ public class SingleImageView extends Activity {
                         }).create();
                 alertDialog.show();
             }
+        });
+
+        editModeButton.setOnClickListener((l) -> {
+            Intent intent = new Intent(SingleImageView.this, ImageFilters.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("imageURI", imageURI);
+            intent.putExtras(bundle);
+            startActivity(intent);
         });
 
         if (gotBundle == null)
