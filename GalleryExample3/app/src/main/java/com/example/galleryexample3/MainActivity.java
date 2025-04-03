@@ -122,6 +122,7 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(MainActivity.this, SingleImageView.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("imageURI", localImages.get(position + pageNum * NUM_IMAGE_LOAD_LIMIT));
+                bundle.putInt("position", position + pageNum * NUM_IMAGE_LOAD_LIMIT);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }

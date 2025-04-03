@@ -16,8 +16,10 @@ linkfirebase = "17.0.0"
 imageLabelingCommon = "18.1.0"
 cameraLifecycle = "1.4.2"
 cameraView = "1.4.2"
+viewpager2Version = "1.1.0"
 
 [libraries]
+androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2Version" }
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 camera-core = { module = "androidx.camera:camera-core" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
