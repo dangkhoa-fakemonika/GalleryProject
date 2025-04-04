@@ -58,7 +58,7 @@ public class ImageFilters extends Activity {
         grayscaleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                displayBitmap = adjustContrast();
+                displayBitmap = applyNegative();
                 imageView.setImageBitmap(displayBitmap);
             }
         });
@@ -66,7 +66,7 @@ public class ImageFilters extends Activity {
         sepiaButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                displayBitmap = adjustBrightness();
+                displayBitmap = adjustTemperature();
                 imageView.setImageBitmap(displayBitmap);
             }
         });
@@ -342,6 +342,41 @@ public class ImageFilters extends Activity {
             int r = (int) Math.min(255, Math.max(0, ((Color.red(pixels[i]) - 128) * contrast + 128)));
             int g = (int) Math.min(255, Math.max(0, ((Color.green(pixels[i]) - 128) * contrast + 128)));
             int b = (int) Math.min(255, Math.max(0, ((Color.blue(pixels[i]) - 128) * contrast + 128)));
+            pixels[i] = Color.rgb(r, g, b);
+        }
+
+        return Bitmap.createBitmap(pixels, width, height, cf);
+    }
+
+    private Bitmap applyNegative(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
+
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int i = 0; i < width * height; i++){
+            int r = 255 - Color.red(pixels[i]);
+            int g = 255 - Color.green(pixels[i]);
+            int b = 255 - Color.blue(pixels[i]);
+            pixels[i] = Color.rgb(r, g, b);
+        }
+
+        return Bitmap.createBitmap(pixels, width, height, cf);
+    }
+
+    private Bitmap adjustTemperature(){
+        int width = imageBitmap.getWidth();
+        int height = imageBitmap.getHeight();
+        Bitmap.Config cf = imageBitmap.getConfig();
+
+        int[] pixels = new int[width * height];
+        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        int value = -15;
+        for (int i = 0; i < width * height; i++){
+            int r = Math.min(255, Math.max(0, Color.red(pixels[i]) + value));
+            int g = Color.green(pixels[i]);
+            int b = Math.min(255, Math.max(0, Color.blue(pixels[i]) - value));
             pixels[i] = Color.rgb(r, g, b);
         }
 
