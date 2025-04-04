@@ -26,6 +26,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.galleryexample3.R;
+import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 
 import java.io.OutputStream;
 
@@ -120,26 +121,7 @@ public class PaintingActivity extends AppCompatActivity {
 
     private void saveDrawnImage(){
         Bitmap bitmap = paintView.getBitmap();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "image_" + System.currentTimeMillis() + ".png");
-        contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-        contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/HeavensDoor");
-
-        Uri result = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-
-        if (result != null){
-            try {
-                OutputStream outputStream = getContentResolver().openOutputStream(result, "w");
-                if (outputStream != null){
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                    outputStream.close();
-                    Toast.makeText(this, "Image saved!", Toast.LENGTH_SHORT).show();
-                }
-            }
-            catch (Exception e){
-                Toast.makeText(this, "Can't save image.", Toast.LENGTH_SHORT).show();
-            }
-        }
+        ImageGalleryProcessing.saveImage(this, bitmap);
     }
 
 

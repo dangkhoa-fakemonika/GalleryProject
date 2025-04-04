@@ -1,143 +1,11 @@
-package com.example.galleryexample3.imageediting;
+package com.example.galleryexample3.businessclasses;
 
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.example.galleryexample3.R;
-import com.example.galleryexample3.SingleImageView;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-
-public class ImageFilters extends Activity {
-
-    ImageView imageView;
-    Bitmap imageBitmap;
-    Bitmap displayBitmap;
-
-    String imageURI;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.single_image_edit);
-
-        imageView = (ImageView) findViewById(R.id.imageView);
-        Button normalButton = (Button) findViewById(R.id.normalButton);
-        Button grayscaleButton = (Button) findViewById(R.id.grayscaleButton);
-        Button sepiaButton = (Button) findViewById(R.id.sepiaButton);
-        Button saveButton = (Button) findViewById(R.id.saveButton);
-        Button drawButton = (Button) findViewById(R.id.drawButton);
-
-        Intent gotIntent = getIntent();
-        Bundle gotBundle = gotIntent.getExtras();
-
-        normalButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                displayBitmap = imageBitmap;
-                imageView.setImageBitmap(displayBitmap);
-            }
-        });
-
-        grayscaleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                displayBitmap = applyNegative();
-                imageView.setImageBitmap(displayBitmap);
-            }
-        });
-
-        sepiaButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                displayBitmap = adjustTemperature();
-                imageView.setImageBitmap(displayBitmap);
-            }
-        });
-
-        saveButton.setOnClickListener((l) -> {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "image_" + System.currentTimeMillis() + ".png");
-            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/HeavensDoor");
-
-            Uri result = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-
-            if (result != null){
-                try {
-                    OutputStream outputStream = getContentResolver().openOutputStream(result, "w");
-                    if (outputStream != null){
-                        displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                        outputStream.close();
-                        Toast.makeText(this, "Image saved!", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                catch (Exception e){
-                    Toast.makeText(this, "Can't save image.", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-//            String[] temp = imageURI.split("/");
-//            String path = "";
-//            for (int i = 0; i < temp.length - 1; i ++){
-//                path += "/" + temp[i];
-//            }
-//
-//
-//                try {
-//                    File tempFile = File.createTempFile("Copy_of_", ".png", new File(path));
-//
-//                    FileOutputStream out = new FileOutputStream(tempFile.getAbsolutePath());
-//                    displayBitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-//                    // PNG is a lossless format, the compression factor (100) is ignored
-//                    out.close();
-//                    Toast.makeText(this, "New file created: " + tempFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-//                } catch (IOException e) {
-//                    Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
-//                    e.printStackTrace();
-//                }
-            }
-        );
-
-
-
-        if (gotBundle == null)
-            return;
-
-        imageURI = gotBundle.getString("imageURI");
-
-        drawButton.setOnClickListener((l) -> {
-            Intent intent = new Intent(ImageFilters.this, PaintingActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putString("imageURI", imageURI);
-            intent.putExtras(bundle);
-            startActivity(intent);
-        });
-
-//        imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample);
-        imageBitmap = BitmapFactory.decodeFile(imageURI);
-        displayBitmap = imageBitmap;
-
-        imageView.setImageBitmap(displayBitmap);
-    }
-
-    private Bitmap applyGrayscale(){
+public class ImageFiltersProcessing {
+    public static Bitmap applyGrayscale(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -155,7 +23,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    private Bitmap applySepia(){
+    public static Bitmap applySepia(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -184,7 +52,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    private Bitmap rotateRight(){
+    public static Bitmap rotateRight(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -201,7 +69,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(newPixels, height, width, cf);
     }
 
-    private Bitmap rotateLeft(){
+    public static Bitmap rotateLeft(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -219,7 +87,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(newPixels, height, width, cf);
     }
 
-    private Bitmap flipHorizontal(){
+    public static Bitmap flipHorizontal(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -237,7 +105,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    private Bitmap flipVertical(){
+    public static Bitmap flipVertical(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -256,7 +124,7 @@ public class ImageFilters extends Activity {
     }
 
     // TODO : Implement these methods
-    private Bitmap blurImage(){
+    public static Bitmap blurImage(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -291,14 +159,14 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(new_pixels, width, height, cf);
     }
 
-    private Bitmap sharpenImage(){
+    public static Bitmap sharpenImage(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
 
         int[] pixels = new int[width * height];
         imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        Bitmap blurredBitmap = blurImage();
+        Bitmap blurredBitmap = blurImage(imageBitmap);
         int[] blurred = new int[width * height];
         blurredBitmap.getPixels(blurred, 0, width, 0, 0, width, height);
         int sharpness = 1;
@@ -312,7 +180,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    private Bitmap adjustBrightness(){
+    public static Bitmap adjustBrightness(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -330,7 +198,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    private Bitmap adjustContrast(){
+    public static Bitmap adjustContrast(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -348,7 +216,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    private Bitmap applyNegative(){
+    public static Bitmap applyNegative(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -365,7 +233,7 @@ public class ImageFilters extends Activity {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    private Bitmap adjustTemperature(){
+    public static Bitmap adjustTemperature(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
@@ -382,5 +250,4 @@ public class ImageFilters extends Activity {
 
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
-
 }

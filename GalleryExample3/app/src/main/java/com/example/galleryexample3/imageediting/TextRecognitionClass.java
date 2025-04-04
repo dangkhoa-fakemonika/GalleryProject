@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -30,7 +31,7 @@ public class TextRecognitionClass {
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
     }
 
-    public void getTextFromImage(Context context, String uri){
+    public static void getTextFromImage(Context context, String uri){
         InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(uri), 0);
 
         // Text recognition
@@ -64,7 +65,8 @@ public class TextRecognitionClass {
 //                                }
 
 
-                                Log.i("SCANNED TEXT", resultText);
+//                                Log.i("SCANNED TEXT", resultText);
+                                ClipBoardProcessing.getTextToClipBoard(context, resultText);
                             }
                         })
                         .addOnFailureListener(

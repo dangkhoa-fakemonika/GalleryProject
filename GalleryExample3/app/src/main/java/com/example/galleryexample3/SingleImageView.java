@@ -16,13 +16,16 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.datamanagement.ImageManager;
-import com.example.galleryexample3.imageediting.ImageFilters;
+import com.example.galleryexample3.imageediting.ImageEditActivity;
+import com.example.galleryexample3.imageediting.PaintingActivity;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
 import com.example.galleryexample3.userinterface.SwipeImageAdapter;
@@ -67,11 +70,31 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         });
 
         editModeButton.setOnClickListener((l) -> {
-            Intent intent = new Intent(SingleImageView.this, ImageFilters.class);
+            Intent intent = new Intent(SingleImageView.this, ImageEditActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("imageURI", imageURI);
             intent.putExtras(bundle);
             startActivity(intent);
+        });
+
+        drawModeButton.setOnClickListener((l) -> {
+            Intent intent = new Intent(SingleImageView.this, PaintingActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("imageURI", imageURI);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
+
+        deleteButton.setOnClickListener((l) -> {
+            boolean r = ImageGalleryProcessing.deleteImage(this, imageURI);
+            if (r){
+                Toast.makeText(this, "Image deleted.", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(SingleImageView.this, MainActivity.class);
+                startActivity(intent);
+            }
+            else{
+                Toast.makeText(this, "Image can't be deleted.", Toast.LENGTH_LONG).show();
+            }
         });
 
         if (gotBundle == null)
@@ -182,6 +205,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return true;
         }
         else if (id == R.id.analyzeText) {
+            TextRecognitionClass.getTextFromImage(this, imageURI);
             return true;
         }
         else if (id == R.id.moreInfo) {

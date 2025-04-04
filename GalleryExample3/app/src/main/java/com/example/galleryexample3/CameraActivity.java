@@ -1,7 +1,6 @@
 package com.example.galleryexample3;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
@@ -48,7 +48,7 @@ public class CameraActivity extends AppCompatActivity {
 
         previewView = findViewById(R.id.previewView);
 
-        imageCapture = new ImageCapture.Builder().setTargetRotation(Surface.ROTATION_0).build();
+        imageCapture = new ImageCapture.Builder().build();
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -72,18 +72,13 @@ public class CameraActivity extends AppCompatActivity {
                     Toast.makeText(current, "Picture taken!", Toast.LENGTH_SHORT).show();
                     Log.i("IMAGE", "GOT");
                     Bitmap result = image.toBitmap();
+
+
+                    ImageGalleryProcessing.saveImage(current, result);
                     previewImage.setImageBitmap(result);
                 }
-
-//                @Override
-//                public void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
-//                    super.onPostviewBitmapAvailable(bitmap);
-//
-//                    previewImage.setImageBitmap(bitmap);
-//                }
             });
         });
-
     }
 
     void bindPreview(ProcessCameraProvider cameraProvider) {
@@ -94,6 +89,7 @@ public class CameraActivity extends AppCompatActivity {
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
         // Setting camera here
+//        imageCapture.setTargetRotation(previewView.getDisplay().getRotation());
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, imageCapture, preview);
     }
 }

@@ -14,7 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
-import com.example.galleryexample3.imageediting.ImageFilters;
+import com.example.galleryexample3.imageediting.ImageEditActivity;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
 
@@ -85,7 +85,7 @@ public class SingleImageViewOld extends Activity {
         });
 
         filterButton.setOnClickListener((l) -> {
-            Intent intent = new Intent(SingleImageViewOld.this, ImageFilters.class);
+            Intent intent = new Intent(SingleImageViewOld.this, ImageEditActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("imageURI", imageURI);
             intent.putExtras(bundle);

@@ -32,17 +32,13 @@ public class MainActivity extends Activity {
     private Button nextPage;
     private Button useCamera;
     private TextView pageNumber;
+    private GridView gallery;
 
     private ImageBaseAdapter imageAdapter;
 
     final int PICK_FROM_GALLERY = 101; // This could be any non-0 number lol
     final int NUM_IMAGE_LOAD_LIMIT = 20;
 
-
-    private ScaleGestureDetector mScaleDetector;
-    private float mScaleFactor = 1.f;
-
-    private AlbumsController albumsController;
     private int pageNum = 0;
 
     @Override
@@ -55,10 +51,8 @@ public class MainActivity extends Activity {
             this.requestPermissions(new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
         }
 
-        albumsController = new AlbumsController(this);
-
         // Element assignment
-        GridView gallery = (GridView) findViewById(R.id.galleryGridView);
+        gallery = (GridView) findViewById(R.id.galleryGridView);
         rowNum = (EditText) findViewById(R.id.rowNum);
         changeColumns = (Button) findViewById(R.id.changeRowButton);
         goAlbums = (Button) findViewById(R.id.gotoAlbums);
@@ -74,7 +68,7 @@ public class MainActivity extends Activity {
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
         gallery.setAdapter(imageAdapter);
-        mScaleDetector = new ScaleGestureDetector(gallery.getContext(), new ScaleListener(imageAdapter, gallery));
+//        mScaleDetector = new ScaleGestureDetector(gallery.getContext(), new ScaleListener(imageAdapter, gallery));
 
 
         // Change number of columns of grid view (no restriction of data types)
@@ -105,11 +99,6 @@ public class MainActivity extends Activity {
             imageAdapter.notifyDataSetChanged();
         });
 
-        // Clear all data
-        clearData.setOnClickListener((l) ->{
-            albumsController.clearData();
-        });
-
         useCamera.setOnClickListener((l) -> {
             Intent intent = new Intent(MainActivity.this, CameraActivity.class);
             startActivity(intent);
@@ -131,9 +120,23 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        // Let the ScaleGestureDetector inspect all events.
-        mScaleDetector.onTouchEvent(ev);
-        return true;
+    protected void onResume() {
+        super.onResume();
+        ArrayList<String> localImages = ImageManager.getImages(this);
+
+        imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
+        gallery.setAdapter(imageAdapter);
+
+        pageNum = 0;
+        pageNumber.setText("Page 1");
+        imageAdapter.notifyDataSetChanged();
     }
+
+//
+//    @Override
+//    public boolean onTouchEvent(MotionEvent ev) {
+//        // Let the ScaleGestureDetector inspect all events.
+//        mScaleDetector.onTouchEvent(ev);
+//        return true;
+//    }
 }
