@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    android:paddingVertical="24dp">
+    android:paddingVertical="24dp"
+    android:paddingHorizontal="12dp">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/imageViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </androidx.viewpager2.widget.ViewPager2>
 
     <RelativeLayout
@@ -22,7 +22,7 @@
             android:id="@+id/topBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="40dp"
+            android:minHeight="50dp"
             android:layout_alignParentTop="true"
             android:background="@color/black">
 
@@ -46,7 +46,7 @@
             
             <Space
                 android:layout_width="40dp"
-                android:layout_height="40dp"/>
+                android:layout_height="match_parent"/>
 
         </LinearLayout>
 

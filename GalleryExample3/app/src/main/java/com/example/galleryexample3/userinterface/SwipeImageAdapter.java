@@ -33,7 +33,7 @@ public class SwipeImageAdapter extends RecyclerView.Adapter<SwipeImageAdapter.Im
 
     @Override
     public void onBindViewHolder(@NonNull SwipeImageAdapter.ImageViewHolder holder, int position) {
-        Glide.with(context).load(imagesList.toArray()[position])
+        Glide.with(context).load(imagesList.get(position))
                 .placeholder(R.drawable.uoh)
                 .into(holder.imageView);
     }

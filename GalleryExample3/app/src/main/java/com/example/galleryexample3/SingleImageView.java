@@ -10,10 +10,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,8 +27,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
-import com.example.galleryexample3.datamanagement.ImageManager;
 import com.example.galleryexample3.imageediting.ImageEditActivity;
+import com.bumptech.glide.Glide;
+import com.example.galleryexample3.datamanagement.ImageManager;
+import com.example.galleryexample3.imageediting.EditView;
 import com.example.galleryexample3.imageediting.PaintingActivity;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
@@ -63,27 +68,47 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
 
         TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
         TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
+        DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
+        // Get bundle from previous screen
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
 
         databaseHandler = new DatabaseHandler(this);
         context = this;
+        if (gotBundle == null)
+            return;
+
+        imageURI = gotBundle.getString("imageURI");
+        position = gotBundle.getInt("position");
+
+        // Set up swiping between images
+        SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
+        viewPager.setAdapter(swipeImageAdapter);
+        viewPager.setCurrentItem(position, true);
+
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int pos) {
+                super.onPageSelected(pos);
+                imageURI = imagesList.get(pos);
+            }
+        });
 
         backButton.setOnClickListener(listener -> {
             Intent intent = new Intent(SingleImageView.this, MainActivity.class);
             startActivity(intent);
         });
 
-        editModeButton.setOnClickListener((l) -> {
-            Intent intent = new Intent(SingleImageView.this, ImageEditActivity.class);
+        editModeButton.setOnClickListener(listener -> {
+            Intent intent = new Intent(SingleImageView.this, EditView.class);
             Bundle bundle = new Bundle();
             bundle.putString("imageURI", imageURI);
             intent.putExtras(bundle);
             startActivity(intent);
         });
 
-        drawModeButton.setOnClickListener((l) -> {
+        drawModeButton.setOnClickListener(listener -> {
             Intent intent = new Intent(SingleImageView.this, PaintingActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("imageURI", imageURI);
@@ -103,44 +128,30 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             }
         });
 
-        if (gotBundle == null)
-            return;
-
         // View/Hide utility buttons
-        screenLayout.setOnTouchListener((view, event) -> {
-            view.performClick();
-                if (utilityLayout.getVisibility() == View.VISIBLE)
-                    utilityLayout.animate()
-                            .alpha(0f)
-                            .setDuration(shortAnimationDuration)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    utilityLayout.setVisibility(View.GONE);
-                                }
-                            });
-                else {
-                    utilityLayout.setAlpha(0f);
-                    utilityLayout.setVisibility(View.VISIBLE);
-                    utilityLayout.animate()
-                            .alpha(1f)
-                            .setDuration(shortAnimationDuration)
-                            .setListener(null);
-                }
-                return view.onTouchEvent(event);
+        screenLayout.setOnClickListener((view) -> {
+            if (utilityLayout.getVisibility() == View.VISIBLE)
+                utilityLayout.animate()
+                        .alpha(0f)
+                        .setDuration(shortAnimationDuration)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                utilityLayout.setVisibility(View.GONE);
+                            }
+                        });
+            else {
+                utilityLayout.setAlpha(0f);
+                utilityLayout.setVisibility(View.VISIBLE);
+                utilityLayout.animate()
+                        .alpha(1f)
+                        .setDuration(shortAnimationDuration)
+                        .setListener(null);
+            }
         });
 
         // Show menu
         moreOptionButton.setOnClickListener(this::showMenu);
-
-        // Get bundle from previous screen
-        imageURI = gotBundle.getString("imageURI");
-        position = gotBundle.getInt("position");
-
-        // Set up swiping between images
-        SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
-        viewPager.setAdapter(swipeImageAdapter);
-        viewPager.setCurrentItem(position, true);
     }
 
     private void showMenu(View view) {
