@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,13 +39,15 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     private String imageURI;
     private int position;
     private int shortAnimationDuration;
+    private DatabaseHandler databaseHandler;
+    private Context context;
 
     @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        ArrayList<String> imagesList = ImageManager.getImages(this);
+        ArrayList<String> imagesList = ImageGalleryProcessing.getImages(this);
 
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
         ViewPager2 viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
@@ -63,6 +66,9 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
+
+        databaseHandler = new DatabaseHandler(this);
+        context = this;
 
         backButton.setOnClickListener(listener -> {
             Intent intent = new Intent(SingleImageView.this, MainActivity.class);
@@ -130,7 +136,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         // Get bundle from previous screen
         imageURI = gotBundle.getString("imageURI");
         position = gotBundle.getInt("position");
-        DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
         // Set up swiping between images
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
@@ -161,7 +166,10 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String albumName = editText.getText().toString();
-                            Log.i("ALBUM", albumName);
+//                            Log.i("ALBUM", albumName);
+                            databaseHandler.albums().addImageToAlbum(albumName, imageURI);
+                            Toast.makeText(context, "Added to " + albumName, Toast.LENGTH_LONG).show();
+
                             dialogInterface.dismiss();
                         }
                     })

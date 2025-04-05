@@ -8,6 +8,7 @@ import android.provider.MediaStore;
 
 import java.util.ArrayList;
 
+@Deprecated
 public class ImageManager {
 
     public static ArrayList<String> getImages(Context context){

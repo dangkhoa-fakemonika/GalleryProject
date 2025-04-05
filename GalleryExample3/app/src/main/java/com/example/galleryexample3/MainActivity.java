@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 
+import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.datamanagement.AlbumsController;
 import com.example.galleryexample3.datamanagement.ImageManager;
 import com.example.galleryexample3.userinterface.ImageBaseAdapter;
@@ -64,7 +65,7 @@ public class MainActivity extends Activity {
 
 
         // Load adapter
-        ArrayList<String> localImages = ImageManager.getImages(this);
+        ArrayList<String> localImages = ImageGalleryProcessing.getImages(this);
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
         gallery.setAdapter(imageAdapter);
@@ -122,7 +123,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ArrayList<String> localImages = ImageManager.getImages(this);
+        ArrayList<String> localImages = ImageGalleryProcessing.getImages(this);
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
         gallery.setAdapter(imageAdapter);

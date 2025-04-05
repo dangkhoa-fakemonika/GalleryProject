@@ -86,6 +86,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void addImageToAlbum(String albumName, String imageURI){
+            createAlbum(albumName);
+
             ContentValues values = new ContentValues();
             values.put(AlbumsTable.COL_NAME, albumName);
             values.put(AlbumsTable.COL_IMAGE_URI, imageURI);
@@ -93,9 +95,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void createAlbum(String albumName){
-            ContentValues values = new ContentValues();
-            values.put(AlbumsInfoTable.COL_NAME, albumName);
-            sqLiteDatabase.insert(AlbumsInfoTable.TABLE_NAME, null, values);
+            Cursor cur = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME}, AlbumsInfoTable.COL_NAME + "=?", new String[]{albumName}, null, null, null);
+
+            if (cur.getCount() == 0){
+                ContentValues values = new ContentValues();
+                values.put(AlbumsInfoTable.COL_NAME, albumName);
+                sqLiteDatabase.insert(AlbumsInfoTable.TABLE_NAME, null, values);
+            }
+
+            cur.close();
         }
 
         public void deleteAlbum(String albumName){
@@ -105,9 +113,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         public ArrayList<String> getImagesOfAlbum(String albumName){
             Cursor cur = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_IMAGE_URI}, AlbumsTable.COL_NAME + " =?", new String[]{albumName}, null, null, null);
-            cur.moveToFirst();
-
             ArrayList<String> result = new ArrayList<>();
+
+            if (cur.getCount() == 0)
+                return result;
+
+            cur.moveToFirst();
             do {
                 int uriCol = cur.getColumnIndex(AlbumsTable.COL_IMAGE_URI);
                 String uri = null;
@@ -127,6 +138,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             if (cur.getCount() == 0)
                 return result;
             
+            cur.moveToFirst();
+            do {
+                int uriCol = cur.getColumnIndex(AlbumsInfoTable.COL_NAME);
+                String uri = null;
+                if (uriCol != -1)
+                    uri = cur.getString(uriCol);
+                result.add(uri);
+            } while (cur.moveToNext());
+
+            cur.close();
+            return result;
+        }
+
+        public ArrayList<String> getAllAlbumsTemp(){
+            Cursor cur = sqLiteDatabase.query(true, AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME},  null,null, null, null, null, null);
+            ArrayList<String> result = new ArrayList<>();
+
+            if (cur.getCount() == 0)
+                return result;
+
             cur.moveToFirst();
             do {
                 int uriCol = cur.getColumnIndex(AlbumsTable.COL_NAME);

@@ -1,13 +1,16 @@
 package com.example.galleryexample3.businessclasses;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class ImageGalleryProcessing {
     public static boolean saveImage(Context context, Bitmap bitmap){
@@ -47,4 +50,31 @@ public class ImageGalleryProcessing {
         return (res > 0);
     }
 
+    public static ArrayList<String> getImages(Context context){
+        ArrayList<String> arrPath = new ArrayList<>();
+
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        // use MediaStore.Images.Media.<Attribute> to query and stuff
+        // contentResolver is the sqlite database
+
+        try (Cursor cursor = contentResolver.query(uri, null, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")){
+            if (cursor == null) {
+                // query failed, handle error
+            } else if (!cursor.moveToFirst()) {
+                // no media on the device
+            } else {
+                int i = 0;
+                int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                do {
+                    String pathGot = cursor.getString(dataColumnIndex);
+                    arrPath.add(pathGot);
+                    i++;
+                } while (cursor.moveToNext()); // Load limit
+            }
+        }
+
+        return arrPath;
+    }
 }
