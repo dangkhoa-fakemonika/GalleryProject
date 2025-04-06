@@ -1,15 +1,22 @@
 package com.example.galleryexample3.imageediting;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -25,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.galleryexample3.MainActivity;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 
@@ -37,6 +45,36 @@ public class PaintingActivity extends AppCompatActivity {
     private String imageURI;
     private Bitmap imageBitmap;
     private FrameLayout frameLayout;
+    private MediaStoreObserver mediaStoreObserver;
+    private AlertDialog alertDialog;
+
+    private boolean osv = false;
+    public class MediaStoreObserver extends ContentObserver {
+        public MediaStoreObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            if (alertDialog != null) {
+                alertDialog.dismiss();
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(PaintingActivity.this);
+            builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
+                    .setCancelable(false)
+                    .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(PaintingActivity.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +126,50 @@ public class PaintingActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        try (Cursor cursor = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {imageURI}, null)) {
+            if (cursor == null || !cursor.moveToFirst()){
+                if (alertDialog != null) {
+                    alertDialog.dismiss();
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
+                        .setCancelable(false)
+                        .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent intent = new Intent(PaintingActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        }
+        if (!osv) {
+            Handler handler = new Handler();
+            mediaStoreObserver = new MediaStoreObserver(handler);
+            try (Cursor cursor = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {imageURI}, null)) {
+                if (cursor != null && cursor.moveToFirst()){
+                    @SuppressLint("Range") Uri iuri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
+                    this.getContentResolver().registerContentObserver(iuri, true, mediaStoreObserver);
+                    osv = true;
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+        osv = false;
     }
 
     private void configureSize(){
