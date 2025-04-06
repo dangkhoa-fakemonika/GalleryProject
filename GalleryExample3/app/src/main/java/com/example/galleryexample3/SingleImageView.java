@@ -74,7 +74,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                 alertDialog.dismiss();
             }
 
-            imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_MODIFIED", " DESC");
+            imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
             SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
             viewPager.setAdapter(swipeImageAdapter);
             if (!imagesList.contains(imageURI)) {
@@ -92,7 +92,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        imagesList = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
+        imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
 
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
         viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
@@ -200,7 +200,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     protected void onResume() {
         super.onResume();
 
-        imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_MODIFIED", " DESC");
+        imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
         viewPager.setAdapter(swipeImageAdapter);
         if (!imagesList.contains(imageURI)) {
