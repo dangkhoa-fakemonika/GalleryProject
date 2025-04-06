@@ -5,10 +5,18 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.media.MediaExtractor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -34,6 +42,7 @@ import com.example.galleryexample3.imageediting.EditView;
 import com.example.galleryexample3.imageediting.PaintingActivity;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
+import com.example.galleryexample3.userinterface.ImageBaseAdapter;
 import com.example.galleryexample3.userinterface.SwipeImageAdapter;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -46,16 +55,57 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     private int shortAnimationDuration;
     private DatabaseHandler databaseHandler;
     private Context context;
+    private MediaStoreObserver mediaStoreObserver;
+    private AlertDialog alertDialog;
+    private ArrayList<String> imagesList;
+    private ViewPager2 viewPager;
+
+    private boolean osv = false;
+    public class MediaStoreObserver extends ContentObserver {
+        public MediaStoreObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            if (alertDialog != null) {
+                alertDialog.dismiss();
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(SingleImageView.this);
+            builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
+                    .setCancelable(false)
+                    .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            if (position > 0) {
+                                position -= 1;
+                            } else {
+                                position = 0;
+                            }
+                            imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_MODIFIED", " DESC");
+                            SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
+                            viewPager.setAdapter(swipeImageAdapter);
+                            viewPager.setCurrentItem(position, true);
+                            //Intent intent = new Intent(SingleImageView.this, MainActivity.class);
+                            //startActivity(intent);
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        ArrayList<String> imagesList = ImageGalleryProcessing.getImages(this);
+        imagesList = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
 
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
-        ViewPager2 viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
+        viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
 
         RelativeLayout utilityLayout = (RelativeLayout) findViewById(R.id.utilityLayout);
         ImageButton backButton = (ImageButton) findViewById(R.id.backButton);
@@ -92,6 +142,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             public void onPageSelected(int pos) {
                 super.onPageSelected(pos);
                 imageURI = imagesList.get(pos);
+                position = pos;
             }
         });
 
@@ -118,6 +169,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
 
         deleteButton.setOnClickListener((l) -> {
             boolean r = ImageGalleryProcessing.deleteImage(this, imageURI);
+            //boolean r = ImageGalleryProcessing.changeNameImage(this, imageURI, "newtest1.png");
             if (r){
                 Toast.makeText(this, "Image deleted.", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(SingleImageView.this, MainActivity.class);
@@ -154,6 +206,31 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         moreOptionButton.setOnClickListener(this::showMenu);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (!osv) {
+            Handler handler = new Handler();
+            mediaStoreObserver = new MediaStoreObserver(handler);
+            try (Cursor cursor = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {imageURI}, null)) {
+                if (cursor != null && cursor.moveToFirst()){
+                    @SuppressLint("Range") Uri iuri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
+                    this.getContentResolver().registerContentObserver(iuri, true, mediaStoreObserver);
+                    osv = true;
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+        osv = false;
+    }
+
     private void showMenu(View view) {
         PopupMenu popup = new PopupMenu(this, view);
         popup.setOnMenuItemClickListener(this);
@@ -170,7 +247,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
             TextInputEditText editText = dialogView.findViewById(R.id.editText);
             inputTextLayout.setHint("Enter Album Name");
-            AlertDialog alertDialog = new AlertDialog.Builder(this)
+            alertDialog = new AlertDialog.Builder(this)
                     .setTitle("Add Album")
                     .setView(dialogView)
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {

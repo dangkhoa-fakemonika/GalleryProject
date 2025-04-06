@@ -1,26 +1,33 @@
 package com.example.galleryexample3;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
+import android.os.Environment;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
-import com.example.galleryexample3.datamanagement.AlbumsController;
-import com.example.galleryexample3.datamanagement.ImageManager;
 import com.example.galleryexample3.userinterface.ImageBaseAdapter;
-import com.example.galleryexample3.userinterface.ScaleListener;
 
 public class MainActivity extends Activity {
 
@@ -38,19 +45,92 @@ public class MainActivity extends Activity {
     private ImageBaseAdapter imageAdapter;
 
     final int PICK_FROM_GALLERY = 101; // This could be any non-0 number lol
+    final int REQUEST_MANAGE_EXTERNAL_STORAGE = 100;
+    final int REQUEST_WRITE_EXTERNAL_STORAGE = 101;
+    final int REQUEST_READ_EXTERNAL_STORAGE = 102;
+    final int REQUEST_CAMERA = 103;
+    final int REQUEST_RECORD_AUDIO = 104;
     final int NUM_IMAGE_LOAD_LIMIT = 20;
 
     private int pageNum = 0;
+    private MediaStoreObserver mediaStoreObserver;
+    private ArrayList<String> localImages;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_MANAGE_EXTERNAL_STORAGE) {
+            if (resultCode == RESULT_OK && data != null) {
+                //
+            } else {
+                Toast.makeText(this, "Ứng dụng cần cấp quyền để hoạt động bình thường.", Toast.LENGTH_SHORT).show();
+                finishAffinity();
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE || requestCode == REQUEST_READ_EXTERNAL_STORAGE || requestCode == REQUEST_CAMERA || requestCode == REQUEST_RECORD_AUDIO) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //
+            } else {
+                Toast.makeText(this, "Ứng dụng cần cấp quyền để hoạt động bình thường.", Toast.LENGTH_SHORT).show();
+                finishAffinity();
+            }
+        }
+    }
+
+    private boolean osv = false;
+    public class MediaStoreObserver extends ContentObserver {
+        public MediaStoreObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            localImages = ImageGalleryProcessing.getImages(MainActivity.this, "DATE_MODIFIED", " DESC");
+
+            imageAdapter = new ImageBaseAdapter(MainActivity.this, NUM_IMAGE_LOAD_LIMIT, localImages);
+            gallery.setAdapter(imageAdapter);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         // Set permission to get images
-        if (this.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            this.requestPermissions(new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
+//        if (this.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//            Log.i("debug", "1");
+//            this.requestPermissions(new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
+//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, REQUEST_MANAGE_EXTERNAL_STORAGE);
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE);
+            }
         }
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            this.requestPermissions(new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA);
+        }
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            this.requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
+        }
+
 
         // Element assignment
         gallery = (GridView) findViewById(R.id.galleryGridView);
@@ -65,7 +145,7 @@ public class MainActivity extends Activity {
 
 
         // Load adapter
-        ArrayList<String> localImages = ImageGalleryProcessing.getImages(this);
+        localImages = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
         gallery.setAdapter(imageAdapter);
@@ -123,7 +203,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ArrayList<String> localImages = ImageGalleryProcessing.getImages(this);
+
+        localImages = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
         gallery.setAdapter(imageAdapter);
@@ -131,6 +212,23 @@ public class MainActivity extends Activity {
         pageNum = 0;
         pageNumber.setText("Page 1");
         imageAdapter.notifyDataSetChanged();
+
+        if (!osv) {
+            Handler handler = new Handler();
+            mediaStoreObserver = new MediaStoreObserver(handler);
+
+            ContentResolver contentResolver = this.getContentResolver();
+            contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
+            osv = true;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+        osv = false;
     }
 
 //

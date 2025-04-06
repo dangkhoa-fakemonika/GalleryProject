@@ -1,16 +1,24 @@
 package com.example.galleryexample3.businessclasses;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.DrmInitData;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class ImageGalleryProcessing {
     public static boolean saveImage(Context context, Bitmap bitmap){
@@ -41,16 +49,12 @@ public class ImageGalleryProcessing {
         return false;
     }
 
-    public static boolean deleteImage(Context context, String URI){
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DATA, URI);
-
-        int res = context.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA + "=?", new String[]{URI});
+    public static boolean deleteImage(Context context, String URI) {
+        int res = context.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA + " = ?", new String[]{URI});
         return (res > 0);
     }
 
-    public static ArrayList<String> getImages(Context context){
+    public static ArrayList<String> getImages(Context context, String sort_type, String sort_order){
         ArrayList<String> arrPath = new ArrayList<>();
 
         ContentResolver contentResolver = context.getContentResolver();
@@ -58,8 +62,14 @@ public class ImageGalleryProcessing {
 
         // use MediaStore.Images.Media.<Attribute> to query and stuff
         // contentResolver is the sqlite database
-
-        try (Cursor cursor = contentResolver.query(uri, null, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC")){
+        HashMap<String, String> sort_type_map = new HashMap<>();
+        sort_type_map.put("DATE_ADDED", MediaStore.Images.Media.DATE_ADDED);
+        sort_type_map.put("DISPLAY_NAME", MediaStore.Images.Media.DISPLAY_NAME);
+        sort_type_map.put("DATE_MODIFIED", MediaStore.Images.Media.DATE_MODIFIED);
+        if (!Objects.equals(sort_type, "DATE_ADDED") && !Objects.equals(sort_type, "DISPLAY_NAME") && !Objects.equals(sort_type, "DATE_MODIFIED")) {
+            sort_type = "DATE_ADDED";
+        }
+        try (Cursor cursor = contentResolver.query(uri, null, null, null, sort_type_map.get(sort_type) + sort_order)){
             if (cursor == null) {
                 // query failed, handle error
             } else if (!cursor.moveToFirst()) {
@@ -76,5 +86,23 @@ public class ImageGalleryProcessing {
         }
 
         return arrPath;
+    }
+
+    @SuppressLint("Range")
+    public static boolean changeNameImage(Context context, String URI, String newName){
+        if (newName == null || newName.isEmpty() || newName.isBlank()){
+            return false;
+        }
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
+        //values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        try(Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {URI}, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                Uri uri2 = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
+                int row = context.getContentResolver().update(uri2, values, null, null);
+                return row > 0;
+            }
+        }
+        return false;
     }
 }

@@ -7,7 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.security.AllPermission;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 
 class AlbumsTable{
     public static final String TABLE_NAME = "albums";
@@ -25,10 +28,14 @@ class AlbumsInfoTable{
     public static final String TABLE_NAME = "albums_info";
     public static final String COL_NAME = "name";
     // more info
+    public static final String COL_DESCRIPTION = "description";
+    public static final String COL_TIME_CREATE = "time_create";
 
     public static String createTableQuery(){
         return "CREATE TABLE " + TABLE_NAME + "(" +
-                COL_NAME + " TEXT)";
+                COL_NAME + " TEXT, " +
+                COL_DESCRIPTION + " TEXT, " +
+                COL_TIME_CREATE + " TEXT)";
     }
 }
 
@@ -100,6 +107,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             if (cur.getCount() == 0){
                 ContentValues values = new ContentValues();
                 values.put(AlbumsInfoTable.COL_NAME, albumName);
+                values.put(AlbumsInfoTable.COL_DESCRIPTION, "something");
+                values.put(AlbumsInfoTable.COL_TIME_CREATE, new Date().toString());
                 sqLiteDatabase.insert(AlbumsInfoTable.TABLE_NAME, null, values);
             }
 
@@ -169,6 +178,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             cur.close();
             return result;
+        }
+
+        public void updateAlbum(String albumName, String newAlbumName, String newDescription){
+            ContentValues infoValues = new ContentValues();
+            infoValues.put(AlbumsInfoTable.COL_NAME, newAlbumName);
+            infoValues.put(AlbumsInfoTable.COL_DESCRIPTION, newDescription);
+            infoValues.put(AlbumsInfoTable.COL_TIME_CREATE, new Date().toString());
+
+            sqLiteDatabase.update(AlbumsInfoTable.TABLE_NAME, infoValues, AlbumsInfoTable.COL_NAME + " =?", new String[]{albumName});
+
+            ContentValues albumValues = new ContentValues();
+            albumValues.put(AlbumsTable.COL_NAME, newAlbumName);
+            sqLiteDatabase.update(AlbumsTable.TABLE_NAME, albumValues, AlbumsTable.COL_NAME + " =?", new String[]{albumName});
         }
     }
 
