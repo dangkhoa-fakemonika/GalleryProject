@@ -30,7 +30,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -75,26 +74,16 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                 alertDialog.dismiss();
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(SingleImageView.this);
-            builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
-                    .setCancelable(false)
-                    .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            if (position > 0) {
-                                position -= 1;
-                            } else {
-                                position = 0;
-                            }
-                            imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_MODIFIED", " DESC");
-                            SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
-                            viewPager.setAdapter(swipeImageAdapter);
-                            viewPager.setCurrentItem(position, true);
-                            //Intent intent = new Intent(SingleImageView.this, MainActivity.class);
-                            //startActivity(intent);
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
+            imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
+            SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
+            viewPager.setAdapter(swipeImageAdapter);
+            if (!imagesList.contains(imageURI)) {
+                position = Math.min(imagesList.size() - 1, Math.max(0, position - 1));
+                viewPager.setCurrentItem(position, true);
+            } else {
+                position = imagesList.indexOf(imageURI);
+                viewPager.setCurrentItem(position, false);
+            }
         }
     }
 
@@ -103,7 +92,8 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        imagesList = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
+        imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
+
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
         viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
 
@@ -160,12 +150,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
         viewPager.setAdapter(swipeImageAdapter);
         viewPager.setCurrentItem(position, true);
-        viewPager.setPageTransformer(new ViewPager2.PageTransformer(){
-            @Override
-            public void transformPage(@NonNull View page, float position) {
-                page.setOnClickListener(toggleUtility);
-             }
-        });
+
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int pos) {
@@ -174,6 +159,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                 position = pos;
             }
         });
+
         backButton.setOnClickListener(listener -> {
             Intent intent = new Intent(SingleImageView.this, MainActivity.class);
             startActivity(intent);
@@ -238,16 +224,24 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     protected void onResume() {
         super.onResume();
 
+        imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
+        SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
+        viewPager.setAdapter(swipeImageAdapter);
+        if (!imagesList.contains(imageURI)) {
+            position = Math.min(imagesList.size() - 1, Math.max(0, position - 1));
+            viewPager.setCurrentItem(position, true);
+        } else {
+            position = imagesList.indexOf(imageURI);
+            viewPager.setCurrentItem(position, false);
+        }
+
         if (!osv) {
             Handler handler = new Handler();
             mediaStoreObserver = new MediaStoreObserver(handler);
-            try (Cursor cursor = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {imageURI}, null)) {
-                if (cursor != null && cursor.moveToFirst()){
-                    @SuppressLint("Range") Uri iuri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
-                    this.getContentResolver().registerContentObserver(iuri, true, mediaStoreObserver);
-                    osv = true;
-                }
-            }
+
+            ContentResolver contentResolver = this.getContentResolver();
+            contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
+            osv = true;
         }
     }
 

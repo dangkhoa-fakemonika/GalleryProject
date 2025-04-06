@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            localImages = ImageGalleryProcessing.getImages(MainActivity.this, "DATE_MODIFIED", " DESC");
+            localImages = ImageGalleryProcessing.getImages(MainActivity.this, "DATE_ADDED", " DESC");
 
             imageAdapter = new ImageBaseAdapter(MainActivity.this, NUM_IMAGE_LOAD_LIMIT, localImages);
             gallery.setAdapter(imageAdapter);
@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
 
 
         // Load adapter
-        localImages = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
+        localImages = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
         gallery.setAdapter(imageAdapter);
@@ -204,7 +204,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        localImages = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
+        localImages = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
 
         imageAdapter = new ImageBaseAdapter(this, NUM_IMAGE_LOAD_LIMIT, localImages);
         gallery.setAdapter(imageAdapter);

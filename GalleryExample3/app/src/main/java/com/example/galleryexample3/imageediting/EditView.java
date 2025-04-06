@@ -1,11 +1,20 @@
 package com.example.galleryexample3.imageediting;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.galleryexample3.MainActivity;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.userinterface.FilterPreviewAdapter;
 
@@ -29,6 +39,36 @@ public class EditView extends AppCompatActivity {
     Bitmap imageBitmap;
     Bitmap displayBitmap;
     ArrayList<FilterPreviewAdapter.FilterPreview> filterList = new ArrayList<>();
+    private MediaStoreObserver mediaStoreObserver;
+    private AlertDialog alertDialog;
+
+    private boolean osv = false;
+    public class MediaStoreObserver extends ContentObserver {
+        public MediaStoreObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            if (alertDialog != null) {
+                alertDialog.dismiss();
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(EditView.this);
+            builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
+                    .setCancelable(false)
+                    .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(EditView.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +124,49 @@ public class EditView extends AppCompatActivity {
         Glide.with(this).load(imageURI).into(editedImage);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        try (Cursor cursor = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {imageURI}, null)) {
+            if (cursor == null || !cursor.moveToFirst()){
+                if (alertDialog != null) {
+                    alertDialog.dismiss();
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(EditView.this);
+                builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
+                        .setCancelable(false)
+                        .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent intent = new Intent(EditView.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        }
+        if (!osv) {
+            Handler handler = new Handler();
+            mediaStoreObserver = new MediaStoreObserver(handler);
+            try (Cursor cursor = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {imageURI}, null)) {
+                if (cursor != null && cursor.moveToFirst()){
+                    @SuppressLint("Range") Uri iuri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
+                    this.getContentResolver().registerContentObserver(iuri, true, mediaStoreObserver);
+                    osv = true;
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+        osv = false;
+    }
     private Bitmap applyGrayscale(){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
