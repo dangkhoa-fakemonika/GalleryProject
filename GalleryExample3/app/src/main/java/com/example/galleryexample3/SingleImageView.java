@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -59,7 +60,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     private AlertDialog alertDialog;
     private ArrayList<String> imagesList;
     private ViewPager2 viewPager;
-
+    private View.OnClickListener toggleUtility;
     private boolean osv = false;
     public class MediaStoreObserver extends ContentObserver {
         public MediaStoreObserver(Handler handler) {
@@ -103,7 +104,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         setContentView(R.layout.single_image_view);
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
         imagesList = ImageGalleryProcessing.getImages(this, "DATE_MODIFIED", " DESC");
-
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
         viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
 
@@ -115,6 +115,30 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         ImageButton drawModeButton = (ImageButton) findViewById(R.id.drawModeButton);
         ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
+
+        toggleUtility = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (utilityLayout.getVisibility() == View.VISIBLE)
+                    utilityLayout.animate()
+                            .alpha(0f)
+                            .setDuration(shortAnimationDuration)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    utilityLayout.setVisibility(View.GONE);
+                                }
+                            });
+                else {
+                    utilityLayout.setAlpha(0f);
+                    utilityLayout.setVisibility(View.VISIBLE);
+                    utilityLayout.animate()
+                            .alpha(1f)
+                            .setDuration(shortAnimationDuration)
+                            .setListener(null);
+                }
+            }
+        };
 
         TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
         TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
@@ -136,7 +160,12 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
         viewPager.setAdapter(swipeImageAdapter);
         viewPager.setCurrentItem(position, true);
-
+        viewPager.setPageTransformer(new ViewPager2.PageTransformer(){
+            @Override
+            public void transformPage(@NonNull View page, float position) {
+                page.setOnClickListener(toggleUtility);
+             }
+        });
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int pos) {
@@ -145,7 +174,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                 position = pos;
             }
         });
-
         backButton.setOnClickListener(listener -> {
             Intent intent = new Intent(SingleImageView.this, MainActivity.class);
             startActivity(intent);
@@ -181,26 +209,26 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         });
 
         // View/Hide utility buttons
-        screenLayout.setOnClickListener((view) -> {
-            if (utilityLayout.getVisibility() == View.VISIBLE)
-                utilityLayout.animate()
-                        .alpha(0f)
-                        .setDuration(shortAnimationDuration)
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                utilityLayout.setVisibility(View.GONE);
-                            }
-                        });
-            else {
-                utilityLayout.setAlpha(0f);
-                utilityLayout.setVisibility(View.VISIBLE);
-                utilityLayout.animate()
-                        .alpha(1f)
-                        .setDuration(shortAnimationDuration)
-                        .setListener(null);
-            }
-        });
+//        screenLayout.setOnClickListener((view) -> {
+//            if (utilityLayout.getVisibility() == View.VISIBLE)
+//                utilityLayout.animate()
+//                        .alpha(0f)
+//                        .setDuration(shortAnimationDuration)
+//                        .setListener(new AnimatorListenerAdapter() {
+//                            @Override
+//                            public void onAnimationEnd(Animator animation) {
+//                                utilityLayout.setVisibility(View.GONE);
+//                            }
+//                        });
+//            else {
+//                utilityLayout.setAlpha(0f);
+//                utilityLayout.setVisibility(View.VISIBLE);
+//                utilityLayout.animate()
+//                        .alpha(1f)
+//                        .setDuration(shortAnimationDuration)
+//                        .setListener(null);
+//            }
+//        });
 
         // Show menu
         moreOptionButton.setOnClickListener(this::showMenu);
