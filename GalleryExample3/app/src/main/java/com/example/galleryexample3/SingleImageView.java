@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -145,7 +146,12 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
 
         imageURI = gotBundle.getString("imageURI");
         position = gotBundle.getInt("position");
-
+        viewPager.setPageTransformer(new ViewPager2.PageTransformer() {
+            @Override
+            public void transformPage(@NonNull View page, float position) {
+                page.setOnClickListener(toggleUtility);
+            }
+        });
         // Set up swiping between images
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
         viewPager.setAdapter(swipeImageAdapter);
