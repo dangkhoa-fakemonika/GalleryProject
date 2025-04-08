@@ -31,6 +31,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -48,6 +49,7 @@ import com.bumptech.glide.request.target.Target;
 import com.example.galleryexample3.MainActivity;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.businessclasses.ImageFiltersProcessing;
+import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.userinterface.AdjustmenOptionAdapter;
 import com.example.galleryexample3.userinterface.FilterPreviewAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
@@ -134,6 +136,20 @@ public class EditView extends AppCompatActivity {
         RectangleView rectangleCrop = (RectangleView) findViewById(R.id.rectangleCrop);
         Button undoButton = (Button) findViewById(R.id.undoButton);
         Button cropButton = (Button) findViewById(R.id.cropButton);
+        Space filterSpace = (Space) findViewById(R.id.filterSpace);
+        Space transformSpace = (Space) findViewById(R.id.transformSpace);
+        Button saveButton = (Button) findViewById(R.id.saveButton);
+
+        saveButton.setOnClickListener((l) -> {
+            if (Objects.equals(mode, "Adjustment")) {
+                ImageGalleryProcessing.saveImage(this, modBitmap);
+            } else if (Objects.equals(mode, "Filter")) {
+                ImageGalleryProcessing.saveImage(this, srcBitmap);
+            } else {
+                Bitmap temp = Bitmap.createBitmap(modBitmap, (int)((rectangleCrop.getX() - editedImage.getX()) / editedImage.getWidth() * modBitmap.getWidth()), (int)((rectangleCrop.getY() - editedImage.getY()) / editedImage.getHeight() * modBitmap.getHeight()), (int)((float) rectangleCrop.getWidth() / editedImage.getWidth() * modBitmap.getWidth()), (int)((float) rectangleCrop.getHeight() / editedImage.getHeight() * modBitmap.getHeight()));
+                ImageGalleryProcessing.saveImage(this, temp);
+            }
+        });
 
         topLeftPoint.setOnTouchListener(new View.OnTouchListener() {
             float dXo, dYo;
@@ -405,12 +421,14 @@ public class EditView extends AppCompatActivity {
                 adjustmentSeekBar.setVisibility(View.VISIBLE);
 
                 filterPreviewImage.setVisibility(View.GONE);
+                filterSpace.setVisibility(View.GONE);
 
                 rectangleCrop.setVisibility(View.GONE);
                 topLeftPoint.setVisibility(View.GONE);
                 topRightPoint.setVisibility(View.GONE);
                 botLeftPoint.setVisibility(View.GONE);
                 botRightPoint.setVisibility(View.GONE);
+                transformSpace.setVisibility(View.GONE);
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) editedImageFrame.getLayoutParams();
                 layoutParams.addRule(RelativeLayout.ABOVE, R.id.adjustmentOption);
@@ -433,12 +451,14 @@ public class EditView extends AppCompatActivity {
                 adjustmentSeekBar.setVisibility(View.GONE);
 
                 filterPreviewImage.setVisibility(View.VISIBLE);
+                filterSpace.setVisibility(View.VISIBLE);
 
                 rectangleCrop.setVisibility(View.GONE);
                 topLeftPoint.setVisibility(View.GONE);
                 topRightPoint.setVisibility(View.GONE);
                 botLeftPoint.setVisibility(View.GONE);
                 botRightPoint.setVisibility(View.GONE);
+                transformSpace.setVisibility(View.GONE);
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) editedImageFrame.getLayoutParams();
                 layoutParams.addRule(RelativeLayout.ABOVE, R.id.filterPreviewImage);
@@ -447,7 +467,7 @@ public class EditView extends AppCompatActivity {
         });
 
         transformButton.setOnClickListener(l -> {
-            if (!mode.equals("Filter")) {
+            if (!mode.equals("Transform")) {
                 adjustmentButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
                 filterButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
                 transformButton.setTextColor(Color.WHITE);
@@ -461,15 +481,54 @@ public class EditView extends AppCompatActivity {
                 adjustmentSeekBar.setVisibility(View.GONE);
 
                 filterPreviewImage.setVisibility(View.GONE);
+                filterSpace.setVisibility(View.GONE);
 
                 rectangleCrop.setVisibility(View.VISIBLE);
                 topLeftPoint.setVisibility(View.VISIBLE);
                 topRightPoint.setVisibility(View.VISIBLE);
                 botLeftPoint.setVisibility(View.VISIBLE);
                 botRightPoint.setVisibility(View.VISIBLE);
+                transformSpace.setVisibility(View.VISIBLE);
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) editedImageFrame.getLayoutParams();
-                layoutParams.addRule(RelativeLayout.ABOVE, R.id.editModeButtonBar);
+                layoutParams.addRule(RelativeLayout.ABOVE, R.id.transformSpace);
+                modBitmap = srcBitmap.copy(srcBitmap.getConfig(), true);
+                Glide.with(this).load(modBitmap).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                        editedImage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                editedImage.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                float left = editedImage.getX();
+                                float top = editedImage.getY();
+                                float right = left + editedImage.getWidth();
+                                float bottom = top + editedImage.getHeight();
+
+                                topLeftPoint.setX(left - topLeftPoint.getWidth() / 2f);
+                                topLeftPoint.setY(top - topLeftPoint.getHeight() / 2f);
+
+                                topRightPoint.setX(right - topRightPoint.getWidth() / 2f);
+                                topRightPoint.setY(top - topRightPoint.getHeight() / 2f);
+
+                                botLeftPoint.setX(left - botLeftPoint.getWidth() / 2f);
+                                botLeftPoint.setY(bottom - botLeftPoint.getHeight() / 2f);
+
+                                botRightPoint.setX(right - botRightPoint.getWidth() / 2f);
+                                botRightPoint.setY(bottom - botRightPoint.getHeight() / 2f);
+
+                                rectangleCrop.setRect(topLeftPoint.getX() + topLeftPoint.getWidth() / 2f, topLeftPoint.getY() + topLeftPoint.getHeight() / 2f, botRightPoint.getX() + botRightPoint.getWidth() / 2f, botRightPoint.getY() + botRightPoint.getHeight() / 2f);
+                                Log.i("debug", ((BitmapDrawable) editedImage.getDrawable()).getBitmap().getWidth() + " " + ((BitmapDrawable) editedImage.getDrawable()).getBitmap().getHeight());
+                            }
+                        });
+                        return false;
+                    }
+                }).into(editedImage);
             }
         });
 
@@ -602,8 +661,8 @@ public class EditView extends AppCompatActivity {
                 FilterPreviewAdapter adapter = (FilterPreviewAdapter) recyclerView.getAdapter();
                 FilterPreviewAdapter.FilterPreview fp = adapter.getFilterList().get(position);
                 srcBitmap = fp.getBitmap();
-                String fn = fp.getFilterName();
-                subModeTextView.setText(fn);
+                submode = fp.getFilterName();
+                subModeTextView.setText(submode);
                 Glide.with(context).load(srcBitmap).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(editedImage);
             }
         });
@@ -612,8 +671,8 @@ public class EditView extends AppCompatActivity {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 AdjustmenOptionAdapter adapter = (AdjustmenOptionAdapter) recyclerView.getAdapter();
-                String on = adapter.getAdjustmentList().get(position);
-                subModeTextView.setText(on);
+                submode = adapter.getAdjustmentList().get(position);
+                subModeTextView.setText(submode);
             }
         });
 

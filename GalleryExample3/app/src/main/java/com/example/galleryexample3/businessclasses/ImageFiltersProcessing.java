@@ -207,9 +207,9 @@ public class ImageFiltersProcessing {
         for (int i = 0; i < 4; i++) {
             int startY = i * chunkHeight;
             int endY = (i + 1) * chunkHeight;
-            int inc = d > 0 ? d > 1 ? d > 2 ? i < 2 ? 1 : i < 3 ? 2 : 3 : i < 1 ? 1 : 2 : i < 1 ? 0 : 1 : 0;
-            if (i > 0) startY += inc;
-            endY += inc;
+            if ( i == 3) {
+                endY += d;
+            }
 
             int finalEndY = endY;
             int finalStartY = startY;
