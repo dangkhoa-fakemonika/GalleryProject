@@ -4,6 +4,14 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class ImageFiltersProcessing {
     public static Bitmap applyGrayscale(Bitmap imageBitmap){
         int width = imageBitmap.getWidth();
@@ -180,22 +188,51 @@ public class ImageFiltersProcessing {
         return Bitmap.createBitmap(pixels, width, height, cf);
     }
 
-    public static Bitmap adjustBrightness(Bitmap imageBitmap){
+    public static Bitmap adjustBrightness(Bitmap imageBitmap, double brightness){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
-        Bitmap.Config cf = imageBitmap.getConfig();
+        Bitmap result = imageBitmap.copy(Objects.requireNonNull(imageBitmap.getConfig()), true);
 
-        int[] pixels = new int[width * height];
-        imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        double brightness = 1.5;
-        for (int i = 0; i < width * height; i++){
-            int r = (int) Math.min(255, Math.max(0, (Color.red(pixels[i]) * brightness)));
-            int g = (int) Math.min(255, Math.max(0, (Color.green(pixels[i]) * brightness)));
-            int b = (int) Math.min(255, Math.max(0, (Color.blue(pixels[i]) * brightness)));
-            pixels[i] = Color.rgb(r, g, b);
+        int[] brightnessTable = new int[256];
+        for (int i = 0; i < 256; i++) {
+            int val = (int) (i * brightness);
+            brightnessTable[i] = val < 0 ? 0 : (val > 255 ? 255 : val);
         }
 
-        return Bitmap.createBitmap(pixels, width, height, cf);
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        int chunkHeight = height / 4;
+        int d = height % 4;
+
+        for (int i = 0; i < 4; i++) {
+            int startY = i * chunkHeight;
+            int endY = (i + 1) * chunkHeight;
+            int inc = d > 0 ? d > 1 ? d > 2 ? i < 2 ? 1 : i < 3 ? 2 : 3 : i < 1 ? 1 : 2 : i < 1 ? 0 : 1 : 0;
+            if (i > 0) startY += inc;
+            endY += inc;
+
+            int finalEndY = endY;
+            int finalStartY = startY;
+            futures.add(CompletableFuture.runAsync(() -> {
+                int[] pixels = new int[width * (finalEndY - finalStartY)];
+                result.getPixels(pixels, 0, width, 0, finalStartY, width, finalEndY - finalStartY);
+                for (int j = 0; j < pixels.length; j++){
+                    int color = pixels[j];
+                    pixels[j] = Color.rgb(brightnessTable[(color >> 16) & 0xff], brightnessTable[(color >> 8) & 0xff], brightnessTable[color & 0xff]);
+                }
+                result.setPixels(pixels, 0, width, 0, finalStartY, width, finalEndY - finalStartY);
+            }, executor));
+        }
+
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        } catch (CompletionException e) {
+            Log.e("ImageProcessing", "Error processing image", e);
+        } finally {
+            executor.shutdown();
+        }
+
+        return result;
     }
 
     public static Bitmap adjustContrast(Bitmap imageBitmap){
