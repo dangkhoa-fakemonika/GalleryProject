@@ -2,6 +2,7 @@
 agp = "8.7.3"
 barcodeScanning = "17.3.0"
 cameraCamera2 = "1.4.2"
+digitalInkRecognition = "18.1.0"
 glide = "4.16.0"
 imageLabeling = "17.0.9"
 imageLabelingCustom = "17.0.3"
@@ -25,6 +26,7 @@ barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref =
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 camera-core = { module = "androidx.camera:camera-core" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+digital-ink-recognition = { module = "com.google.mlkit:digital-ink-recognition", version.ref = "digitalInkRecognition" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 image-labeling = { module = "com.google.mlkit:image-labeling" }
 image-labeling-custom = { module = "com.google.mlkit:image-labeling-custom", version.ref = "imageLabelingCustom" }

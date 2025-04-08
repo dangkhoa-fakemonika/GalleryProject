@@ -50,6 +50,9 @@ dependencies {
     implementation(libs.text.recognition.japanese)
     implementation(libs.text.recognition.korean)
 
+    // Handwriting rec
+//    implementation(libs.digital.ink.recognition)
+
     // Tag sorting
     implementation(libs.mlkit.image.labeling)
 

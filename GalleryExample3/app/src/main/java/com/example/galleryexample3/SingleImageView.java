@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,6 +30,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
+import com.example.galleryexample3.imageediting.BarCodeScannerClass;
+import com.example.galleryexample3.imageediting.ImageEditActivity;
+import com.bumptech.glide.Glide;
+import com.example.galleryexample3.datamanagement.ImageManager;
 import com.example.galleryexample3.imageediting.EditView;
 import com.example.galleryexample3.imageediting.PaintingActivity;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
@@ -122,6 +127,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
 
         TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
         TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
+        BarCodeScannerClass barCodeScannerClass = new BarCodeScannerClass();
 
         // Get bundle from previous screen
         Intent gotIntent = getIntent();
@@ -176,16 +182,32 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         });
 
         deleteButton.setOnClickListener((l) -> {
-            boolean r = ImageGalleryProcessing.deleteImage(this, imageURI);
-            //boolean r = ImageGalleryProcessing.changeNameImage(this, imageURI, "newtest1.png");
-            if (r){
-                Toast.makeText(this, "Image deleted.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(SingleImageView.this, MainActivity.class);
-                startActivity(intent);
-            }
-            else{
-                Toast.makeText(this, "Image can't be deleted.", Toast.LENGTH_LONG).show();
-            }
+            alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Delete Image?")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            boolean r = ImageGalleryProcessing.deleteImage(context, imageURI);
+                            //boolean r = ImageGalleryProcessing.changeNameImage(this, imageURI, "newtest1.png");
+                            if (r){
+                                Toast.makeText(context, "Image deleted.", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(SingleImageView.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                            else{
+                                Toast.makeText(context, "Image can't be deleted.", Toast.LENGTH_LONG).show();
+                            }
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+
         });
 
         // View/Hide utility buttons
@@ -321,6 +343,10 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return true;
         }
         else if (id == R.id.moreInfo) {
+            return true;
+        }
+        else if (id == R.id.qrread){
+            BarCodeScannerClass.getBarCodeData(this, imageURI);
             return true;
         }
         else

@@ -22,6 +22,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.example.galleryexample3.businessclasses.ImageFiltersProcessing;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -72,10 +73,10 @@ public class CameraActivity extends AppCompatActivity {
                     Toast.makeText(current, "Picture taken!", Toast.LENGTH_SHORT).show();
                     Log.i("IMAGE", "GOT");
                     Bitmap result = image.toBitmap();
-
-
-                    ImageGalleryProcessing.saveImage(current, result);
                     previewImage.setImageBitmap(result);
+
+                    result = ImageFiltersProcessing.rotateRight(result);
+                    ImageGalleryProcessing.saveImage(current, result);
                 }
             });
         });

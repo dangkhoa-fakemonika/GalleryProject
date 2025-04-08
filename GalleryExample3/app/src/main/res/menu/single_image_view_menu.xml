@@ -8,6 +8,8 @@
         android:title="Copy"/>
     <item android:id="@+id/analyzeText"
         android:title="Analyze text"/>
+    <item android:id="@+id/qrread"
+        android:title="Read QR" />
     <item android:id="@+id/moreInfo"
         android:title="More info"/>
 </menu>

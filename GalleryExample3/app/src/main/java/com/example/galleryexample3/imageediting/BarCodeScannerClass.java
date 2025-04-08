@@ -2,6 +2,7 @@ package com.example.galleryexample3.imageediting;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
 
@@ -21,15 +22,15 @@ import java.util.List;
 import java.util.Objects;
 
 public class BarCodeScannerClass {
-    BarcodeScannerOptions options;
+    static BarcodeScannerOptions options;
 
-    public void getBarCodeData(Context context, Bitmap bitmap){
+    public static void getBarCodeData(Context context, String uri){
         if (options == null)
             options = new BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE,Barcode.FORMAT_AZTEC).build();
 
         BarcodeScanner scanner = BarcodeScanning.getClient();
 
-        InputImage image = InputImage.fromBitmap(bitmap, 0);
+        InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(uri), 0);
         Task<List<Barcode>> result = scanner.process(image)
                 .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
                     @Override
@@ -41,27 +42,25 @@ public class BarCodeScannerClass {
                             String rawValue = barcode.getRawValue();
 
                             int valueType = barcode.getValueType();
+                            String temp = barcode.getRawValue();
+                            ClipBoardProcessing.getTextToClipBoard(context, temp);
+
                             // See API reference for complete list of supported types
                             switch (valueType) {
                                 case Barcode.TYPE_WIFI:
                                     String ssid = Objects.requireNonNull(barcode.getWifi()).getSsid();
                                     String password = barcode.getWifi().getPassword();
                                     int type = barcode.getWifi().getEncryptionType();
-
                                     ClipBoardProcessing.getTextToClipBoard(context, ssid + "\n" + password);
-
                                     break;
                                 case Barcode.TYPE_URL:
                                     String title = Objects.requireNonNull(barcode.getUrl()).getTitle();
                                     String url = barcode.getUrl().getUrl();
-
                                     ClipBoardProcessing.getTextToClipBoard(context, url);
-
                                     break;
 
                                 default:
                                     String text = barcode.getRawValue();
-
                                     ClipBoardProcessing.getTextToClipBoard(context, text);
                                     break;
 
