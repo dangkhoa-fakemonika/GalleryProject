@@ -235,14 +235,14 @@ public class ImageFiltersProcessing {
         return result;
     }
 
-    public static Bitmap adjustContrast(Bitmap imageBitmap){
+    public static Bitmap adjustContrast(Bitmap imageBitmap, double contrast){
         int width = imageBitmap.getWidth();
         int height = imageBitmap.getHeight();
         Bitmap.Config cf = imageBitmap.getConfig();
 
         int[] pixels = new int[width * height];
         imageBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        double contrast = 1.5;
+//        Log.i("Contrast", String.valueOf(contrast));
         for (int i = 0; i < width * height; i++){
             int r = (int) Math.min(255, Math.max(0, ((Color.red(pixels[i]) - 128) * contrast + 128)));
             int g = (int) Math.min(255, Math.max(0, ((Color.green(pixels[i]) - 128) * contrast + 128)));

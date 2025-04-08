@@ -5,7 +5,6 @@ import static com.example.galleryexample3.businessclasses.ImageFiltersProcessing
 import static com.example.galleryexample3.businessclasses.ImageFiltersProcessing.applySepia;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Context;
@@ -17,26 +16,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.icu.util.Freezable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -50,28 +43,30 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.example.galleryexample3.MainActivity;
 import com.example.galleryexample3.R;
+import com.example.galleryexample3.businessclasses.ImageFiltersProcessing;
+import com.example.galleryexample3.userinterface.AdjustmenOptionAdapter;
 import com.example.galleryexample3.userinterface.FilterPreviewAdapter;
+import com.example.galleryexample3.userinterface.ItemClickSupporter;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class EditView extends AppCompatActivity {
     private String mode = "Adjustment";
+    private String submode = "Brightness";
     private String imageURI;
-    Bitmap imageBitmap;
-    Bitmap imageSrc;
+    Bitmap srcBitmap;
+    Bitmap modBitmap;
     Bitmap displayBitmap;
+    ArrayList<String> adjustmentList = new ArrayList<>();
     ArrayList<FilterPreviewAdapter.FilterPreview> filterList = new ArrayList<>();
     private MediaStoreObserver mediaStoreObserver;
     private AlertDialog alertDialog;
+    Context context;
 
     private boolean osv = false;
     public class MediaStoreObserver extends ContentObserver {
@@ -107,21 +102,30 @@ public class EditView extends AppCompatActivity {
         setContentView(R.layout.edit_view);
         EdgeToEdge.enable(this);
 
+        context = this;
+
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
 
         imageURI = gotBundle.getString("imageURI");
-        imageBitmap = BitmapFactory.decodeFile(imageURI);
-        imageSrc = imageBitmap.copy(Objects.requireNonNull(imageBitmap.getConfig()), true);
-        filterList.add(new FilterPreviewAdapter.FilterPreview("Normal", imageBitmap));
-        filterList.add(new FilterPreviewAdapter.FilterPreview("Gray Scale", applyGrayscale(imageBitmap)));
-        filterList.add(new FilterPreviewAdapter.FilterPreview("Sepia", applySepia(imageBitmap)));
+        srcBitmap = BitmapFactory.decodeFile(imageURI);
+        modBitmap = srcBitmap.copy(Objects.requireNonNull(srcBitmap.getConfig()), true);
+
+        adjustmentList.add("Brightness");
+        adjustmentList.add("Contrast");
+        filterList.add(new FilterPreviewAdapter.FilterPreview("Normal", srcBitmap));
+        filterList.add(new FilterPreviewAdapter.FilterPreview("Gray Scale", applyGrayscale(srcBitmap)));
+        filterList.add(new FilterPreviewAdapter.FilterPreview("Sepia", applySepia(srcBitmap)));
 
         TextView modeTextView = (TextView) findViewById(R.id.modeTextView);
+        TextView subModeTextView = (TextView) findViewById(R.id.subModeTextView);
         Button adjustmentButton = (Button) findViewById(R.id.adjustmentButton);
         Button filterButton = (Button) findViewById(R.id.filterButton);
+        Button transformButton = (Button) findViewById(R.id.transformButton);
         SeekBar adjustmentSeekBar = (SeekBar) findViewById(R.id.adjustmentSeekBar);
+        FrameLayout editedImageFrame = (FrameLayout) findViewById(R.id.editedImageFrame);
         ImageView editedImage = (ImageView) findViewById(R.id.editedImage);
+        RecyclerView adjustmentOption = (RecyclerView) findViewById(R.id.adjustmentOption);
         RecyclerView filterPreviewImage = (RecyclerView) findViewById(R.id.filterPreviewImage);
         View topLeftPoint = (View) findViewById(R.id.topLeftPoint);
         View topRightPoint = (View) findViewById(R.id.topRightPoint);
@@ -130,6 +134,7 @@ public class EditView extends AppCompatActivity {
         RectangleView rectangleCrop = (RectangleView) findViewById(R.id.rectangleCrop);
         Button undoButton = (Button) findViewById(R.id.undoButton);
         Button cropButton = (Button) findViewById(R.id.cropButton);
+
         topLeftPoint.setOnTouchListener(new View.OnTouchListener() {
             float dXo, dYo;
 
@@ -174,7 +179,7 @@ public class EditView extends AppCompatActivity {
                         rectangleCrop.setRect(topLeftPoint.getX() + topLeftPoint.getWidth() / 2f, topLeftPoint.getY() + topLeftPoint.getHeight() / 2f, botRightPoint.getX() + botRightPoint.getWidth() / 2f, botRightPoint.getY() + botRightPoint.getHeight() / 2f);
                         dXo = dXn;
                         dYo = dYn;
-                        changeImageBrightness(editedImage, imageSrc, rectangleCrop);
+                        changeImageBrightness(editedImage, modBitmap, rectangleCrop);
                         return true;
                 }
                 return false;
@@ -225,7 +230,7 @@ public class EditView extends AppCompatActivity {
                         rectangleCrop.setRect(topLeftPoint.getX() + topLeftPoint.getWidth() / 2f, topLeftPoint.getY() + topLeftPoint.getHeight() / 2f, botRightPoint.getX() + botRightPoint.getWidth() / 2f, botRightPoint.getY() + botRightPoint.getHeight() / 2f);
                         dXo = dXn;
                         dYo = dYn;
-                        changeImageBrightness(editedImage, imageSrc, rectangleCrop);
+                        changeImageBrightness(editedImage, modBitmap, rectangleCrop);
                         return true;
                 }
                 return false;
@@ -276,7 +281,7 @@ public class EditView extends AppCompatActivity {
                         rectangleCrop.setRect(topLeftPoint.getX() + topLeftPoint.getWidth() / 2f, topLeftPoint.getY() + topLeftPoint.getHeight() / 2f, botRightPoint.getX() + botRightPoint.getWidth() / 2f, botRightPoint.getY() + botRightPoint.getHeight() / 2f);
                         dXo = dXn;
                         dYo = dYn;
-                        changeImageBrightness(editedImage, imageSrc, rectangleCrop);
+                        changeImageBrightness(editedImage, modBitmap, rectangleCrop);
                         return true;
                 }
                 return false;
@@ -327,7 +332,7 @@ public class EditView extends AppCompatActivity {
                         rectangleCrop.setRect(topLeftPoint.getX() + topLeftPoint.getWidth() / 2f, topLeftPoint.getY() + topLeftPoint.getHeight() / 2f, botRightPoint.getX() + botRightPoint.getWidth() / 2f, botRightPoint.getY() + botRightPoint.getHeight() / 2f);
                         dXo = dXn;
                         dYo = dYn;
-                        changeImageBrightness(editedImage, imageSrc, rectangleCrop);
+                        changeImageBrightness(editedImage, modBitmap, rectangleCrop);
                         return true;
                 }
                 return false;
@@ -378,7 +383,7 @@ public class EditView extends AppCompatActivity {
                         botRightPoint.setY(botRightPoint.getY() + dYc);
                         dXo = dXn;
                         dYo = dYn;
-                        changeImageBrightness(editedImage, imageSrc, rectangleCrop);
+                        changeImageBrightness(editedImage, modBitmap, rectangleCrop);
                         return true;
                 }
                 return false;
@@ -389,31 +394,91 @@ public class EditView extends AppCompatActivity {
             if (!mode.equals("Adjustment")) {
                 adjustmentButton.setTextColor(Color.WHITE);
                 filterButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
+                transformButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
 
                 mode = "Adjustment";
                 modeTextView.setText(mode);
+                submode = "Brightness";
+                subModeTextView.setText(submode);
 
+                adjustmentOption.setVisibility(View.VISIBLE);
                 adjustmentSeekBar.setVisibility(View.VISIBLE);
+
                 filterPreviewImage.setVisibility(View.GONE);
+
+                rectangleCrop.setVisibility(View.GONE);
+                topLeftPoint.setVisibility(View.GONE);
+                topRightPoint.setVisibility(View.GONE);
+                botLeftPoint.setVisibility(View.GONE);
+                botRightPoint.setVisibility(View.GONE);
+
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) editedImageFrame.getLayoutParams();
+                layoutParams.addRule(RelativeLayout.ABOVE, R.id.adjustmentOption);
+                Glide.with(context).load(srcBitmap).into(editedImage);
             }
         });
 
         filterButton.setOnClickListener(l -> {
             if (!mode.equals("Filter")) {
-                filterButton.setTextColor(Color.WHITE);
                 adjustmentButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
+                filterButton.setTextColor(Color.WHITE);
+                transformButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
 
                 mode = "Filter";
                 modeTextView.setText(mode);
+                submode = "Normal";
+                subModeTextView.setText(submode);
+
+                adjustmentOption.setVisibility(View.GONE);
+                adjustmentSeekBar.setVisibility(View.GONE);
 
                 filterPreviewImage.setVisibility(View.VISIBLE);
+
+                rectangleCrop.setVisibility(View.GONE);
+                topLeftPoint.setVisibility(View.GONE);
+                topRightPoint.setVisibility(View.GONE);
+                botLeftPoint.setVisibility(View.GONE);
+                botRightPoint.setVisibility(View.GONE);
+
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) editedImageFrame.getLayoutParams();
+                layoutParams.addRule(RelativeLayout.ABOVE, R.id.filterPreviewImage);
+                Glide.with(context).load(srcBitmap).into(editedImage);
+            }
+        });
+
+        transformButton.setOnClickListener(l -> {
+            if (!mode.equals("Filter")) {
+                adjustmentButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
+                filterButton.setTextColor(getResources().getColor(R.color.button_noselected, getTheme()));
+                transformButton.setTextColor(Color.WHITE);
+
+                mode = "Transform";
+                modeTextView.setText(mode);
+                submode = "Crop";
+                subModeTextView.setText(submode);
+
+                adjustmentOption.setVisibility(View.GONE);
                 adjustmentSeekBar.setVisibility(View.GONE);
+
+                filterPreviewImage.setVisibility(View.GONE);
+
+                rectangleCrop.setVisibility(View.VISIBLE);
+                topLeftPoint.setVisibility(View.VISIBLE);
+                topRightPoint.setVisibility(View.VISIBLE);
+                botLeftPoint.setVisibility(View.VISIBLE);
+                botRightPoint.setVisibility(View.VISIBLE);
+
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) editedImageFrame.getLayoutParams();
+                layoutParams.addRule(RelativeLayout.ABOVE, R.id.editModeButtonBar);
             }
         });
 
         FilterPreviewAdapter filterPreviewAdapter = new FilterPreviewAdapter(this, filterList);
         filterPreviewImage.setAdapter(filterPreviewAdapter);
-        Glide.with(this).load(imageBitmap).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
+        AdjustmenOptionAdapter adjustmentOptionAdapter = new AdjustmenOptionAdapter(this, adjustmentList);
+        adjustmentOption.setAdapter(adjustmentOptionAdapter);
+
+        Glide.with(this).load(srcBitmap).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                 return false;
@@ -451,8 +516,8 @@ public class EditView extends AppCompatActivity {
         }).into(editedImage);
 
         undoButton.setOnClickListener(listener -> {
-            imageSrc = imageBitmap.copy(imageBitmap.getConfig(), true);
-            Glide.with(this).load(imageSrc).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
+            modBitmap = srcBitmap.copy(srcBitmap.getConfig(), true);
+            Glide.with(this).load(modBitmap).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                     return false;
@@ -491,9 +556,9 @@ public class EditView extends AppCompatActivity {
         });
 
         cropButton.setOnClickListener(listener -> {
-            Bitmap temp = Bitmap.createBitmap(imageSrc, (int)((rectangleCrop.getX() - editedImage.getX()) / editedImage.getWidth() * imageSrc.getWidth()), (int)((rectangleCrop.getY() - editedImage.getY()) / editedImage.getHeight() * imageSrc.getHeight()), (int)((float) rectangleCrop.getWidth() / editedImage.getWidth() * imageSrc.getWidth()), (int)((float) rectangleCrop.getHeight() / editedImage.getHeight() * imageSrc.getHeight()));
-            imageSrc = temp.copy(Objects.requireNonNull(temp.getConfig()), true);
-            Glide.with(this).load(imageSrc).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
+            Bitmap temp = Bitmap.createBitmap(modBitmap, (int)((rectangleCrop.getX() - editedImage.getX()) / editedImage.getWidth() * modBitmap.getWidth()), (int)((rectangleCrop.getY() - editedImage.getY()) / editedImage.getHeight() * modBitmap.getHeight()), (int)((float) rectangleCrop.getWidth() / editedImage.getWidth() * modBitmap.getWidth()), (int)((float) rectangleCrop.getHeight() / editedImage.getHeight() * modBitmap.getHeight()));
+            modBitmap = temp.copy(Objects.requireNonNull(temp.getConfig()), true);
+            Glide.with(this).load(modBitmap).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                     return false;
@@ -528,6 +593,52 @@ public class EditView extends AppCompatActivity {
                     return false;
                 }
             }).into(editedImage);
+        });
+
+
+        ItemClickSupporter.addTo(filterPreviewImage).setOnItemClickListener(new ItemClickSupporter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                FilterPreviewAdapter adapter = (FilterPreviewAdapter) recyclerView.getAdapter();
+                FilterPreviewAdapter.FilterPreview fp = adapter.getFilterList().get(position);
+                srcBitmap = fp.getBitmap();
+                String fn = fp.getFilterName();
+                subModeTextView.setText(fn);
+                Glide.with(context).load(srcBitmap).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(editedImage);
+            }
+        });
+
+        ItemClickSupporter.addTo(adjustmentOption).setOnItemClickListener(new ItemClickSupporter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                AdjustmenOptionAdapter adapter = (AdjustmenOptionAdapter) recyclerView.getAdapter();
+                String on = adapter.getAdjustmentList().get(position);
+                subModeTextView.setText(on);
+            }
+        });
+
+        adjustmentSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.d("seekbar", String.valueOf(progress));
+                if (submode.equals("Brightness")) {
+                    modBitmap = ImageFiltersProcessing.adjustBrightness(srcBitmap, (double) progress / 50);
+                    Glide.with(context).load(modBitmap).into(editedImage);
+                } else if (submode.equals("Contrast")) {
+                    modBitmap = ImageFiltersProcessing.adjustContrast(srcBitmap, (double) progress / 50);
+                    Glide.with(context).load(modBitmap).into(editedImage);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
         });
     }
 

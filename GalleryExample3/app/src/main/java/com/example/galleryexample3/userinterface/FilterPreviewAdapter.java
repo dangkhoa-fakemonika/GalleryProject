@@ -27,10 +27,14 @@ public class FilterPreviewAdapter extends RecyclerView.Adapter<FilterPreviewAdap
         this.filterList = filterList;
     }
 
+    public ArrayList<FilterPreview> getFilterList() {
+        return filterList;
+    }
+
     @NonNull
     @Override
     public FilterPreviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.filter_preview, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.filter_preview, parent, false);
         return new FilterPreviewViewHolder(view);
     }
 
@@ -67,6 +71,14 @@ public class FilterPreviewAdapter extends RecyclerView.Adapter<FilterPreviewAdap
         public FilterPreview(String name, Bitmap imageUrl) {
             this.filterName = name;
             this.bitmap = imageUrl;
+        }
+
+        public String getFilterName() {
+            return filterName;
+        }
+
+        public Bitmap getBitmap() {
+            return bitmap;
         }
     }
 }
