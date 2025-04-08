@@ -9,7 +9,7 @@
 
     <FrameLayout
         android:id="@+id/frameLayout"
-        android:layout_width="match_parent"
+        android:layout_width="387dp"
         android:layout_height="600dp">
 
         <com.example.galleryexample3.imageediting.PaintView
