@@ -26,12 +26,10 @@ import java.io.IOException;
 public class TextRecognitionClass {
     static TextRecognizer recognizer;
 
-    public TextRecognitionClass(){
+    public static void getTextFromImage(Context context, String uri){
         if (recognizer == null)
             recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-    }
 
-    public static void getTextFromImage(Context context, String uri){
         InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(uri), 0);
 
         // Text recognition

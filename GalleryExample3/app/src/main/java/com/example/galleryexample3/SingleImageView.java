@@ -133,7 +133,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
 
         TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
         TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
-        DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
         // Get bundle from previous screen
         Intent gotIntent = getIntent();

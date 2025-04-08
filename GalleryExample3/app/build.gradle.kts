@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.camera.view)
     implementation(libs.camera.core)
 
+    // Scan barcodes
+    implementation(libs.barcode.scanning)
+
     //ViewPager2
     implementation(libs.androidx.viewpager2)
 }

@@ -53,7 +53,7 @@ class TagsTable{
 
 public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DB_NAME = "hddb";
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 4;
     private static SQLiteDatabase sqLiteDatabase;
 
     public DatabaseHandler(Context context){
