@@ -90,7 +90,21 @@ public class PaintingActivity extends AppCompatActivity {
 
         paintView = findViewById(R.id.paintView);
         frameLayout = findViewById(R.id.frameLayout);
-        configureSize();
+        //configureSize();
+
+        float fw = 387 * getResources().getDisplayMetrics().density + 0.5f;
+        float fh = 600 * getResources().getDisplayMetrics().density + 0.5f;
+        float iw = imageBitmap.getWidth();
+        float ih = imageBitmap.getHeight();
+        float sw = fw / iw;
+        float sh = fh / ih;
+        float s = Math.min(sw, sh);
+        int nw = Math.round(iw * s);
+        int nh = Math.round(ih * s);
+        paintView.setLayoutParams(new FrameLayout.LayoutParams(nw, nh));
+        paintView.setX((fw - nw) / 2);
+        paintView.setY((fh - nh) / 2);
+        paintView.setScale(nw, nh);
 
         findViewById(R.id.buttonRed).setOnClickListener((l) -> paintView.setBrushColor(Color.RED));
         findViewById(R.id.buttonBlue).setOnClickListener((l) -> paintView.setBrushColor(Color.BLUE));
@@ -181,13 +195,18 @@ public class PaintingActivity extends AppCompatActivity {
         int SCREEN_HEIGHT = displaymetrics.heightPixels;
 
         float scalingX = (float) SCREEN_WIDTH / imageBitmap.getWidth();
-//        float scalingY = (float) SCREEN_HEIGHT / imageBitmap.getHeight();
+        float scalingY = (float) SCREEN_HEIGHT / imageBitmap.getHeight();
+        float scale = Math.min(scalingX, scalingY);
 
 //        float scaling = Math.min(scalingX, scalingY);
         float scaling = scalingX;
 //        Log.i("SCALE", scaling + "");
 
-        paintView.setLayoutParams(new FrameLayout.LayoutParams(imageBitmap.getWidth(), imageBitmap.getHeight()));
+        int newWidth = Math.round(imageBitmap.getWidth() * scale);
+        int newHeight = Math.round(imageBitmap.getHeight() * scale);
+
+//        paintView.setLayoutParams(new FrameLayout.LayoutParams(imageBitmap.getWidth(), imageBitmap.getHeight()));
+          paintView.setLayoutParams(new FrameLayout.LayoutParams(imageBitmap.getWidth(), imageBitmap.getHeight()));
 //        paintView.setX((float) (SCREEN_WIDTH - imageBitmap.getWidth()) / 2);
 //        paintView.setY(0);
 

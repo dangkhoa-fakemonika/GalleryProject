@@ -15,6 +15,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +24,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class PaintView extends View {
+public class PaintView extends androidx.appcompat.widget.AppCompatImageView {
 
     private Paint paint;
     private Path path;
@@ -35,6 +37,15 @@ public class PaintView extends View {
     private Context context;
     private Rect src, dst;
     private String imageURI;
+    private int nw;
+    private int nh;
+
+    public void setScale (int nw, int nh) {
+        this.nw = nw;
+        this.nh = nh;
+        dst = new Rect(0, 0, nw, nh);
+        invalidate();
+    }
 
     public PaintView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -43,7 +54,9 @@ public class PaintView extends View {
 
         imageURI = gotBundle.getString("imageURI");
         temp = BitmapFactory.decodeFile(imageURI);
-        src = new Rect(0, 0, temp.getWidth(), temp.getHeight()); dst = new Rect(0, 0, temp.getWidth(), temp.getHeight());
+        Log.i("debug", temp.getWidth() + " " + temp.getHeight());
+        src = new Rect(0, 0, temp.getWidth(), temp.getHeight());
+        dst = new Rect(0, 0, temp.getWidth(), temp.getHeight());
 
 //        imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample);
 //        this.getLayoutParams().width = temp.getWidth();
@@ -145,6 +158,8 @@ public class PaintView extends View {
     }
 
     public void redo(){
+        Log.i("debug", getX() + " " + getY() + " " + getWidth() + " " + getHeight());
+        Log.i("debug", getLayoutParams().width + " " + getLayoutParams().height);
         if (undo_paths.isEmpty()) return;
 
         Path temp_path = undo_paths.remove(undo_paths.size() - 1);

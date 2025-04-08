@@ -9,14 +9,17 @@
 
     <FrameLayout
         android:id="@+id/frameLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="600dp">
 
         <com.example.galleryexample3.imageediting.PaintView
             android:id="@+id/paintView"
-            android:layout_width="390dp"
-            android:layout_height="386dp"
-            android:background="@color/white" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter" />
     </FrameLayout>
 
     <SeekBar
