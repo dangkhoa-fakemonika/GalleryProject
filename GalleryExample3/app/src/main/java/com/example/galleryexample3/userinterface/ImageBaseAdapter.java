@@ -75,8 +75,7 @@ public class ImageBaseAdapter extends BaseAdapter {
             picturesView = new ImageView(context);
             picturesView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-            picturesView
-                    .setLayoutParams(new GridView.LayoutParams(SCREEN_WIDTH / columns, SCREEN_WIDTH / columns));
+            picturesView.setLayoutParams(new GridView.LayoutParams(SCREEN_WIDTH / columns, SCREEN_WIDTH / columns));
 
         } else {
             picturesView = (ImageView) convertView;

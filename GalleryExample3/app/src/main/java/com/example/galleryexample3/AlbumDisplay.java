@@ -45,9 +45,9 @@ public class AlbumDisplay extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_view);
 
-        if (ActivityCompat.checkSelfPermission(AlbumDisplay.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(AlbumDisplay.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
-        }
+//        if (ActivityCompat.checkSelfPermission(AlbumDisplay.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(AlbumDisplay.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
+//        }
 
         GridView gallery = (GridView) findViewById(R.id.galleryGridView);
         rowNum = (EditText) findViewById(R.id.rowNum);

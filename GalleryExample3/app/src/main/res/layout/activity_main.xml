@@ -18,7 +18,7 @@
                 android:layout_width="114dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Rows"
+                android:text="Cols"
                 android:textSize="24sp" />
 
             <EditText
@@ -42,7 +42,7 @@
         <GridView
             android:id="@+id/galleryGridView"
             android:layout_width="match_parent"
-            android:layout_height="423dp"
+            android:layout_height="550dp"
             android:columnWidth="280dp"
             android:gravity="center"
             android:horizontalSpacing="2dp"

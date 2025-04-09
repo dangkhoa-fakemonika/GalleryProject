@@ -48,14 +48,6 @@ public class AlbumSelection extends Activity {
             startActivity(intent);
         });
 
-        addAlbum.setOnClickListener((l) -> {
-            String temp = albumNameText.getText().toString();
-            databaseHandler.albums().createAlbum(temp);
-            Toast.makeText(this, "Album created: " + temp, Toast.LENGTH_SHORT).show();
-            albumNameText.setText("");
-        });
-
-
         Object[] sArray = databaseHandler.albums().getAllAlbums().toArray();
         String[] temp = new String[sArray.length];
         for (int i = 0; i < sArray.length; i++)
@@ -74,6 +66,23 @@ public class AlbumSelection extends Activity {
             intent.putExtras(bundle);
             startActivity(intent);
         });
+
+
+        addAlbum.setOnClickListener((l) -> {
+            String temp2 = albumNameText.getText().toString();
+            databaseHandler.albums().createAlbum(temp2);
+            Toast.makeText(this, "Album created: " + temp2, Toast.LENGTH_SHORT).show();
+            albumNameText.setText("");
+            
+            gridAdapter.notifyDataSetChanged();
+            theGridView.invalidate();
+        });
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
     }
 }
 
