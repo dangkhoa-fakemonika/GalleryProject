@@ -45,8 +45,18 @@
         <activity android:name=".imageediting.ImageEditActivity" android:exported="true"/>
         <activity android:name=".imageediting.EditView" android:exported="true"/>
         <activity android:name=".CameraActivity" android:exported="true"/>
+        <activity android:name=".imageediting.DimensionEditActivity" android:exported="true"/>
         <activity android:name=".imageediting.PaintingActivity"/>
-
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.galleryexample3.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+            android:name="android.support.FILE_PROVIDER_PATHS"
+            android:resource="@xml/file_paths"
+                />
+        </provider>
     </application>
 
 

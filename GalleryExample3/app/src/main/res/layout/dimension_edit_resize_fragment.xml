@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <ImageView
+        android:id="@+id/editingImageView"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:id="@+id/resizeButtonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/newWidthInput"
+                android:text="W:"/>
+            <EditText
+                style="@style/Widget.Design.TextInputLayout"
+                android:id="@+id/newWidthInput"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:autofillHints="New Width"
+                android:inputType="number" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/newHeigthInput"
+                android:text="H:"/>
+            <EditText
+                style="@style/Widget.Design.TextInputLayout"
+                android:id="@+id/newHeigthInput"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:autofillHints="New Width"
+                android:inputType="number" />
+        </LinearLayout>
+        <Button
+            android:id="@+id/resizeApplyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apply">
+        </Button>
+        <Button
+            android:id="@+id/resizeResetButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset">
+        </Button>
+    </LinearLayout>
+</RelativeLayout>

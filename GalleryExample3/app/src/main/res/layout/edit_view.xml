@@ -9,6 +9,13 @@
     android:paddingBottom="48dp"
     android:paddingTop="24dp">
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="    private&#xA;" />
+
     <LinearLayout
         android:id="@+id/editTopBar"
         android:layout_width="match_parent"
@@ -149,7 +156,7 @@
         android:id="@+id/adjustmentSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/editModeButtonBar"
+        android:layout_above="@id/editModeButtonHorizontalScroll"
         android:max="100"
         android:min="1"
         android:paddingBottom="8dp"
@@ -160,65 +167,84 @@
         android:id="@+id/filterSpace"
         android:layout_width="match_parent"
         android:layout_height="26dp"
-        android:layout_above="@id/editModeButtonBar" />
+        android:layout_above="@id/editModeButtonHorizontalScroll" />
 
     <Space
         android:id="@+id/transformSpace"
         android:layout_width="match_parent"
         android:layout_height="112dp"
-        android:layout_above="@id/editModeButtonBar" />
-
-    <LinearLayout
-        android:id="@+id/editModeButtonBar"
-        style="?android:attr/buttonBarStyle"
+        android:layout_above="@id/editModeButtonHorizontalScroll" />
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:minHeight="40dp">
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/adjustmentButton"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
+        android:id="@+id/editModeButtonHorizontalScroll"
+        android:layout_alignParentBottom="true">
+        <LinearLayout
+            android:id="@+id/editModeButtonBar"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:minWidth="100dp"
-            android:text="Adjustment"
-            android:textColor="#FFFFFF" />
+            android:layout_alignParentBottom="true"
+            android:minHeight="40dp">
 
-        <Button
-            android:id="@+id/filterButton"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:minWidth="100dp"
-            android:text="Filter"
-            android:textColor="#323232" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
-        <Button
-            android:id="@+id/transformButton"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:minWidth="100dp"
-            android:text="Transform"
-            android:textColor="#323232" />
+            <Button
+                android:id="@+id/adjustmentButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:minWidth="100dp"
+                android:text="Adjustment"
+                android:textColor="#FFFFFF" />
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <Button
+                android:id="@+id/filterButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:minWidth="100dp"
+                android:text="Filter"
+                android:textColor="#323232" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/transformButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:minWidth="100dp"
+                android:text="Transform"
+                android:textColor="#323232" />
+
+
+            <Button
+                android:id="@+id/rotateButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:minWidth="100dp"
+                android:text="Rotate"
+                android:textColor="#323232" />
+
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
 
 </RelativeLayout>

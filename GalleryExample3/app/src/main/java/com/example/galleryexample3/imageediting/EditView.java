@@ -28,8 +28,11 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Space;
 import android.widget.TextView;
@@ -50,10 +53,12 @@ import com.example.galleryexample3.MainActivity;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.businessclasses.ImageFiltersProcessing;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.example.galleryexample3.dataclasses.EditImageManager;
 import com.example.galleryexample3.userinterface.AdjustmenOptionAdapter;
 import com.example.galleryexample3.userinterface.FilterPreviewAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -69,13 +74,13 @@ public class EditView extends AppCompatActivity {
     private MediaStoreObserver mediaStoreObserver;
     private AlertDialog alertDialog;
     Context context;
+    private LinearLayout bottomButtonBar;
 
     private boolean osv = false;
     public class MediaStoreObserver extends ContentObserver {
         public MediaStoreObserver(Handler handler) {
             super(handler);
         }
-
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
@@ -103,7 +108,6 @@ public class EditView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_view);
         EdgeToEdge.enable(this);
-
         context = this;
 
         Intent gotIntent = getIntent();
@@ -118,6 +122,9 @@ public class EditView extends AppCompatActivity {
         filterList.add(new FilterPreviewAdapter.FilterPreview("Normal", srcBitmap));
         filterList.add(new FilterPreviewAdapter.FilterPreview("Gray Scale", applyGrayscale(srcBitmap)));
         filterList.add(new FilterPreviewAdapter.FilterPreview("Sepia", applySepia(srcBitmap)));
+
+//        Add ScrollView to button bar
+
 
         TextView modeTextView = (TextView) findViewById(R.id.modeTextView);
         TextView subModeTextView = (TextView) findViewById(R.id.subModeTextView);
@@ -139,7 +146,7 @@ public class EditView extends AppCompatActivity {
         Space filterSpace = (Space) findViewById(R.id.filterSpace);
         Space transformSpace = (Space) findViewById(R.id.transformSpace);
         Button saveButton = (Button) findViewById(R.id.saveButton);
-
+        Button rotateButton = (Button) findViewById(R.id.rotateButton);
         saveButton.setOnClickListener((l) -> {
             if (Objects.equals(mode, "Adjustment")) {
                 ImageGalleryProcessing.saveImage(this, modBitmap);
@@ -532,6 +539,23 @@ public class EditView extends AppCompatActivity {
             }
         });
 
+        rotateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String uri = "";
+                try {
+                     uri = EditImageManager.cacheBitmapToUri(EditView.this, modBitmap).toString();
+                     Log.v("EditView Cache", uri);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Intent myIntent = new Intent(EditView.this, DimensionEditActivity.class);
+                Bundle myBundle = new Bundle();
+                myBundle.putString("cached", uri);
+                myIntent.putExtra("bitmap", myBundle);
+                startActivity(myIntent);
+            }
+        });
         FilterPreviewAdapter filterPreviewAdapter = new FilterPreviewAdapter(this, filterList);
         filterPreviewImage.setAdapter(filterPreviewAdapter);
         AdjustmenOptionAdapter adjustmentOptionAdapter = new AdjustmenOptionAdapter(this, adjustmentList);

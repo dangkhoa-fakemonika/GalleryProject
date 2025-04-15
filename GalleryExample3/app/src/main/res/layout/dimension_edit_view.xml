@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="48dp"
+    android:paddingTop="24dp"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="36dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:id="@+id/backButton"
+            android:layout_height="match_parent"
+            android:text="Back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+
+            android:layout_height="match_parent"
+            android:text="@string/placeholder_edit"
+            android:gravity="center" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:id="@id/saveButton"
+            android:layout_height="match_parent"
+            android:text="Save" />
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/editedImageFrame"
+        android:layout_weight="1">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editedImage"/>
+    </FrameLayout>
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/bottomButtonLayoutScrollView">
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:id="@+id/bottomButtonLayout">
+
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/rotateButton"
+                android:text="Rotate" />
+
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/resizeButton"
+                android:text="Transform"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+
+
+</LinearLayout>
