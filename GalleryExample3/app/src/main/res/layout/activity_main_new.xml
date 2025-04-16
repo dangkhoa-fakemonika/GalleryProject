@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    android:paddingHorizontal="2dp"
-    android:paddingVertical="24dp">
+    android:paddingHorizontal="4dp">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gridRecyclerView"
@@ -16,7 +16,7 @@
         android:orientation="vertical"
         app:spanCount="3"
         tools:listitem="@layout/grid_image_item"
-        android:layout_above="@+id/optionBars">
+        android:layout_above="@+id/bottomNavView">
 
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="40dp"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/spacer48"
         android:layout_centerHorizontal="true"
         android:visibility="gone">
 
@@ -64,19 +64,22 @@
             android:layout_weight="0.2"
             android:background="@android:color/transparent"/>
 
-<!--        <Button-->
-<!--            android:id="@+id/selectionOn"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Selection ON"/>-->
-
-<!--        <Button-->
-<!--            android:id="@+id/selectionOff"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Selection OFF"-->
-<!--            android:enabled="false"/>-->
-
     </LinearLayout>
+
+    <Space
+        android:id="@+id/spacer48"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"/>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/main_gallery_bottom_nav">
+
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
 
 </RelativeLayout>

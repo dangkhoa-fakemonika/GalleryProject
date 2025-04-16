@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,19 +15,25 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemClickListener {
@@ -41,11 +48,18 @@ public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemCli
         context = this;
         imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " ASC");
 
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            return insets;
+        });
+
         Button cancelSelectionButton = (Button) findViewById(R.id.cancelSelectionButton);
         ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
         TextView selectionTextView = (TextView) findViewById(R.id.selectionTextView);
         LinearLayout optionBars = (LinearLayout) findViewById(R.id.optionBars);
+        BottomNavigationView bottomNavView = (BottomNavigationView) findViewById(R.id.bottomNavView);
         RecyclerView gridRecyclerView = findViewById(R.id.gridRecyclerView);
         GridLayoutManager gridLayoutManager = (GridLayoutManager) gridRecyclerView.getLayoutManager();
         GalleryImageGridAdapter galleryAdapter = new GalleryImageGridAdapter(this, imagesList);
@@ -58,6 +72,9 @@ public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemCli
             selectionEnabled = false;
             galleryAdapter.setSelectionMode(selectionEnabled);
             optionBars.setVisibility(View.GONE);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) gridRecyclerView.getLayoutParams();
+            params.addRule(RelativeLayout.ABOVE, R.id.bottomNavView);
+            bottomNavView.setVisibility(View.VISIBLE);
         });
 
         // Select image or enter details view
@@ -73,10 +90,11 @@ public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemCli
                         selectionTextView.setText("Select image");
                 } else {
                     String imageUri = imagesList.get(position);
+                    String dateAdded = ImageGalleryProcessing.getImageDateAdded(context, Uri.parse(imageUri));
                     Intent intent = new Intent(MainActivityNew.this, SingleImageView.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("imageURI", imageUri);
-                    bundle.putString("dateAdded", ImageGalleryProcessing.getImageDateAdded(context, Uri.parse(imageUri)));
+                    bundle.putString("dateAdded", dateAdded);
                     bundle.putInt("position", position);
                     intent.putExtras(bundle);
                     startActivity(intent);
@@ -92,6 +110,9 @@ public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemCli
                     selectionEnabled = true;
                     galleryAdapter.setSelectionMode(selectionEnabled);
                     optionBars.setVisibility(View.VISIBLE);
+                    bottomNavView.setVisibility(View.GONE);
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) gridRecyclerView.getLayoutParams();
+                    params.addRule(RelativeLayout.ABOVE, R.id.optionBars);
                     gridRecyclerView.scrollToPosition(imagesList.size() - 1);
                 }
                 return true;

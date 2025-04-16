@@ -137,7 +137,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return;
 
         imageURI = gotBundle.getString("imageURI");
-        dateAdded = gotBundle.getString("imageUri");
+        dateAdded = gotBundle.getString("dateAdded");
         position = gotBundle.getInt("position");
         dateAddedText.setText(dateAdded);
 

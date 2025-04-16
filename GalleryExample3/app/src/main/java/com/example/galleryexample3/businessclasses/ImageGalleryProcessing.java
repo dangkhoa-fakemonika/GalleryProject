@@ -62,6 +62,7 @@ public class ImageGalleryProcessing {
 
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+//        Log.i("getimg", String.valueOf(uri));
 
         // use MediaStore.Images.Media.<Attribute> to query and stuff
         // contentResolver is the sqlite database
@@ -92,25 +93,31 @@ public class ImageGalleryProcessing {
     }
 
     public static String getImageDateAdded(Context context, Uri imageUri) {
+        String filePath = imageUri.getPath();
+
         String[] projection = {
                 MediaStore.Images.Media.DATE_ADDED
         };
 
+        String selection = MediaStore.Images.Media.DATA + " = ?";
+        String[] selectionArgs = new String[]{filePath};
+
+        Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = context.getContentResolver();
-        try (Cursor cursor = contentResolver.query(imageUri, projection, null, null, null)) {
+
+        try (Cursor cursor = contentResolver.query(externalContentUri, projection, selection, selectionArgs, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 int dateAddedColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
                 long dateAddedInMillis = cursor.getLong(dateAddedColumnIndex);
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 Date dateAdded = new Date(dateAddedInMillis * 1000L);
-                Log.i("date", sdf.format(dateAdded));
                 return sdf.format(dateAdded);
             }
         } catch (Exception e) {
             Log.e("Error", "Can not get image's date added", e);
         }
-        return null;
+        return "null";
     }
 
     @SuppressLint("Range")
