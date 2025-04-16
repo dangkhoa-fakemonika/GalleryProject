@@ -59,13 +59,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == REQUEST_MANAGE_EXTERNAL_STORAGE) {
-            if (resultCode == RESULT_OK && data != null) {
-                //
-            } else {
-                Toast.makeText(this, "Ứng dụng cần cấp quyền để hoạt động bình thường.", Toast.LENGTH_SHORT).show();
-                finishAffinity();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    Toast.makeText(this, "Ứng dụng cần cấp quyền để hoạt động bình thường.", Toast.LENGTH_SHORT).show();
+                    finishAffinity();
+                }
             }
         }
     }
@@ -73,10 +72,11 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE || requestCode == REQUEST_READ_EXTERNAL_STORAGE || requestCode == REQUEST_CAMERA || requestCode == REQUEST_RECORD_AUDIO) {
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE || requestCode == REQUEST_READ_EXTERNAL_STORAGE || requestCode == REQUEST_CAMERA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //
             } else {
+                Log.i("debug", "else");
                 Toast.makeText(this, "Ứng dụng cần cấp quyền để hoạt động bình thường.", Toast.LENGTH_SHORT).show();
                 finishAffinity();
             }
