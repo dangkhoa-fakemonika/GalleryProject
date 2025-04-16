@@ -32,7 +32,7 @@
         <!-- To use multiple models: android:value="ocr,ocr_chinese,ocr_devanagari,ocr_japanese,ocr_korean,..." -->
 
         <activity
-            android:name=".MainActivity"
+            android:name=".MainActivityNew"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

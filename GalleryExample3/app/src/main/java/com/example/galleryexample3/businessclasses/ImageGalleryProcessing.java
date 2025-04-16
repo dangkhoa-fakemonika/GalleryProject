@@ -16,9 +16,12 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.text.SimpleDateFormat;
 
 public class ImageGalleryProcessing {
     public static boolean saveImage(Context context, Bitmap bitmap){
@@ -86,6 +89,28 @@ public class ImageGalleryProcessing {
         }
 
         return arrPath;
+    }
+
+    public static String getImageDateAdded(Context context, Uri imageUri) {
+        String[] projection = {
+                MediaStore.Images.Media.DATE_ADDED
+        };
+
+        ContentResolver contentResolver = context.getContentResolver();
+        try (Cursor cursor = contentResolver.query(imageUri, projection, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int dateAddedColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
+                long dateAddedInMillis = cursor.getLong(dateAddedColumnIndex);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Date dateAdded = new Date(dateAddedInMillis * 1000L);
+                Log.i("date", sdf.format(dateAdded));
+                return sdf.format(dateAdded);
+            }
+        } catch (Exception e) {
+            Log.e("Error", "Can not get image's date added", e);
+        }
+        return null;
     }
 
     @SuppressLint("Range")

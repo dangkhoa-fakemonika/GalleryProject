@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -75,6 +76,8 @@ public class EditView extends AppCompatActivity {
     private AlertDialog alertDialog;
     Context context;
     private LinearLayout bottomButtonBar;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable applyAdjustmentRunnable = null;
 
     private boolean osv = false;
     public class MediaStoreObserver extends ContentObserver {
@@ -105,9 +108,9 @@ public class EditView extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_view);
-        EdgeToEdge.enable(this);
         context = this;
 
         Intent gotIntent = getIntent();
@@ -670,14 +673,17 @@ public class EditView extends AppCompatActivity {
         adjustmentSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.d("seekbar", String.valueOf(progress));
-                if (submode.equals("Brightness")) {
-                    modBitmap = ImageFiltersProcessing.adjustBrightness(srcBitmap, (double) progress / 50);
+                if (applyAdjustmentRunnable != null)
+                        handler.removeCallbacks(applyAdjustmentRunnable);
+
+                applyAdjustmentRunnable = () -> {
+                    if (submode.equals("Brightness"))
+                        modBitmap = ImageFiltersProcessing.adjustBrightness(srcBitmap, (double) progress / 50);
+                    else if (submode.equals("Contrast"))
+                        modBitmap = ImageFiltersProcessing.adjustContrast(srcBitmap, (double) progress / 50);
                     Glide.with(context).load(modBitmap).into(editedImage);
-                } else if (submode.equals("Contrast")) {
-                    modBitmap = ImageFiltersProcessing.adjustContrast(srcBitmap, (double) progress / 50);
-                    Glide.with(context).load(modBitmap).into(editedImage);
-                }
+                };
+                handler.postDelayed(applyAdjustmentRunnable, 500);
             }
 
             @Override

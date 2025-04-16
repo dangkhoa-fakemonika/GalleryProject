@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,9 +30,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.imageediting.BarCodeScannerClass;
-import com.example.galleryexample3.imageediting.ImageEditActivity;
-import com.bumptech.glide.Glide;
-import com.example.galleryexample3.datamanagement.ImageManager;
 import com.example.galleryexample3.imageediting.EditView;
 import com.example.galleryexample3.imageediting.PaintingActivity;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
@@ -47,6 +43,7 @@ import java.util.ArrayList;
 public class SingleImageView extends Activity implements PopupMenu.OnMenuItemClickListener {
     private String imageURI;
     private int position;
+    private String dateAdded;
     private int shortAnimationDuration;
     private DatabaseHandler databaseHandler;
     private Context context;
@@ -101,6 +98,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
 
+        // View/hide utility buttons
         toggleUtility = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,13 +137,17 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return;
 
         imageURI = gotBundle.getString("imageURI");
+        dateAdded = gotBundle.getString("imageUri");
         position = gotBundle.getInt("position");
+        dateAddedText.setText(dateAdded);
+
         viewPager.setPageTransformer(new ViewPager2.PageTransformer() {
             @Override
             public void transformPage(@NonNull View page, float position) {
                 page.setOnClickListener(toggleUtility);
             }
         });
+
         // Set up swiping between images
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
         viewPager.setAdapter(swipeImageAdapter);
@@ -161,7 +163,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         });
 
         backButton.setOnClickListener(listener -> {
-            Intent intent = new Intent(SingleImageView.this, MainActivity.class);
+            Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
             startActivity(intent);
         });
 
@@ -209,28 +211,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             alertDialog.show();
 
         });
-
-        // View/Hide utility buttons
-//        screenLayout.setOnClickListener((view) -> {
-//            if (utilityLayout.getVisibility() == View.VISIBLE)
-//                utilityLayout.animate()
-//                        .alpha(0f)
-//                        .setDuration(shortAnimationDuration)
-//                        .setListener(new AnimatorListenerAdapter() {
-//                            @Override
-//                            public void onAnimationEnd(Animator animation) {
-//                                utilityLayout.setVisibility(View.GONE);
-//                            }
-//                        });
-//            else {
-//                utilityLayout.setAlpha(0f);
-//                utilityLayout.setVisibility(View.VISIBLE);
-//                utilityLayout.animate()
-//                        .alpha(1f)
-//                        .setDuration(shortAnimationDuration)
-//                        .setListener(null);
-//            }
-//        });
 
         // Show menu
         moreOptionButton.setOnClickListener(this::showMenu);
