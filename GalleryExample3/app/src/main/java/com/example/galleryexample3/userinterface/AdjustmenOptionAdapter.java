@@ -23,8 +23,8 @@ public class AdjustmenOptionAdapter extends RecyclerView.Adapter<AdjustmenOption
         this.adjustmentList = adjustmentList;
     }
 
-    public ArrayList<String> getAdjustmentList() {
-        return adjustmentList;
+    public String getAdjustment(int position) {
+        return adjustmentList.get(position);
     }
 
     @NonNull

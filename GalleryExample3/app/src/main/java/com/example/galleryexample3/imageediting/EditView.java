@@ -423,6 +423,7 @@ public class EditView extends AppCompatActivity {
                 modeTextView.setText(mode);
                 submode = "Brightness";
                 subModeTextView.setText(submode);
+                subModeTextView.setVisibility(View.VISIBLE);
 
                 adjustmentOption.setVisibility(View.VISIBLE);
                 adjustmentSeekBar.setVisibility(View.VISIBLE);
@@ -453,6 +454,7 @@ public class EditView extends AppCompatActivity {
                 modeTextView.setText(mode);
                 submode = "Normal";
                 subModeTextView.setText(submode);
+                subModeTextView.setVisibility(View.VISIBLE);
 
                 adjustmentOption.setVisibility(View.GONE);
                 adjustmentSeekBar.setVisibility(View.GONE);
@@ -482,7 +484,7 @@ public class EditView extends AppCompatActivity {
                 mode = "Transform";
                 modeTextView.setText(mode);
                 submode = "Crop";
-                subModeTextView.setText(submode);
+                subModeTextView.setVisibility(View.GONE);
 
                 adjustmentOption.setVisibility(View.GONE);
                 adjustmentSeekBar.setVisibility(View.GONE);
@@ -561,42 +563,7 @@ public class EditView extends AppCompatActivity {
         AdjustmenOptionAdapter adjustmentOptionAdapter = new AdjustmenOptionAdapter(this, adjustmentList);
         adjustmentOption.setAdapter(adjustmentOptionAdapter);
 
-        Glide.with(this).load(srcBitmap).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Drawable>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                return false;
-            }
-
-            @Override
-            public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                editedImage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        editedImage.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                        float left = editedImage.getX();
-                        float top = editedImage.getY();
-                        float right = left + editedImage.getWidth();
-                        float bottom = top + editedImage.getHeight();
-
-                        topLeftPoint.setX(left - topLeftPoint.getWidth() / 2f);
-                        topLeftPoint.setY(top - topLeftPoint.getHeight() / 2f);
-
-                        topRightPoint.setX(right - topRightPoint.getWidth() / 2f);
-                        topRightPoint.setY(top - topRightPoint.getHeight() / 2f);
-
-                        botLeftPoint.setX(left - botLeftPoint.getWidth() / 2f);
-                        botLeftPoint.setY(bottom - botLeftPoint.getHeight() / 2f);
-
-                        botRightPoint.setX(right - botRightPoint.getWidth() / 2f);
-                        botRightPoint.setY(bottom - botRightPoint.getHeight() / 2f);
-
-                        rectangleCrop.setRect(topLeftPoint.getX() + topLeftPoint.getWidth() / 2f, topLeftPoint.getY() + topLeftPoint.getHeight() / 2f, botRightPoint.getX() + botRightPoint.getWidth() / 2f, botRightPoint.getY() + botRightPoint.getHeight() / 2f);
-                    }
-                });
-                return false;
-            }
-        }).into(editedImage);
+        Glide.with(context).load(srcBitmap).into(editedImage);
 
         undoButton.setOnClickListener(listener -> {
             modBitmap = srcBitmap.copy(srcBitmap.getConfig(), true);
@@ -683,7 +650,7 @@ public class EditView extends AppCompatActivity {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 FilterPreviewAdapter adapter = (FilterPreviewAdapter) recyclerView.getAdapter();
-                FilterPreviewAdapter.FilterPreview fp = adapter.getFilterList().get(position);
+                FilterPreviewAdapter.FilterPreview fp = adapter.getFilter(position);
                 srcBitmap = fp.getBitmap();
                 submode = fp.getFilterName();
                 subModeTextView.setText(submode);
@@ -695,7 +662,7 @@ public class EditView extends AppCompatActivity {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 AdjustmenOptionAdapter adapter = (AdjustmenOptionAdapter) recyclerView.getAdapter();
-                submode = adapter.getAdjustmentList().get(position);
+                submode = adapter.getAdjustment(position);
                 subModeTextView.setText(submode);
             }
         });

@@ -27,8 +27,8 @@ public class FilterPreviewAdapter extends RecyclerView.Adapter<FilterPreviewAdap
         this.filterList = filterList;
     }
 
-    public ArrayList<FilterPreview> getFilterList() {
-        return filterList;
+    public FilterPreview getFilter(int position) {
+        return filterList.get(position);
     }
 
     @NonNull
@@ -42,7 +42,7 @@ public class FilterPreviewAdapter extends RecyclerView.Adapter<FilterPreviewAdap
     public void onBindViewHolder(@NonNull FilterPreviewViewHolder holder, int position) {
         FilterPreview filter = filterList.get(position);
         holder.filterName.setText(filter.filterName);
-        Glide.with(holder.previewImage.getContext())
+        Glide.with(context)
                 .load(filter.bitmap)
                 .centerCrop()
                 .into(holder.previewImage);
