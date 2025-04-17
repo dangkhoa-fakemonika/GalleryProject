@@ -48,14 +48,12 @@ public class GalleryImageGridAdapter extends RecyclerView.Adapter<GalleryImageGr
         notifyItemChanged(position);
     }
 
-    public void setSelectionMode(boolean selectionEnabled, int selectedPosition) {
+    public void setSelectionMode(boolean selectionEnabled) {
         this.selectionEnabled = selectionEnabled;
         if (!selectionEnabled) {
             for (int position : selectedPositions)
                 notifyItemChanged(position);
             selectedPositions.clear();
-        } else {
-            toggleSelection(selectedPosition);
         }
     }
 
