@@ -20,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -29,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -36,24 +39,27 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.io.File;
 import java.util.ArrayList;
 
-public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemClickListener {
+public class MainActivityNew extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
     private ArrayList<String> imagesList;
     private Context context;
     boolean selectionEnabled = false;
-
+    private Toolbar myToolbar;
+    private AppBarLayout myAppBarLayout;
+    private TextView toolBarTitle;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_new);
         context = this;
         imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " ASC");
-
+        myToolbar = (Toolbar) findViewById(R.id.toolBar);
+//        myAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
-
+        setSupportActionBar(myToolbar);
         Button cancelSelectionButton = (Button) findViewById(R.id.cancelSelectionButton);
         ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
