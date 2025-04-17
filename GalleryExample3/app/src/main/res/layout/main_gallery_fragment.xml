@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/optionBars"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="3"
         tools:listitem="@layout/grid_image_item">
 
@@ -65,11 +65,5 @@
             android:background="@android:color/transparent"/>
 
     </LinearLayout>
-
-<!--    <Space-->
-<!--        android:id="@+id/spacer48"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="60dp"-->
-<!--        android:layout_alignParentBottom="true"/>-->
 
 </RelativeLayout>

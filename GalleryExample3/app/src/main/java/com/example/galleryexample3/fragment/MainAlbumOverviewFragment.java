@@ -1,20 +1,40 @@
 package com.example.galleryexample3.fragment;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.example.galleryexample3.MainActivityNew;
 import com.example.galleryexample3.R;
+import com.example.galleryexample3.SingleImageView;
+import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.example.galleryexample3.dataclasses.DatabaseHandler;
+import com.example.galleryexample3.userinterface.GalleryAlbumGridAdapter;
+import com.example.galleryexample3.userinterface.ItemClickSupporter;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
 
 public class MainAlbumOverviewFragment extends Fragment {
+    private ArrayList<String> albumsList;
+    private ArrayList<String> albumThumbnailsList = new ArrayList<>();
+    boolean selectionEnabled = false;
+    DatabaseHandler databaseHandler;
 
-    public MainAlbumOverviewFragment() {
-        // Required empty public constructor
-    }
+    public MainAlbumOverviewFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -24,6 +44,55 @@ public class MainAlbumOverviewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.main_album_overview_fragment, container, false);
+        // Set up data
+        View view = inflater.inflate(R.layout.main_album_overview_fragment, container, false);
+        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(requireContext());
+        albumsList = databaseHandler.albums().getAllAlbums();
+
+        RecyclerView gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
+        TextView noAlbumText = view.findViewById(R.id.noAlbumText);
+
+        if (albumsList.isEmpty()) {
+            gridRecyclerView.setVisibility(View.GONE);
+            noAlbumText.setVisibility(View.VISIBLE);
+        } else {
+            for (String album : albumsList) {
+                String thumbnail = databaseHandler.albums().getAlbumThumbnail(album);
+                albumThumbnailsList.add(thumbnail);
+            }
+            GalleryAlbumGridAdapter albumOverviewAdapter = new GalleryAlbumGridAdapter(requireContext(), albumsList, albumThumbnailsList);
+            gridRecyclerView.setAdapter(albumOverviewAdapter);
+            noAlbumText.setVisibility(View.GONE);
+            gridRecyclerView.setVisibility(View.VISIBLE);
+            gridRecyclerView.scrollToPosition(albumsList.size() - 1);
+        }
+
+        // Select album or enter album view
+//        ItemClickSupporter.addTo(gridRecyclerView).setOnItemClickListener(new ItemClickSupporter.OnItemClickListener() {
+//            @Override
+//            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+//                Context context = requireContext();
+//                if (selectionEnabled) {
+//                    albumOverviewAdapter.toggleSelection(position);
+//                    int selectedAlbumsCount = albumOverviewAdapter.getSelectedAlbumsCount();
+//                    if (selectedAlbumsCount != 0)
+//                        selectionTextView.setText("Selected " + selectedAlbumsCount + " album" + (selectedAlbumsCount > 1 ? "s" : ""));
+//                    else
+//                        selectionTextView.setText("Select album");
+//                } else {
+//                    String imageUri = imagesList.get(position);
+//                    String dateAdded = ImageGalleryProcessing.getImageDateAdded(context, Uri.parse(imageUri));
+//                    Intent intent = new Intent(context, SingleImageView.class);
+//                    Bundle bundle = new Bundle();
+//                    bundle.putString("imageURI", imageUri);
+//                    bundle.putString("dateAdded", dateAdded);
+//                    bundle.putInt("position", position);
+//                    intent.putExtras(bundle);
+//                    startActivity(intent);
+//                }
+//            }
+//        });
+
+        return view;
     }
 }
