@@ -7,6 +7,16 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp">
 
+    <ImageView
+        android:id="@+id/thumbnailImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/albumName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
     <TextView
         android:id="@+id/albumName"
         android:layout_width="match_parent"
@@ -15,17 +25,5 @@
         android:text="Album name"
         android:textColor="#FFFF8800"
         android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <ImageView
-        android:id="@+id/thumbnailImage"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="h,1:1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/albumName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -157,9 +157,11 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         });
 
         // Set up swiping between images
+        Log.e("Received Position", String.valueOf(position) + " " + String.valueOf(imagesList.size()));
+
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
         viewPager.setAdapter(swipeImageAdapter);
-        viewPager.setCurrentItem(position, false);
+//        viewPager.setCurrentItem(imagesList.size()-1, false);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override

@@ -156,7 +156,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             if (cur.getCount() == 0)
                 return result;
-            
+
             cur.moveToFirst();
             do {
                 int uriCol = cur.getColumnIndex(AlbumsInfoTable.COL_NAME);
@@ -171,8 +171,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public String getAlbumThumbnail(String albumName) {
-            try (Cursor cursor = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME, AlbumsTable.COL_IMAGE_URI}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
+                if (cursor.moveToFirst()) {
                     int uriCol = cursor.getColumnIndex(AlbumsTable.COL_IMAGE_URI);
                     return cursor.getString(uriCol);
                 }

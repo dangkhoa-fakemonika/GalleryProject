@@ -60,6 +60,7 @@ public class MainAlbumOverviewFragment extends Fragment {
                 String thumbnail = databaseHandler.albums().getAlbumThumbnail(album);
                 albumThumbnailsList.add(thumbnail);
             }
+            Log.e("Albums: ", albumsList.get(0) + " " + albumThumbnailsList.get(0));
             GalleryAlbumGridAdapter albumOverviewAdapter = new GalleryAlbumGridAdapter(requireContext(), albumsList, albumThumbnailsList);
             gridRecyclerView.setAdapter(albumOverviewAdapter);
             noAlbumText.setVisibility(View.GONE);

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -91,6 +92,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                     else
                         selectionTextView.setText("Select image");
                 } else {
+                    Log.e("Position", String.valueOf(position));
                     String imageUri = imagesList.get(position);
                     String dateAdded = ImageGalleryProcessing.getImageDateAdded(context, Uri.parse(imageUri));
                     Intent intent = new Intent(context, SingleImageView.class);
