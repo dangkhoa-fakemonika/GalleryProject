@@ -88,7 +88,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         setContentView(R.layout.single_image_view);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.screenLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);

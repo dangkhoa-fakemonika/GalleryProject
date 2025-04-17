@@ -110,6 +110,7 @@ public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemCli
                     selectionEnabled = true;
                     galleryAdapter.setSelectionMode(selectionEnabled, position);
                     optionBars.setVisibility(View.VISIBLE);
+                    optionBars.setMinimumHeight(bottomNavView.getHeight());
                     bottomNavView.setVisibility(View.GONE);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) gridRecyclerView.getLayoutParams();
                     params.addRule(RelativeLayout.ABOVE, R.id.optionBars);
