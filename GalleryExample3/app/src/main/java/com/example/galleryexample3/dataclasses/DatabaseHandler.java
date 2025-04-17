@@ -54,7 +54,17 @@ class TagsTable{
 public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DB_NAME = "hddb";
     private static final int DB_VERSION = 4;
+    private static volatile DatabaseHandler instance = null;
     private static SQLiteDatabase sqLiteDatabase;
+
+    public static DatabaseHandler getInstance(Context context) {
+        if (instance == null)
+            synchronized (DatabaseHandler.class) {
+                if (instance == null)
+                    instance = new DatabaseHandler(context);
+            }
+        return instance;
+    }
 
     public DatabaseHandler(Context context){
         super(context, DB_NAME, null, DB_VERSION);
@@ -158,6 +168,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             cur.close();
             return result;
+        }
+
+        public String getAlbumThumbnail(String albumName) {
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int uriCol = cursor.getColumnIndex(AlbumsTable.COL_IMAGE_URI);
+                    return cursor.getString(uriCol);
+                }
+            } catch (Exception e) {
+                Log.e("Error", "Can not get album thumbnail", e);
+            }
+            return null;
         }
 
         public ArrayList<String> getAllAlbumsTemp(){

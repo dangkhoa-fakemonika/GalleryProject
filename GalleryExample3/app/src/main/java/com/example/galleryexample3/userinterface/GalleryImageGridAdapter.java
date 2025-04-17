@@ -35,13 +35,6 @@ public class GalleryImageGridAdapter extends RecyclerView.Adapter<GalleryImageGr
         return selectedPositions.size();
     }
 
-    public void deselectAll() {
-        for (int position : selectedPositions) {
-            selectedPositions.remove(position);
-            notifyItemChanged(position);
-        }
-    }
-
     public void toggleSelection(int position) {
         if (selectedPositions.contains(position)) { selectedPositions.remove(position); }
         else { selectedPositions.add(position); }

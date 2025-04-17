@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -29,11 +30,13 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -77,10 +80,24 @@ public class MainActivityNew extends AppCompatActivity {
 
 
         MainGalleryFragment galleryFragment = new MainGalleryFragment();
+        MainAlbumOverviewFragment albumOverviewFragment = new MainAlbumOverviewFragment();
 
         BottomNavigationView bottomNavView = (BottomNavigationView) findViewById(R.id.bottomNavigationBar);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, galleryFragment).commit();
+
+        bottomNavView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                if (id == R.id.gallery)
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, galleryFragment).commit();
+                else
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, albumOverviewFragment).commit();
+
+                return false;
+            }
+        });
     }
 
     public void showBottomNavigation() {

@@ -38,8 +38,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
     private ArrayList<String> imagesList;
     boolean selectionEnabled = false;
 
-    public MainGalleryFragment() {
-    }
+    public MainGalleryFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,7 +76,6 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             if (getActivity() instanceof MainActivityNew) {
                 ((MainActivityNew) getActivity()).showBottomNavigation();
             }
-
         });
 
         // Select image or enter details view
