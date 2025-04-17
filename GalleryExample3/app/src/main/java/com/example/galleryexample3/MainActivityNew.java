@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +38,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.zip.Inflater;
 
 public class MainActivityNew extends AppCompatActivity {
     private Context context;
@@ -48,8 +50,23 @@ public class MainActivityNew extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_new);
         context = this;
-
         myToolbar = (Toolbar) findViewById(R.id.toolBar);
+        setSupportActionBar(myToolbar);
+
+        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int selectedId = item.getItemId();
+                if (selectedId == R.id.openCamera){
+                    Intent myIntent = new Intent(MainActivityNew.this, CameraActivity.class);
+                    startActivity(myIntent);
+                    return true;
+                }else if (selectedId == R.id.searchImage){
+                    return true;
+                }
+                return false;
+            }
+        });
 //        myAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -58,7 +75,6 @@ public class MainActivityNew extends AppCompatActivity {
             return insets;
         });
 
-        setSupportActionBar(myToolbar);
 
         MainGalleryFragment galleryFragment = new MainGalleryFragment();
 
@@ -75,5 +91,11 @@ public class MainActivityNew extends AppCompatActivity {
     public void hideBottomNavigation() {
         BottomNavigationView bottomNavView = (BottomNavigationView) findViewById(R.id.bottomNavigationBar);
         bottomNavView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.topbar_action_buttons, menu);
+        return true;
     }
 }
