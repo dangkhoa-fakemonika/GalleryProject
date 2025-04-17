@@ -70,7 +70,7 @@ public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemCli
 
         cancelSelectionButton.setOnClickListener(v -> {
             selectionEnabled = false;
-            galleryAdapter.setSelectionMode(selectionEnabled);
+            galleryAdapter.setSelectionMode(selectionEnabled, -1);
             optionBars.setVisibility(View.GONE);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) gridRecyclerView.getLayoutParams();
             params.addRule(RelativeLayout.ABOVE, R.id.bottomNavView);
@@ -108,12 +108,12 @@ public class MainActivityNew extends Activity implements PopupMenu.OnMenuItemCli
             public boolean onItemLongClicked(RecyclerView recyclerView, int position, View v) {
                 if (!selectionEnabled) {
                     selectionEnabled = true;
-                    galleryAdapter.setSelectionMode(selectionEnabled);
+                    galleryAdapter.setSelectionMode(selectionEnabled, position);
                     optionBars.setVisibility(View.VISIBLE);
                     bottomNavView.setVisibility(View.GONE);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) gridRecyclerView.getLayoutParams();
                     params.addRule(RelativeLayout.ABOVE, R.id.optionBars);
-                    gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+                    gridRecyclerView.scrollToPosition(position);
                 }
                 return true;
             }

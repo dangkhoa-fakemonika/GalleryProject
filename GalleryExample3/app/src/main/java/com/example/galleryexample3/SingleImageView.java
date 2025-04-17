@@ -25,6 +25,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
@@ -83,6 +86,11 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_image_view);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.screenLayout), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            return insets;
+        });
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
         imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
 
