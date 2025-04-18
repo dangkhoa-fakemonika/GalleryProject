@@ -59,6 +59,8 @@ public class GalleryAlbumGridAdapter extends RecyclerView.Adapter<GalleryAlbumGr
     @Override
     public void onBindViewHolder(@NonNull GalleryAlbumViewHolder holder, int position) {
         holder.albumName.setText(albumsList.get(position));
+        Log.e("In BindView", String.valueOf(albumThumbnailsList.size()));
+        Log.e("In BindView", albumThumbnailsList.get(position));
         Glide.with(context)
                 .load(albumThumbnailsList.get(position))
                 .error(R.drawable.uoh)

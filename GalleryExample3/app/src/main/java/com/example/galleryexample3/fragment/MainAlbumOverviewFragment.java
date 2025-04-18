@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 public class MainAlbumOverviewFragment extends Fragment {
     private ArrayList<String> albumsList;
-    private ArrayList<String> albumThumbnailsList = new ArrayList<>();
+    private ArrayList<String> albumThumbnailsList;
     boolean selectionEnabled = false;
     DatabaseHandler databaseHandler;
 
@@ -49,7 +49,7 @@ public class MainAlbumOverviewFragment extends Fragment {
         View view = inflater.inflate(R.layout.main_album_overview_fragment, container, false);
         DatabaseHandler databaseHandler = DatabaseHandler.getInstance(requireContext());
         albumsList = databaseHandler.albums().getAllAlbums();
-
+        albumThumbnailsList = new ArrayList<>();
         RecyclerView gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
         TextView noAlbumText = view.findViewById(R.id.noAlbumText);
 
@@ -59,9 +59,9 @@ public class MainAlbumOverviewFragment extends Fragment {
         } else {
             for (String album : albumsList) {
                 String thumbnail = databaseHandler.albums().getAlbumThumbnail(album);
+                Log.e("Albums: ", thumbnail);
                 albumThumbnailsList.add(thumbnail);
             }
-            Log.e("Albums: ", albumsList.get(0) + " " + albumThumbnailsList.get(0));
             GalleryAlbumGridAdapter albumOverviewAdapter = new GalleryAlbumGridAdapter(requireContext(), albumsList, albumThumbnailsList);
             gridRecyclerView.setAdapter(albumOverviewAdapter);
             noAlbumText.setVisibility(View.GONE);
