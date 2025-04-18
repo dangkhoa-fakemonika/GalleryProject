@@ -27,6 +27,7 @@ import com.example.galleryexample3.MainActivityNew;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.SingleImageView;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -34,10 +35,13 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuItemClickListener {
+    RecyclerView gridRecyclerView;
     private ArrayList<String> imagesList;
     boolean selectionEnabled = false;
+    DatabaseHandler databaseHandler;
 
     public MainGalleryFragment() { }
 
@@ -53,8 +57,10 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
         View view = inflater.inflate(R.layout.main_gallery_fragment, container, false);
         imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
 
+        databaseHandler = DatabaseHandler.getInstance(requireContext());
+
         // RecyclerView
-        RecyclerView gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
+        gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
         GalleryImageGridAdapter galleryAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
         gridRecyclerView.setAdapter(galleryAdapter);
         gridRecyclerView.scrollToPosition(imagesList.size() - 1);
@@ -144,7 +150,8 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
     public boolean onMenuItemClick(MenuItem menuItem) {
         Context context = requireContext();
         int id = menuItem.getItemId();
-        if (id == R.id.addAlbum){
+        GalleryImageGridAdapter galleryAdapter = (GalleryImageGridAdapter) gridRecyclerView.getAdapter();
+        if (id == R.id.addAlbum) {
             View dialogView = LayoutInflater.from(context).inflate(R.layout.one_field_dialog_layout, null);
             TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
             TextInputEditText editText = dialogView.findViewById(R.id.editText);
@@ -156,7 +163,9 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String albumName = editText.getText().toString();
-
+                            HashSet<Integer> selectedPositions = galleryAdapter.getSelectedPositions();
+                            for (int position : selectedPositions)
+                                databaseHandler.albums().addImageToAlbum(albumName, imagesList.get(position));
                             Toast.makeText(context, "Added to " + albumName, Toast.LENGTH_LONG).show();
                             dialogInterface.dismiss();
                         }

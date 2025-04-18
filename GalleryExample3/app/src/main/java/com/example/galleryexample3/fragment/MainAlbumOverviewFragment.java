@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.galleryexample3.GroupImageView;
 import com.example.galleryexample3.MainActivityNew;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.SingleImageView;
@@ -69,30 +70,19 @@ public class MainAlbumOverviewFragment extends Fragment {
         }
 
         // Select album or enter album view
-//        ItemClickSupporter.addTo(gridRecyclerView).setOnItemClickListener(new ItemClickSupporter.OnItemClickListener() {
-//            @Override
-//            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-//                Context context = requireContext();
-//                if (selectionEnabled) {
-//                    albumOverviewAdapter.toggleSelection(position);
-//                    int selectedAlbumsCount = albumOverviewAdapter.getSelectedAlbumsCount();
-//                    if (selectedAlbumsCount != 0)
-//                        selectionTextView.setText("Selected " + selectedAlbumsCount + " album" + (selectedAlbumsCount > 1 ? "s" : ""));
-//                    else
-//                        selectionTextView.setText("Select album");
-//                } else {
-//                    String imageUri = imagesList.get(position);
-//                    String dateAdded = ImageGalleryProcessing.getImageDateAdded(context, Uri.parse(imageUri));
-//                    Intent intent = new Intent(context, SingleImageView.class);
-//                    Bundle bundle = new Bundle();
-//                    bundle.putString("imageURI", imageUri);
-//                    bundle.putString("dateAdded", dateAdded);
-//                    bundle.putInt("position", position);
-//                    intent.putExtras(bundle);
-//                    startActivity(intent);
-//                }
-//            }
-//        });
+        ItemClickSupporter.addTo(gridRecyclerView).setOnItemClickListener(new ItemClickSupporter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                Context context = requireContext();
+                String albumName = albumsList.get(position);
+                Intent intent = new Intent(context, GroupImageView.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("groupType", "album");
+                bundle.putString("groupName", albumName);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
 
         return view;
     }

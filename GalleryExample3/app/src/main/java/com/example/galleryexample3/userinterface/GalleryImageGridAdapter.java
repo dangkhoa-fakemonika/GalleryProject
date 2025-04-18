@@ -50,13 +50,9 @@ public class GalleryImageGridAdapter extends RecyclerView.Adapter<GalleryImageGr
         }
     }
 
-//    public ArrayList<String> getSelectedItems() {
-//        ArrayList<String> selectedImages = new ArrayList<>();
-//        for (int pos : selectedPositions) {
-//            selectedImages.add(imagesList.get(pos));
-//        }
-//        return selectedImages;
-//    }
+    public HashSet<Integer> getSelectedPositions() {
+        return selectedPositions;
+    }
 
     @NonNull
     @Override

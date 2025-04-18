@@ -2,7 +2,6 @@ package com.example.galleryexample3;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -12,8 +11,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.core.app.ActivityCompat;
 
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.ImageBaseAdapter;
@@ -43,7 +40,7 @@ public class AlbumDisplay extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.album_view);
+        setContentView(R.layout.album_view_old);
 
 //        if (ActivityCompat.checkSelfPermission(AlbumDisplay.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 //            ActivityCompat.requestPermissions(AlbumDisplay.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PICK_FROM_GALLERY);
