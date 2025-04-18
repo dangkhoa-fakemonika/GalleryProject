@@ -30,7 +30,7 @@ public class TagAnalyzerClass {
     public void getTags(Context context, String uri){
         InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(uri), 0);
 
-        labeler.process(image)
+        Task<List<ImageLabel>> result = labeler.process(image)
                 .addOnSuccessListener(new OnSuccessListener<List<ImageLabel>>() {
                     @Override
                     public void onSuccess(List<ImageLabel> labels) {
@@ -41,7 +41,6 @@ public class TagAnalyzerClass {
                             String text = label.getText();
                             float confidence = label.getConfidence();
                             int index = label.getIndex();
-                            Log.i("TAGS", text);
                         }
                     }
                 })
@@ -52,6 +51,9 @@ public class TagAnalyzerClass {
                         // ...
                     }
                 });
+
+        result.getResult();
+
 
     }
 }

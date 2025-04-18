@@ -1,5 +1,7 @@
 package com.example.galleryexample3.imageediting;
 
+import static java.lang.Integer.parseInt;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -18,11 +20,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -34,9 +43,13 @@ import androidx.core.content.ContextCompat;
 
 import com.example.galleryexample3.MainActivity;
 import com.example.galleryexample3.R;
+import com.example.galleryexample3.SingleImageView;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class PaintingActivity extends AppCompatActivity {
 
@@ -106,10 +119,6 @@ public class PaintingActivity extends AppCompatActivity {
         paintView.setY((fh - nh) / 2);
         paintView.setScale(nw, nh);
 
-        findViewById(R.id.buttonRed).setOnClickListener((l) -> paintView.setBrushColor(Color.RED));
-        findViewById(R.id.buttonBlue).setOnClickListener((l) -> paintView.setBrushColor(Color.BLUE));
-        findViewById(R.id.buttonGreen).setOnClickListener((l) -> paintView.setBrushColor(Color.GREEN));
-        findViewById(R.id.buttonBlack).setOnClickListener((l) -> paintView.setBrushColor(Color.BLACK));
         findViewById(R.id.buttonErasure).setOnClickListener((l) -> paintView.setEraser(true));
         findViewById(R.id.buttonReset).setOnClickListener((l) -> paintView.clearCanvas());
         findViewById(R.id.buttonUndo).setOnClickListener((l) -> paintView.undo());
@@ -120,6 +129,178 @@ public class PaintingActivity extends AppCompatActivity {
 //            }else{
 //                requestPermission();
 //            }
+        });
+
+        Button colorButton = findViewById(R.id.buttonSelectColor);
+        colorButton.setOnClickListener((l) -> {
+            View dialogView = LayoutInflater.from(PaintingActivity.this).inflate(R.layout.color_picker, null);
+            SeekBar redBar = dialogView.findViewById(R.id.redBar);
+            SeekBar greenBar = dialogView.findViewById(R.id.greenBar);
+            SeekBar blueBar = dialogView.findViewById(R.id.blueBar);
+
+            EditText redValueEdit = dialogView.findViewById(R.id.redValueEdit);
+            EditText greenValueEdit = dialogView.findViewById(R.id.greenValueEdit);
+            EditText blueValueEdit = dialogView.findViewById(R.id.blueValueEdit);
+
+            View previousColor = dialogView.findViewById(R.id.previousColor);
+            View currentColor = dialogView.findViewById(R.id.choosingColor);
+
+            int currentBrush = paintView.getBrushColor();
+
+            previousColor.setBackgroundColor(currentBrush);
+            currentColor.setBackgroundColor(currentBrush);
+
+            ArrayList<Integer> rgbValue = new ArrayList<>();
+
+            rgbValue.add(Color.red(currentBrush));
+            rgbValue.add(Color.green(currentBrush));
+            rgbValue.add(Color.blue(currentBrush));
+
+            redBar.setProgress(Color.red(currentBrush));
+            greenBar.setProgress(Color.green(currentBrush));
+            blueBar.setProgress(Color.blue(currentBrush));
+
+            redBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    rgbValue.set(0, i);
+                    currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+            greenBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    rgbValue.set(1, i);
+                    currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+            blueBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    rgbValue.set(2, i);
+                    currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+
+            redValueEdit.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    if (charSequence.length() == 0) return;
+                    int getRedValue = Integer.parseInt(charSequence.toString());
+                    if (getRedValue >= 0 && getRedValue <= 255){
+                        rgbValue.set(0, getRedValue);
+                        currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
+
+            greenValueEdit.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    if (charSequence.length() == 0) return;
+                    int getGreenValue = Integer.parseInt(charSequence.toString());
+                    if (getGreenValue >= 0 && getGreenValue <= 255){
+                        rgbValue.set(1, getGreenValue);
+                        currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
+
+            blueValueEdit.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    if (charSequence.length() == 0) return;
+                    int getBlueValue = Integer.parseInt(charSequence.toString());
+                    if (getBlueValue >= 0 && getBlueValue <= 255){
+                        rgbValue.set(2, getBlueValue);
+                        currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
+
+
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Change Brush Color")
+                    .setView(dialogView)
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            paintView.setBrushColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                            colorButton.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                            colorButton.setTextColor(Color.rgb(255 - rgbValue.get(0), 255 - rgbValue.get(1), 255 - rgbValue.get(2)));
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
         });
 
         SeekBar seekBar = findViewById(R.id.seekBarBrushSize);

@@ -124,8 +124,16 @@ public class PaintView extends androidx.appcompat.widget.AppCompatImageView {
         paint.setColor(color);
     }
 
+    public int getBrushColor() {
+        return paint.getColor();
+    }
+
     public void setBrushSize(float size){
         paint.setStrokeWidth(size);
+    }
+
+    public float getBrushSize(){
+        return paint.getStrokeWidth();
     }
 
     public void setEraser(boolean isEraser){

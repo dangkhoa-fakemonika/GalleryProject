@@ -10,13 +10,19 @@
         android:layout_marginVertical="12dp"
         android:id="@+id/inputTextLayout">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editText"
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/editText"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:padding="12sp"-->
+<!--            android:inputType="text"/>-->
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12sp"
-            android:inputType="text"/>
-
+            android:layout_weight="1"
+            android:hint="Tag name"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
