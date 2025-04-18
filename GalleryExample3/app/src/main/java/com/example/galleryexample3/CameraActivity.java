@@ -83,7 +83,6 @@ public class CameraActivity extends AppCompatActivity {
                     Bitmap result = image.toBitmap();
                     previewImage.setImageBitmap(result);
 
-                    result = ImageFiltersProcessing.rotateRight(result);
                     ImageGalleryProcessing.saveImage(current, result);
                 }
             });

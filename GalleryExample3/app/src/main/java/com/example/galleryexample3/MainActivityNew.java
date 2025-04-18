@@ -65,6 +65,8 @@ public class MainActivityNew extends AppCompatActivity {
                     startActivity(myIntent);
                     return true;
                 }else if (selectedId == R.id.searchImage){
+                    Intent myIntent = new Intent(MainActivityNew.this, SearchActivity.class);
+                    startActivity(myIntent);
                     return true;
                 }
                 return false;
