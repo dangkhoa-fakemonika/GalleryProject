@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.userinterface.ImageBaseAdapter;
 
+@Deprecated
 public class MainActivity extends Activity {
 
 //    private ArrayList<String> images;

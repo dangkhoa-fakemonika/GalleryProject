@@ -120,6 +120,81 @@ public class ImageGalleryProcessing {
         return "null";
     }
 
+    public static String getSize(Context context, Uri imageUri) {
+        String filePath = imageUri.getPath();
+
+        String[] projection = {
+                MediaStore.Images.Media.SIZE
+        };
+
+        String selection = MediaStore.Images.Media.DATA + " = ?";
+        String[] selectionArgs = new String[]{filePath};
+
+        Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        ContentResolver contentResolver = context.getContentResolver();
+
+        try (Cursor cursor = contentResolver.query(externalContentUri, projection, selection, selectionArgs, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int dateAddedColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.SIZE);
+                long fileSize = cursor.getLong(dateAddedColumnIndex);
+
+                return fileSize + " B";
+            }
+        } catch (Exception e) {
+            Log.e("Error", "Can not get image's size", e);
+        }
+        return "null";
+    }
+
+    public static String getResolution(Context context, Uri imageUri) {
+        String filePath = imageUri.getPath();
+
+        String[] projection = {
+                MediaStore.Images.Media.RESOLUTION
+        };
+
+        String selection = MediaStore.Images.Media.DATA + " = ?";
+        String[] selectionArgs = new String[]{filePath};
+
+        Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        ContentResolver contentResolver = context.getContentResolver();
+
+        try (Cursor cursor = contentResolver.query(externalContentUri, projection, selection, selectionArgs, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int dateAddedColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.RESOLUTION);
+                return cursor.getString(dateAddedColumnIndex);
+            }
+        } catch (Exception e) {
+            Log.e("Error", "Can not get image's resolution", e);
+        }
+        return "null";
+    }
+
+    public static String getName(Context context, Uri imageUri) {
+        String filePath = imageUri.getPath();
+
+        String[] projection = {
+                MediaStore.Images.Media.DISPLAY_NAME
+        };
+
+        String selection = MediaStore.Images.Media.DATA + " = ?";
+        String[] selectionArgs = new String[]{filePath};
+
+        Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        ContentResolver contentResolver = context.getContentResolver();
+
+        try (Cursor cursor = contentResolver.query(externalContentUri, projection, selection, selectionArgs, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int dateAddedColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+                return cursor.getString(dateAddedColumnIndex);
+            }
+        } catch (Exception e) {
+            Log.e("Error", "Can not get image's resolution", e);
+        }
+        return "null";
+    }
+
+
     @SuppressLint("Range")
     public static boolean changeNameImage(Context context, String URI, String newName){
         if (newName == null || newName.isEmpty() || newName.isBlank()){
