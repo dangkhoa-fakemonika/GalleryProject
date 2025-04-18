@@ -333,6 +333,13 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return true;
         }
         else if (id == R.id.moreInfo) {
+            Intent intent = new Intent(SingleImageView.this, MoreInformationActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("imageURI", imageURI);
+            bundle.putString("dateAdded", dateAdded);
+            bundle.putInt("position", position);
+            intent.putExtras(bundle);
+            startActivity(intent);
             return true;
         }
         else if (id == R.id.qrread){

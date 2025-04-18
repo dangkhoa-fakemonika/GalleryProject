@@ -1,23 +1,12 @@
 package com.example.galleryexample3;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,22 +15,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
-import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
-import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-
-import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 public class MainActivityNew extends AppCompatActivity {
     private Context context;

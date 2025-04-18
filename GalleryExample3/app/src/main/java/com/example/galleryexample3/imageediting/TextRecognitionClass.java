@@ -8,7 +8,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
-
+    
 import androidx.annotation.NonNull;
 
 import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
