@@ -39,6 +39,7 @@ import java.util.HashSet;
 
 public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuItemClickListener {
     RecyclerView gridRecyclerView;
+    LinearLayout optionBars;
     private ArrayList<String> imagesList;
     boolean selectionEnabled = false;
     DatabaseHandler databaseHandler;
@@ -66,7 +67,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
         gridRecyclerView.scrollToPosition(imagesList.size() - 1);
 
         // OptionBars
-        LinearLayout optionBars = (LinearLayout) view.findViewById(R.id.optionBars);
+        optionBars = (LinearLayout) view.findViewById(R.id.optionBars);
         ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) view.findViewById(R.id.moreOptionButton);
         Button cancelSelectionButton = (Button) view.findViewById(R.id.cancelSelectionButton);
@@ -164,8 +165,17 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String albumName = editText.getText().toString();
                             HashSet<Integer> selectedPositions = galleryAdapter.getSelectedPositions();
+
                             for (int position : selectedPositions)
                                 databaseHandler.albums().addImageToAlbum(albumName, imagesList.get(position));
+
+                            selectionEnabled = false;
+                            galleryAdapter.setSelectionMode(selectionEnabled);
+                            optionBars.setVisibility(View.GONE);
+                            if (getActivity() instanceof MainActivityNew) {
+                                ((MainActivityNew) getActivity()).showBottomNavigation();
+                            }
+
                             Toast.makeText(context, "Added to " + albumName, Toast.LENGTH_LONG).show();
                             dialogInterface.dismiss();
                         }
