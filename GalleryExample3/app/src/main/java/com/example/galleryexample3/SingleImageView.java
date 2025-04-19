@@ -18,6 +18,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -31,6 +32,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -62,6 +65,8 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
+import java.io.File;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -128,6 +133,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         ImageButton drawModeButton = (ImageButton) findViewById(R.id.drawModeButton);
         ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
+        ImageButton shareButton = (ImageButton) findViewById(R.id.shareButton);
 
         // View/hide utility buttons
         toggleUtility = new View.OnClickListener() {
@@ -242,7 +248,19 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                         }
                     }).create();
             alertDialog.show();
+        });
 
+        shareButton.setOnClickListener((l) -> {
+            Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(getApplicationContext()),this.getPackageName() + ".provider", new File(imageURI));
+            Intent share = ShareCompat.IntentBuilder.from(this)
+                    .setStream(uri)
+                    .setType("text/html")
+                    .getIntent()
+                    .setAction(Intent.ACTION_SEND)
+                    .setDataAndType(uri, "image/*")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(Intent.createChooser(share, "Share File"));
         });
 
         // Show menu
@@ -363,7 +381,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                             if (resultText.trim().isEmpty())
                                 Toast.makeText(context,"No words scanned", Toast.LENGTH_SHORT).show();
 
-                            View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.selection_dialog_layout, null);
+                            View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.text_extraction_dialog_layout, null);
 
                             AlertDialog alertDialog = new AlertDialog.Builder(context)
                                     .setTitle("Text Scanned")
@@ -381,10 +399,9 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                                             dialogInterface.dismiss();
                                         }
                                     }).create();
-                            TextView title = dialogView.findViewById(R.id.setBackScreen);
+                            TextView title = dialogView.findViewById(R.id.textExtractionTextView);
                             title.setText(resultText);
-                            title.setTextSize(12f);
-                            ((TextView) dialogView.findViewById(R.id.setLockScreen)).setText("");
+                            title.setMovementMethod(new ScrollingMovementMethod());
                             alertDialog.show();
                         }
                     })

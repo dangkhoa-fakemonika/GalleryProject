@@ -5,7 +5,7 @@
     <item android:id="@+id/addTag"
         android:title="Add tag"/>
     <item android:id="@+id/analyzeText"
-        android:title="Analyze text"/>
+        android:title="Extract text"/>
     <item android:id="@+id/qrread"
         android:title="Read QR" />
     <item android:id="@+id/setWallpaper"
