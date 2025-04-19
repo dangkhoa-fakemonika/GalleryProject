@@ -4,12 +4,14 @@
         android:title="Add to album"/>
     <item android:id="@+id/addTag"
         android:title="Add tag"/>
-    <item android:id="@+id/copy"
-        android:title="Copy"/>
     <item android:id="@+id/analyzeText"
         android:title="Analyze text"/>
     <item android:id="@+id/qrread"
         android:title="Read QR" />
+    <item android:id="@+id/setWallpaper"
+        android:title="Set Wallpaper"/>
+    <item android:id="@+id/copyImageClipboard"
+        android:title="Copy to Clipboard"/>
     <item android:id="@+id/moreInfo"
         android:title="More info"/>
 </menu>

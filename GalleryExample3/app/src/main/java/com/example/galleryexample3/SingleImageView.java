@@ -10,6 +10,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
+import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -17,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
@@ -30,18 +36,35 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.example.galleryexample3.businessclasses.ImageWallpaperManager;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.imageediting.BarCodeScannerClass;
 import com.example.galleryexample3.imageediting.EditView;
+import com.example.galleryexample3.imageediting.ImageClipboard;
 import com.example.galleryexample3.imageediting.PaintingActivity;
 import com.example.galleryexample3.imageediting.TagAnalyzerClass;
 import com.example.galleryexample3.imageediting.TextRecognitionClass;
 import com.example.galleryexample3.userinterface.SwipeImageAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class SingleImageView extends Activity implements PopupMenu.OnMenuItemClickListener {
     private String imageURI;
@@ -131,9 +154,9 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             }
         };
 
-        TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
-        TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
-        BarCodeScannerClass barCodeScannerClass = new BarCodeScannerClass();
+//        TextRecognitionClass textRecognitionClass = new TextRecognitionClass();
+//        TagAnalyzerClass tagAnalyzerClass = new TagAnalyzerClass();
+//        BarCodeScannerClass barCodeScannerClass = new BarCodeScannerClass();
 
         // Get bundle from previous screen
         Intent gotIntent = getIntent();
@@ -325,11 +348,54 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             alertDialog.show();
             return true;
         }
-        else if (id == R.id.copy) {
-            return true;
-        }
         else if (id == R.id.analyzeText) {
-            TextRecognitionClass.getTextFromImage(this, imageURI);
+//            TextRecognitionClass.getTextFromImage(this, imageURI);
+            TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+            InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(imageURI), 0);
+
+            recognizer.process(image)
+                    .addOnSuccessListener(new OnSuccessListener<Text>() {
+                        @Override
+                        public void onSuccess(Text visionText) {
+                            String resultText = visionText.getText();
+
+                            if (resultText.trim().isEmpty())
+                                Toast.makeText(context,"No words scanned", Toast.LENGTH_SHORT).show();
+
+                            View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.selection_dialog_layout, null);
+
+                            AlertDialog alertDialog = new AlertDialog.Builder(context)
+                                    .setTitle("Text Scanned")
+                                    .setView(dialogView)
+                                    .setPositiveButton("Copy Text", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            ClipBoardProcessing.getTextToClipBoard(context, resultText);
+                                            dialogInterface.dismiss();
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            dialogInterface.dismiss();
+                                        }
+                                    }).create();
+                            TextView title = dialogView.findViewById(R.id.setBackScreen);
+                            title.setText(resultText);
+                            title.setTextSize(12f);
+                            ((TextView) dialogView.findViewById(R.id.setLockScreen)).setText("");
+                            alertDialog.show();
+                        }
+                    })
+                    .addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                    Toast.makeText(context,"Words scanned failed", Toast.LENGTH_SHORT).show();
+                                }
+                            });
             return true;
         }
         else if (id == R.id.moreInfo) {
@@ -343,7 +409,158 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return true;
         }
         else if (id == R.id.qrread){
-            BarCodeScannerClass.getBarCodeData(this, imageURI);
+            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE,Barcode.FORMAT_AZTEC).build();
+
+            BarcodeScanner scanner = BarcodeScanning.getClient();
+
+            InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(imageURI), 0);
+            scanner.process(image)
+                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+                        @Override
+                        public void onSuccess(List<Barcode> barcodes) {
+                            for (Barcode barcode: barcodes) {
+                                int valueType = barcode.getValueType();
+                                switch (valueType) {
+                                    case Barcode.TYPE_WIFI:
+                                        String ssid = Objects.requireNonNull(barcode.getWifi()).getSsid();
+                                        String password = barcode.getWifi().getPassword();
+
+//                                        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+//                                        boolean isConnectable = wifiManager.isEasyConnectSupported();
+//                                        if (isConnectable){
+//                                            wifiManager.
+//                                        }
+//                                        else {
+//
+//                                        }
+
+                                        View wifiDialog = LayoutInflater.from(SingleImageView.this).inflate(R.layout.selection_dialog_layout, null);
+                                        TextView wifiName = wifiDialog.findViewById(R.id.setBackScreen);
+                                        wifiName.setText("Wifi Name: " + ssid);
+                                        TextView wifiPassword = wifiDialog.findViewById(R.id.setLockScreen);
+                                        wifiPassword.setText("Password: " + password);
+                                        AlertDialog alertDialogWifi = new AlertDialog.Builder(context)
+                                                .setTitle("Wifi Information")
+                                                .setView(wifiDialog)
+                                                .setPositiveButton("Copy Password", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        ClipBoardProcessing.getTextToClipBoard(context, password);
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                })
+                                                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                }).create();
+                                        alertDialogWifi.show();
+                                        break;
+
+                                    case Barcode.TYPE_URL:
+                                        String title = Objects.requireNonNull(barcode.getUrl()).getTitle();
+                                        String url = barcode.getUrl().getUrl();
+
+                                        View urlDialog = LayoutInflater.from(SingleImageView.this).inflate(R.layout.selection_dialog_layout, null);
+                                        TextView urlTitle = urlDialog.findViewById(R.id.setBackScreen);
+                                        urlTitle.setText((title == null || !title.isEmpty()) ? title : "No Title");
+                                        EditText urlGenerated = urlDialog.findViewById(R.id.setLockScreen);
+                                        urlGenerated.setText(url);
+                                        AlertDialog alertDialogUrl = new AlertDialog.Builder(context)
+                                                .setTitle("URL Information")
+                                                .setView(urlDialog)
+                                                .setPositiveButton("Go To URL", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        Intent browse = new Intent( Intent.ACTION_VIEW , Uri.parse(url));
+                                                        startActivity(browse);
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                })
+                                                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                })
+                                                .setNeutralButton("Copy URL", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        ClipBoardProcessing.getTextToClipBoard(context, url);
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                }).create();
+                                        alertDialogUrl.show();
+//                                        ClipBoardProcessing.getTextToClipBoard(context, url);
+                                        break;
+
+                                    default:
+                                        String text = barcode.getRawValue();
+
+                                        View normalDialog = LayoutInflater.from(SingleImageView.this).inflate(R.layout.displaying_data_dialog_layout, null);
+                                        TextView normalTitle = normalDialog.findViewById(R.id.extraField);
+                                        normalTitle.setText("Plain text scanned");
+                                        EditText textGenerated = normalDialog.findViewById(R.id.editText);
+                                        textGenerated.setText(text);
+                                        AlertDialog textDialogUrl = new AlertDialog.Builder(context)
+                                                .setTitle("Plain text")
+                                                .setView(normalDialog)
+                                                .setPositiveButton("Copy text", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        ClipBoardProcessing.getTextToClipBoard(context, text);
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                })
+                                                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        dialogInterface.dismiss();
+                                                    }
+                                                }).create();
+                                        textDialogUrl.show();
+
+                                        ClipBoardProcessing.getTextToClipBoard(context, text);
+                                        break;
+
+                                }
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(context, "No QR available.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            return true;
+        }
+        else if (id == R.id.setWallpaper){
+            View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.selection_dialog_layout, null);
+
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Set Background For")
+                    .setView(dialogView)
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            dialogView.findViewById(R.id.setBackScreen).setOnClickListener((l) -> {
+                ImageWallpaperManager.setWallpaper(context, imageURI, 0);
+                alertDialog.dismiss();
+            });
+            dialogView.findViewById(R.id.setLockScreen).setOnClickListener((l) -> {
+                ImageWallpaperManager.setWallpaper(context, imageURI, 1);
+                alertDialog.dismiss();
+            });
+            alertDialog.show();
+            return true;
+        }
+        else if (id == R.id.copyImageClipboard){
+            ImageClipboard.getImageToClipBoard(context, imageURI);
+            Toast.makeText(context, "Image copied to clipboard.", Toast.LENGTH_SHORT).show();
             return true;
         }
         else

@@ -32,8 +32,6 @@ public class TextRecognitionClass {
 
         InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(uri), 0);
 
-        // Text recognition
-        Task<Text> result =
                 recognizer.process(image)
                         .addOnSuccessListener(new OnSuccessListener<Text>() {
                             @Override
@@ -71,8 +69,6 @@ public class TextRecognitionClass {
                                 new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        // Task failed with an exception
-                                        // ...
 
                                         Toast.makeText(context,"Words scanned failed", Toast.LENGTH_SHORT).show();
                                     }

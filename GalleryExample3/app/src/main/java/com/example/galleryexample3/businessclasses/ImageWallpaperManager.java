@@ -13,9 +13,10 @@ import android.provider.MediaStore;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class ImageWallpaperManager {
-    public static void setWallpaper(Context context, String URI) {
+    public static void setWallpaper(Context context, String URI, int type) {
         // gọi UI của điện thoại để set
 //        try(Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {URI}, null)) {
 //            if (cursor != null && cursor.moveToFirst()) {
@@ -31,12 +32,17 @@ public class ImageWallpaperManager {
         WallpaperManager wallpaperManager = WallpaperManager.getInstance(context.getApplicationContext());
         try {
             //set màn hình chính
-            wallpaperManager.setBitmap(imageBitmap, null, true, WallpaperManager.FLAG_SYSTEM);
+            if (type == 0){
+                wallpaperManager.setBitmap(imageBitmap, null, true, WallpaperManager.FLAG_SYSTEM);
+                Toast.makeText(context, "Main background changed", Toast.LENGTH_SHORT).show();
+            }
             //set màn hình khoá
-            wallpaperManager.setBitmap(imageBitmap, null, true, WallpaperManager.FLAG_LOCK);
+            else if (type == 1){
+                wallpaperManager.setBitmap(imageBitmap, null, true, WallpaperManager.FLAG_LOCK);
+                Toast.makeText(context, "Lock screen background changed", Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Toast.makeText(context, "Đã thay hình nền.", Toast.LENGTH_SHORT).show();
     }
 }

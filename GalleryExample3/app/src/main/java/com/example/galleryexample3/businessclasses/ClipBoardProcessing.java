@@ -15,6 +15,6 @@ public class ClipBoardProcessing {
         ClipData clip = ClipData.newPlainText("generated text", text);
         clipboard.setPrimaryClip(clip);
 
-        Toast.makeText(context, "Saved to clipboard!", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Saved to clipboard!", Toast.LENGTH_SHORT).show();
     }
 }

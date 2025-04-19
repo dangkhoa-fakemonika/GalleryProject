@@ -45,7 +45,6 @@ public class BarCodeScannerClass {
                             String temp = barcode.getRawValue();
                             ClipBoardProcessing.getTextToClipBoard(context, temp);
 
-                            // See API reference for complete list of supported types
                             switch (valueType) {
                                 case Barcode.TYPE_WIFI:
                                     String ssid = Objects.requireNonNull(barcode.getWifi()).getSsid();
@@ -58,7 +57,6 @@ public class BarCodeScannerClass {
                                     String url = barcode.getUrl().getUrl();
                                     ClipBoardProcessing.getTextToClipBoard(context, url);
                                     break;
-
                                 default:
                                     String text = barcode.getRawValue();
                                     ClipBoardProcessing.getTextToClipBoard(context, text);
@@ -66,13 +64,6 @@ public class BarCodeScannerClass {
 
                             }
                         }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Task failed with an exception
-                        // ...
                     }
                 });
     }

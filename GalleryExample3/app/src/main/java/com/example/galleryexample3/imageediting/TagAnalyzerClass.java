@@ -34,9 +34,6 @@ public class TagAnalyzerClass {
                 .addOnSuccessListener(new OnSuccessListener<List<ImageLabel>>() {
                     @Override
                     public void onSuccess(List<ImageLabel> labels) {
-                        // Task completed successfully
-                        // ...
-
                         for (ImageLabel label : labels) {
                             String text = label.getText();
                             float confidence = label.getConfidence();
