@@ -13,10 +13,10 @@
         android:orientation="horizontal">
 
         <View
-            android:background="@color/black"
             android:id="@+id/previousColor"
-            android:layout_width="175dp"
+            android:layout_width="167dp"
             android:layout_height="wrap_content"
+            android:background="@color/black"
             tools:srcCompat="@tools:sample/avatars" />
 
         <View
@@ -36,7 +36,7 @@
 
         <SeekBar
             android:id="@+id/redBar"
-            android:layout_width="287dp"
+            android:layout_width="270dp"
             android:layout_height="wrap_content"
             android:max="255"
             android:min="0"
@@ -54,6 +54,7 @@
             android:layout_width="66dp"
             android:layout_height="match_parent"
             android:inputType="number"
+            android:text="0"
             android:textSize="16sp"/>
 
     </LinearLayout>
@@ -65,7 +66,7 @@
 
         <SeekBar
             android:id="@+id/greenBar"
-            android:layout_width="287dp"
+            android:layout_width="270dp"
             android:layout_height="wrap_content"
             android:max="255"
             android:min="0"
@@ -83,6 +84,7 @@
             android:layout_width="66dp"
             android:layout_height="match_parent"
             android:inputType="number"
+            android:text="0"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -93,7 +95,7 @@
 
         <SeekBar
             android:id="@+id/blueBar"
-            android:layout_width="288dp"
+            android:layout_width="270dp"
             android:layout_height="wrap_content"
             android:max="255"
             android:min="0"
@@ -111,6 +113,38 @@
             android:layout_width="65dp"
             android:layout_height="match_parent"
             android:inputType="number"
+            android:text="0"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <SeekBar
+            android:id="@+id/seekBarBrushSize"
+            android:max="50"
+            android:min="10"
+            android:progress="10"
+            android:layout_width="241dp"
+            android:layout_height="50dp" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Size"
+            android:textColor="@color/black"
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/brushSizeEditText"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:text="10"
             android:textSize="16sp" />
     </LinearLayout>
 

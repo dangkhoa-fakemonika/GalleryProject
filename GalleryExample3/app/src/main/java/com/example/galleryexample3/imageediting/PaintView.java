@@ -9,6 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -39,6 +41,7 @@ public class PaintView extends androidx.appcompat.widget.AppCompatImageView {
     private String imageURI;
     private int nw;
     private int nh;
+    private PorterDuffXfermode pdxf;
 
     public void setScale (int nw, int nh) {
         this.nw = nw;
@@ -78,6 +81,7 @@ public class PaintView extends androidx.appcompat.widget.AppCompatImageView {
 
         undo_paths = new ArrayList<>();
         undo_paints = new ArrayList<>();
+        pdxf = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
     }
 
     @Override
@@ -87,7 +91,15 @@ public class PaintView extends androidx.appcompat.widget.AppCompatImageView {
         canvas.drawBitmap(temp, null, dst,null);
 
         for (int i = 0; i < paths.size(); i++){
-            canvas.drawPath(paths.get(i), paints.get(i));
+            if (paints.get(i).getColor() != Color.TRANSPARENT){
+                canvas.drawPath(paths.get(i), paints.get(i));
+            }
+            else {
+                Paint temp = paints.get(i);
+                temp.setXfermode(pdxf);
+                canvas.drawPath(paths.get(i), temp);
+            }
+
         }
 
         canvas.drawPath(path, paint);
@@ -137,7 +149,7 @@ public class PaintView extends androidx.appcompat.widget.AppCompatImageView {
     }
 
     public void setEraser(boolean isEraser){
-        paint.setColor(isEraser ? Color.WHITE : Color.BLACK);
+        if (isEraser) paint.setColor(Color.TRANSPARENT);
     }
 
     public void clearCanvas(){

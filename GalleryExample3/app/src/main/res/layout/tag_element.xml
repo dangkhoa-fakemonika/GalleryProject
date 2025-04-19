@@ -31,8 +31,8 @@
             android:id="@+id/removeTag"
             android:layout_width="24sp"
             android:layout_height="24sp"
-            android:contentDescription="TODO"
-            android:src="@drawable/delete_24dp" />
+            android:background="@android:color/transparent"
+            android:src="@drawable/close_24px" />
 
     </LinearLayout>
 
