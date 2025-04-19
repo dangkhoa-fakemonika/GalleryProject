@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +32,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -119,7 +121,11 @@ public class PaintingActivity extends AppCompatActivity {
         paintView.setY((fh - nh) / 2);
         paintView.setScale(nw, nh);
 
-        findViewById(R.id.buttonErasure).setOnClickListener((l) -> paintView.setEraser(true));
+        ImageButton eraserButton = findViewById(R.id.buttonErasure);
+        eraserButton.setOnClickListener((l) -> {
+            paintView.setEraser(true);
+            eraserButton.setBackgroundColor(Color.LTGRAY);
+        });
         findViewById(R.id.buttonReset).setOnClickListener((l) -> paintView.clearCanvas());
         findViewById(R.id.buttonUndo).setOnClickListener((l) -> paintView.undo());
         findViewById(R.id.buttonRedo).setOnClickListener((l) -> paintView.redo());
@@ -131,8 +137,10 @@ public class PaintingActivity extends AppCompatActivity {
 //            }
         });
 
-        Button colorButton = findViewById(R.id.buttonSelectColor);
+        ImageButton colorButton = (ImageButton) findViewById(R.id.buttonSelectColor);
         colorButton.setOnClickListener((l) -> {
+            paintView.setEraser(false);
+            eraserButton.setBackgroundColor(Color.TRANSPARENT);
             View dialogView = LayoutInflater.from(PaintingActivity.this).inflate(R.layout.color_picker, null);
             SeekBar redBar = dialogView.findViewById(R.id.redBar);
             SeekBar greenBar = dialogView.findViewById(R.id.greenBar);
@@ -164,6 +172,7 @@ public class PaintingActivity extends AppCompatActivity {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                     rgbValue.set(0, i);
+                    redValueEdit.setText(i + "");
                     currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
                 }
 
@@ -182,6 +191,7 @@ public class PaintingActivity extends AppCompatActivity {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                     rgbValue.set(1, i);
+                    greenValueEdit.setText(i + "");
                     currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
                 }
 
@@ -200,6 +210,7 @@ public class PaintingActivity extends AppCompatActivity {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                     rgbValue.set(2, i);
+                    blueValueEdit.setText(i + "");
                     currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
                 }
 
@@ -227,6 +238,7 @@ public class PaintingActivity extends AppCompatActivity {
                     int getRedValue = Integer.parseInt(charSequence.toString());
                     if (getRedValue >= 0 && getRedValue <= 255){
                         rgbValue.set(0, getRedValue);
+                        redBar.setProgress(getRedValue);
                         currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
                     }
                 }
@@ -249,6 +261,7 @@ public class PaintingActivity extends AppCompatActivity {
                     int getGreenValue = Integer.parseInt(charSequence.toString());
                     if (getGreenValue >= 0 && getGreenValue <= 255){
                         rgbValue.set(1, getGreenValue);
+                        greenBar.setProgress(getGreenValue);
                         currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
                     }
                 }
@@ -271,7 +284,52 @@ public class PaintingActivity extends AppCompatActivity {
                     int getBlueValue = Integer.parseInt(charSequence.toString());
                     if (getBlueValue >= 0 && getBlueValue <= 255){
                         rgbValue.set(2, getBlueValue);
+                        blueBar.setProgress(getBlueValue);
                         currentColor.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
+            final int[] brushSize = {Math.round(paintView.getBrushSize())};
+
+            SeekBar sizeBar = dialogView.findViewById(R.id.seekBarBrushSize);
+            EditText sizeEditText = dialogView.findViewById(R.id.brushSizeEditText);
+            sizeBar.setProgress(Math.round(paintView.getBrushSize()));
+            sizeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                   brushSize[0] = progress;
+                   sizeEditText.setText(progress + "");
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+            sizeEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    if (charSequence.length() == 0) return;
+                    int sizeValue = Integer.parseInt(charSequence.toString());
+                    if (sizeValue >= 10 && sizeValue <= 50){
+                        sizeBar.setProgress(sizeValue);
+                        brushSize[0] = sizeValue;
                     }
                 }
 
@@ -290,7 +348,7 @@ public class PaintingActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             paintView.setBrushColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
                             colorButton.setBackgroundColor(Color.rgb(rgbValue.get(0),rgbValue.get(1),rgbValue.get(2)));
-                            colorButton.setTextColor(Color.rgb(255 - rgbValue.get(0), 255 - rgbValue.get(1), 255 - rgbValue.get(2)));
+                            paintView.setBrushSize(brushSize[0]);
                             dialogInterface.dismiss();
                         }
                     })
@@ -303,24 +361,6 @@ public class PaintingActivity extends AppCompatActivity {
             alertDialog.show();
         });
 
-        SeekBar seekBar = findViewById(R.id.seekBarBrushSize);
-        seekBar.setProgress(10);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                paintView.setBrushSize(progress);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
     }
 
     @Override
@@ -334,9 +374,9 @@ public class PaintingActivity extends AppCompatActivity {
                 }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
+                builder.setMessage("Image no longer available.")
                         .setCancelable(false)
-                        .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent intent = new Intent(PaintingActivity.this, MainActivity.class);
                                 startActivity(intent);
