@@ -7,19 +7,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.DrmInitData;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.File;
+import com.example.galleryexample3.userinterface.SearchItemListAdapter;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.text.SimpleDateFormat;
 
@@ -194,6 +193,34 @@ public class ImageGalleryProcessing {
         return "null";
     }
 
+    public static SearchItemListAdapter.MatchItem getMatchImageItem(Context context, String name){
+        int count = 0;
+        int type = SearchItemListAdapter.MATCH_IMAGE_NAME;
+        String thumbnail = "";
+        String[] displayNames = {
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME
+        };
+        Uri collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String sortOrder = " DESC ";
+        String selection  = MediaStore.Images.Media.DISPLAY_NAME + " LIKE ?";
+        String[] selectionArgs = new String[]{"%" + name + "%"};
+        ContentResolver resolver = context.getContentResolver();
+        try(Cursor cursor = resolver.query(collection, displayNames, selection, selectionArgs, MediaStore.Images.Media.DATE_ADDED + sortOrder)){
+            if (cursor != null && cursor.moveToFirst()){
+                Log.v("Cursor Alive", "cursor alive");
+                int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                Uri retrievedURI = ContentUris.withAppendedId(collection, cursor.getLong(idIndex));
+                thumbnail = retrievedURI.toString();
+                count = cursor.getCount();
+            }
+        }catch (Exception e){
+            Log.e("MatchName count", e.toString());
+        }
+        Log.v("Search count", String.valueOf(count));
+        if (count == 0) return null;
+        return new SearchItemListAdapter.MatchItem(name, String.valueOf(count), thumbnail, type);
+    }
 
     @SuppressLint("Range")
     public static boolean changeNameImage(Context context, String URI, String newName){

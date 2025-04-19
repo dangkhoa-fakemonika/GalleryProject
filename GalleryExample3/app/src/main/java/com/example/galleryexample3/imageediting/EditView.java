@@ -54,6 +54,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.galleryexample3.MainActivity;
+import com.example.galleryexample3.MainActivityNew;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.businessclasses.ImageFiltersProcessing;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
@@ -100,7 +101,7 @@ public class EditView extends AppCompatActivity {
                     .setCancelable(false)
                     .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(EditView.this, MainActivity.class);
+                            Intent intent = new Intent(EditView.this, MainActivityNew.class);
                             startActivity(intent);
                         }
                     });

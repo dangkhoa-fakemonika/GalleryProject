@@ -3,10 +3,14 @@ package com.example.galleryexample3.dataclasses;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.galleryexample3.userinterface.SearchItemListAdapter;
+
+import java.lang.reflect.Array;
 import java.security.AllPermission;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -30,12 +34,13 @@ class AlbumsInfoTable{
     // more info
     public static final String COL_DESCRIPTION = "description";
     public static final String COL_TIME_CREATE = "time_create";
-
+    public static final String THUMBNAIL_URI = "thumbnail_uri";
     public static String createTableQuery(){
         return "CREATE TABLE " + TABLE_NAME + "(" +
                 COL_NAME + " TEXT, " +
                 COL_DESCRIPTION + " TEXT, " +
-                COL_TIME_CREATE + " TEXT)";
+                COL_TIME_CREATE + " TEXT, " +
+                THUMBNAIL_URI + " TEXT)";
     }
 }
 
@@ -53,7 +58,7 @@ class TagsTable{
 
 public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DB_NAME = "hddb";
-    private static final int DB_VERSION = 4;
+    private static final int DB_VERSION = 5;
     private static volatile DatabaseHandler instance = null;
     private static SQLiteDatabase sqLiteDatabase;
 
@@ -108,9 +113,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(AlbumsTable.COL_NAME, albumName);
             values.put(AlbumsTable.COL_IMAGE_URI, imageURI);
-            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values);
+            if (sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values) > -1){
+                Log.e("ajsdkas;ld", "asdjasdjs;akd");
+                setAlbumThumbnail(albumName, imageURI);
+            }
         }
-
+        public void setAlbumThumbnail(String albumName, String imageURI){
+            ContentValues values = new ContentValues();
+            values.put(AlbumsInfoTable.THUMBNAIL_URI, imageURI);
+            sqLiteDatabase.update( AlbumsInfoTable.TABLE_NAME, values,AlbumsInfoTable.COL_NAME + " = ?", new String[]{albumName});
+        }
         public void createAlbum(String albumName){
             Cursor cur = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME}, AlbumsInfoTable.COL_NAME + "=?", new String[]{albumName}, null, null, null);
 
@@ -119,6 +131,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values.put(AlbumsInfoTable.COL_NAME, albumName);
                 values.put(AlbumsInfoTable.COL_DESCRIPTION, "something");
                 values.put(AlbumsInfoTable.COL_TIME_CREATE, new Date().toString());
+                values.put(AlbumsInfoTable.THUMBNAIL_URI, "no_thumbnail");
                 sqLiteDatabase.insert(AlbumsInfoTable.TABLE_NAME, null, values);
             }
 
@@ -171,9 +184,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public String getAlbumThumbnail(String albumName) {
-            try (Cursor cursor = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME, AlbumsTable.COL_IMAGE_URI}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME, AlbumsInfoTable.THUMBNAIL_URI}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
                 if (cursor.moveToFirst()) {
-                    int uriCol = cursor.getColumnIndex(AlbumsTable.COL_IMAGE_URI);
+                    int uriCol = cursor.getColumnIndex(AlbumsInfoTable.THUMBNAIL_URI);
                     return cursor.getString(uriCol);
                 }
             } catch (Exception e) {
@@ -181,7 +194,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
             return null;
         }
+        public ArrayList<SearchItemListAdapter.MatchItem> getMatchAlbumItems(String name) {
+            ArrayList<SearchItemListAdapter.MatchItem> l = new ArrayList<>();
+            String[] args = new String[]{"%"+ name + "%"};
+            String statement = "SELECT albums.name, count(albums.imageURI) as totals, albums_info.thumbnail_uri " +
+                    "FROM albums " +
+                    "JOIN albums_info on albums_info.name = albums.name " +
+                    "WHERE albums.name LIKE ? " +
+                    "GROUP BY albums.name, albums_info.name";
 
+            try(Cursor cursor = sqLiteDatabase.rawQuery(statement, args)){
+                if (cursor.moveToFirst()){
+                    Log.e("Something here", String.valueOf(cursor.getCount()));
+                    int columnName = cursor.getColumnIndex("albums.name");
+                    int countIndex = cursor.getColumnIndex("totals");
+                    int thumbnailUri = cursor.getColumnIndex("albums_info.thumbnail_uri");
+                    int matchType = SearchItemListAdapter.MATCH_ALBUM;
+                    do {
+                        String matchName = cursor.getString(columnName);
+                        String albumsTotals = String.valueOf(cursor.getLong(countIndex));
+                        String uri = cursor.getString(thumbnailUri);
+                        l.add(new SearchItemListAdapter.MatchItem(matchName, albumsTotals, uri, matchType));
+                    } while (cursor.moveToNext());
+                }
+            }catch (Exception e){
+                Log.e("DatabaseHandler", e.toString());
+            }
+            return l;
+        }
         public ArrayList<String> getAllAlbumsTemp(){
             Cursor cur = sqLiteDatabase.query(true, AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME},  null,null, null, null, null, null);
             ArrayList<String> result = new ArrayList<>();

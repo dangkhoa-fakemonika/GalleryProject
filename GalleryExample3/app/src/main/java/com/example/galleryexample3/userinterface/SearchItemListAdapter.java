@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.galleryexample3.R;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class SearchItemListAdapter extends RecyclerView.Adapter<SearchItemListAdapter.SearchItemViewHolder> {
@@ -114,6 +115,19 @@ public class SearchItemListAdapter extends RecyclerView.Adapter<SearchItemListAd
 
         public int getMatchType() {
             return matchType;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MatchItem matchItem = (MatchItem) o;
+            return matchType == matchItem.matchType && Objects.equals(matchName, matchItem.matchName) && Objects.equals(matchCount, matchItem.matchCount) && Objects.equals(matchThumbnail, matchItem.matchThumbnail);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(matchType, matchName, matchCount, matchThumbnail);
         }
     }
 }
