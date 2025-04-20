@@ -75,6 +75,9 @@ public class SearchItemListAdapter extends RecyclerView.Adapter<SearchItemListAd
         return matchItems.size();
     }
 
+    public MatchItem getSelectedMatchItem(int position){
+        return matchItems.get(position);
+    }
     public static class SearchItemViewHolder extends RecyclerView.ViewHolder{
         ImageView imageView;
         TextView matchName;

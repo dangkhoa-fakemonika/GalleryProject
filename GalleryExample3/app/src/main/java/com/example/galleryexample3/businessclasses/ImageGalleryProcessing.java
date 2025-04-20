@@ -62,7 +62,7 @@ public class ImageGalleryProcessing {
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 //        Log.i("getimg", String.valueOf(uri));
-
+        String[] projection ={MediaStore.Images.Media.DATA};
         // use MediaStore.Images.Media.<Attribute> to query and stuff
         // contentResolver is the sqlite database
         HashMap<String, String> sort_type_map = new HashMap<>();
@@ -72,7 +72,43 @@ public class ImageGalleryProcessing {
         if (!Objects.equals(sort_type, "DATE_ADDED") && !Objects.equals(sort_type, "DISPLAY_NAME") && !Objects.equals(sort_type, "DATE_MODIFIED")) {
             sort_type = "DATE_ADDED";
         }
-        try (Cursor cursor = contentResolver.query(uri, null, null, null, sort_type_map.get(sort_type) + sort_order)){
+        try (Cursor cursor = contentResolver.query(uri, projection, null, null, sort_type_map.get(sort_type) + sort_order)){
+            if (cursor == null) {
+                // query failed, handle error
+            } else if (!cursor.moveToFirst()) {
+                // no media on the device
+            } else {
+                int i = 0;
+                int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                do {
+                    String pathGot = cursor.getString(dataColumnIndex);
+                    arrPath.add(pathGot);
+                    i++;
+                } while (cursor.moveToNext()); // Load limit
+            }
+        }
+
+        return arrPath;
+    }
+    public static ArrayList<String> getImagesByName(Context context, String name, String sort_type, String sort_order){
+        ArrayList<String> arrPath = new ArrayList<>();
+
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+//        Log.i("getimg", String.valueOf(uri));
+        String[] projection ={MediaStore.Images.Media.DATA};
+        String selection =  MediaStore.Images.Media.DISPLAY_NAME + " like ? ";
+        String[] args = {"%"+name+"%"};
+        // use MediaStore.Images.Media.<Attribute> to query and stuff
+        // contentResolver is the sqlite database
+        HashMap<String, String> sort_type_map = new HashMap<>();
+        sort_type_map.put("DATE_ADDED", MediaStore.Images.Media.DATE_ADDED);
+        sort_type_map.put("DISPLAY_NAME", MediaStore.Images.Media.DISPLAY_NAME);
+        sort_type_map.put("DATE_MODIFIED", MediaStore.Images.Media.DATE_MODIFIED);
+        if (!Objects.equals(sort_type, "DATE_ADDED") && !Objects.equals(sort_type, "DISPLAY_NAME") && !Objects.equals(sort_type, "DATE_MODIFIED")) {
+            sort_type = "DATE_ADDED";
+        }
+        try (Cursor cursor = contentResolver.query(uri, projection, selection, args, sort_type_map.get(sort_type) + " " + sort_order)){
             if (cursor == null) {
                 // query failed, handle error
             } else if (!cursor.moveToFirst()) {

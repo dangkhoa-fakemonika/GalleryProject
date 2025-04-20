@@ -72,6 +72,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class SingleImageView extends Activity implements PopupMenu.OnMenuItemClickListener {
+    public final static String FLAG_ALBUM = "albumName";
+    public final static String FLAG_TAG = "tagName";
+    public final static String FLAG_SEARCH_NAME = "fileName";
+
     private String imageURI;
     private int position;
     private String dateAdded;
@@ -84,6 +88,9 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     private ViewPager2 viewPager;
     private View.OnClickListener toggleUtility;
     private boolean osv = false;
+    private String matchName;
+    private String albumName;
+    private String tagName;
     public class MediaStoreObserver extends ContentObserver {
         public MediaStoreObserver(Handler handler) {
             super(handler);
@@ -120,7 +127,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return insets;
         });
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
 
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
         viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
@@ -172,11 +178,28 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         context = this;
         if (gotBundle == null)
             return;
-
+        matchName = gotBundle.getString(FLAG_SEARCH_NAME);
+        albumName = gotBundle.getString(FLAG_ALBUM);
+        tagName = gotBundle.getString(FLAG_TAG);
         imageURI = gotBundle.getString("imageURI");
         dateAdded = gotBundle.getString("dateAdded");
         position = gotBundle.getInt("position");
         dateAddedText.setText(dateAdded);
+        
+        if (matchName != null){
+            imagesList = ImageGalleryProcessing.getImagesByName(getApplicationContext(), matchName, "DATE_ADDED", " DESC");
+            Log.v("matchName", matchName);
+        } else if (albumName != null) {
+            imagesList = databaseHandler.albums().getImagesOfAlbum(albumName);
+            Log.v("albumName", albumName);
+        } else if (tagName != null) {
+//            Currently has no Tag retrieve Logic
+            imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
+            Log.v("tagName", tagName);
+
+        }else {
+            imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
+        }
 
         viewPager.setPageTransformer(new ViewPager2.PageTransformer() {
             @Override

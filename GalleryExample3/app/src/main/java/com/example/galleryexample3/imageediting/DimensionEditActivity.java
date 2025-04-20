@@ -86,7 +86,7 @@ public class DimensionEditActivity extends FragmentActivity {
     }
     public void loadFragment(Fragment fragment){
         if (fragment != null){
-            myFragmentManager.beginTransaction().replace(R.id.editedImageFrame, fragment).commit();
+            myFragmentManager.beginTransaction().replace(R.id.frameLayout, fragment).commit();
         }else{
             Log.e("NoFragment", "No Fragment lmao");
         }

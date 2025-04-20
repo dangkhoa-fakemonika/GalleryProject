@@ -206,9 +206,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             try(Cursor cursor = sqLiteDatabase.rawQuery(statement, args)){
                 if (cursor.moveToFirst()){
                     Log.e("Something here", String.valueOf(cursor.getCount()));
-                    int columnName = cursor.getColumnIndex("albums.name");
+                    int columnName = cursor.getColumnIndex("name");
                     int countIndex = cursor.getColumnIndex("totals");
-                    int thumbnailUri = cursor.getColumnIndex("albums_info.thumbnail_uri");
+                    int thumbnailUri = cursor.getColumnIndex("thumbnail_uri");
                     int matchType = SearchItemListAdapter.MATCH_ALBUM;
                     do {
                         String matchName = cursor.getString(columnName);

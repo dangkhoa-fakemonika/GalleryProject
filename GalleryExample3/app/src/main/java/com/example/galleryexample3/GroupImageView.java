@@ -82,6 +82,7 @@ public class GroupImageView extends Activity {
                     bundle.putString("imageURI", imageUri);
                     bundle.putString("dateAdded", dateAdded);
                     bundle.putInt("position", position);
+                    bundle.putString(SingleImageView.FLAG_ALBUM, groupName);
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }
