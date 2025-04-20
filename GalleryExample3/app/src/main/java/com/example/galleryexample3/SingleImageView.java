@@ -127,7 +127,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return insets;
         });
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
+        imagesList = new ArrayList<>();
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
         viewPager = (ViewPager2) findViewById(R.id.imageViewPager);
 
@@ -185,21 +185,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         dateAdded = gotBundle.getString("dateAdded");
         position = gotBundle.getInt("position");
         dateAddedText.setText(dateAdded);
-        
-        if (matchName != null){
-            imagesList = ImageGalleryProcessing.getImagesByName(getApplicationContext(), matchName, "DATE_ADDED", " DESC");
-            Log.v("matchName", matchName);
-        } else if (albumName != null) {
-            imagesList = databaseHandler.albums().getImagesOfAlbum(albumName);
-            Log.v("albumName", albumName);
-        } else if (tagName != null) {
-//            Currently has no Tag retrieve Logic
-            imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
-            Log.v("tagName", tagName);
-
-        }else {
-            imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
-        }
 
         viewPager.setPageTransformer(new ViewPager2.PageTransformer() {
             @Override
@@ -212,6 +197,8 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         Log.e("Received Position", String.valueOf(position) + " " + String.valueOf(imagesList.size()));
 
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
+        Log.v("From adapter", String.valueOf(swipeImageAdapter.getItemCount()));
+
         viewPager.setAdapter(swipeImageAdapter);
 //        viewPager.setCurrentItem(imagesList.size()-1, false);
 
@@ -293,8 +280,21 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
     @Override
     protected void onResume() {
         super.onResume();
+        if (matchName != null){
+            imagesList = ImageGalleryProcessing.getImagesByName(getApplicationContext(), matchName, "DATE_ADDED", " DESC");
+            Log.v("matchName", matchName);
+        } else if (albumName != null) {
+            imagesList = databaseHandler.albums().getImagesOfAlbum(albumName);
+            Log.v("albumName", albumName);
+        } else if (tagName != null) {
+//            Currently has no Tag retrieve Logic
+            imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
+            Log.v("tagName", tagName);
 
-        imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
+        }else {
+            imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
+        }
+
         SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
         viewPager.setAdapter(swipeImageAdapter);
         if (!imagesList.contains(imageURI)) {
