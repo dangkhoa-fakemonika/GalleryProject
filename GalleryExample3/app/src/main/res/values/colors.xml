@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="button_noselected">#FF323232</color>
     <color name="color_primary">#ACACAC</color>
+    <color name="test_col">#FF0000</color>
 </resources>
