@@ -63,10 +63,10 @@ public class MoreInformationActivity extends Activity {
         imageURI = gotBundle.getString("imageURI");
         databaseHandler = new DatabaseHandler(this);
 
-        titleTextView.setText(ImageGalleryProcessing.getName(this, Uri.parse(imageURI)));
-        timeTextView.setText(ImageGalleryProcessing.getImageDateAdded(this, Uri.parse(imageURI)));
-        resolutionTextView.setText(ImageGalleryProcessing.getResolution(this, Uri.parse(imageURI)));
-        sizeTextView.setText(ImageGalleryProcessing.getSize(this, Uri.parse(imageURI)));
+        titleTextView.setText(ImageGalleryProcessing.getName(this, imageURI));
+        timeTextView.setText(ImageGalleryProcessing.getImageDateAdded(this, imageURI));
+        resolutionTextView.setText(ImageGalleryProcessing.getResolution(this, imageURI));
+        sizeTextView.setText(ImageGalleryProcessing.getSize(this, imageURI));
         locationTextView.setText(imageURI);
 
         TagListAdapter tagListAdapter = new TagListAdapter(this, databaseHandler.tags().getTagsOfImage(imageURI), imageURI);

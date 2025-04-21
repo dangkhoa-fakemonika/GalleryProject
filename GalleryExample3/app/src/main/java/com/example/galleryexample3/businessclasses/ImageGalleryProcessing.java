@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.SearchItemListAdapter;
 
 import java.io.OutputStream;
@@ -53,6 +54,10 @@ public class ImageGalleryProcessing {
 
     public static boolean deleteImage(Context context, String URI) {
         int res = context.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA + " = ?", new String[]{URI});
+        try (DatabaseHandler databaseHandler = new DatabaseHandler(context)) {
+            databaseHandler.tags().deleteImage(URI);
+            databaseHandler.albums().deleteImage(URI);
+        }
         return (res > 0);
     }
 
@@ -71,6 +76,9 @@ public class ImageGalleryProcessing {
         sort_type_map.put("DATE_MODIFIED", MediaStore.Images.Media.DATE_MODIFIED);
         if (!Objects.equals(sort_type, "DATE_ADDED") && !Objects.equals(sort_type, "DISPLAY_NAME") && !Objects.equals(sort_type, "DATE_MODIFIED")) {
             sort_type = "DATE_ADDED";
+        }
+        if (!Objects.equals(sort_order, " DESC") && !Objects.equals(sort_order, " ASC")) {
+            sort_order = " DESC";
         }
         try (Cursor cursor = contentResolver.query(uri, projection, null, null, sort_type_map.get(sort_type) + sort_order)){
             if (cursor == null) {
@@ -108,6 +116,9 @@ public class ImageGalleryProcessing {
         if (!Objects.equals(sort_type, "DATE_ADDED") && !Objects.equals(sort_type, "DISPLAY_NAME") && !Objects.equals(sort_type, "DATE_MODIFIED")) {
             sort_type = "DATE_ADDED";
         }
+        if (!Objects.equals(sort_order, " DESC") && !Objects.equals(sort_order, " ASC")) {
+            sort_order = " DESC";
+        }
         try (Cursor cursor = contentResolver.query(uri, projection, selection, args, sort_type_map.get(sort_type) + " " + sort_order)){
             if (cursor == null) {
                 // query failed, handle error
@@ -127,15 +138,13 @@ public class ImageGalleryProcessing {
         return arrPath;
     }
 
-    public static String getImageDateAdded(Context context, Uri imageUri) {
-        String filePath = imageUri.getPath();
-
+    public static String getImageDateAdded(Context context, String imageUri) {
         String[] projection = {
                 MediaStore.Images.Media.DATE_ADDED
         };
 
         String selection = MediaStore.Images.Media.DATA + " = ?";
-        String[] selectionArgs = new String[]{filePath};
+        String[] selectionArgs = new String[]{imageUri};
 
         Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = context.getContentResolver();
@@ -155,15 +164,13 @@ public class ImageGalleryProcessing {
         return "null";
     }
 
-    public static String getSize(Context context, Uri imageUri) {
-        String filePath = imageUri.getPath();
-
+    public static String getSize(Context context, String imageUri) {
         String[] projection = {
                 MediaStore.Images.Media.SIZE
         };
 
         String selection = MediaStore.Images.Media.DATA + " = ?";
-        String[] selectionArgs = new String[]{filePath};
+        String[] selectionArgs = new String[]{imageUri};
 
         Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = context.getContentResolver();
@@ -181,15 +188,13 @@ public class ImageGalleryProcessing {
         return "null";
     }
 
-    public static String getResolution(Context context, Uri imageUri) {
-        String filePath = imageUri.getPath();
-
+    public static String getResolution(Context context, String imageUri) {
         String[] projection = {
                 MediaStore.Images.Media.RESOLUTION
         };
 
         String selection = MediaStore.Images.Media.DATA + " = ?";
-        String[] selectionArgs = new String[]{filePath};
+        String[] selectionArgs = new String[]{imageUri};
 
         Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = context.getContentResolver();
@@ -205,15 +210,13 @@ public class ImageGalleryProcessing {
         return "null";
     }
 
-    public static String getName(Context context, Uri imageUri) {
-        String filePath = imageUri.getPath();
-
+    public static String getName(Context context, String imageUri) {
         String[] projection = {
                 MediaStore.Images.Media.DISPLAY_NAME
         };
 
         String selection = MediaStore.Images.Media.DATA + " = ?";
-        String[] selectionArgs = new String[]{filePath};
+        String[] selectionArgs = new String[]{imageUri};
 
         Uri externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = context.getContentResolver();

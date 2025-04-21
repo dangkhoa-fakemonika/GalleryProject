@@ -101,7 +101,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                 } else {
                     Log.e("Position", String.valueOf(position));
                     String imageUri = imagesList.get(position);
-                    String dateAdded = ImageGalleryProcessing.getImageDateAdded(context, Uri.parse(imageUri));
+                    String dateAdded = ImageGalleryProcessing.getImageDateAdded(context, imageUri);
                     Intent intent = new Intent(context, SingleImageView.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("imageURI", imageUri);

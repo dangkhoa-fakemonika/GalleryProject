@@ -42,6 +42,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.businessclasses.ImageWallpaperManager;
+import com.example.galleryexample3.businessclasses.PrivateAlbum;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.imageediting.BarCodeScannerClass;
 import com.example.galleryexample3.imageediting.EditView;
@@ -364,29 +365,10 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             return true;
         }
         else if (id == R.id.addTag) {
-            View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.one_field_dialog_layout, null);
-            TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
-            TextInputEditText editText = dialogView.findViewById(R.id.editText);
-            inputTextLayout.setHint("Enter Tag Name");
-            AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle("Add Tag")
-                    .setView(dialogView)
-                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            String tagName = editText.getText().toString();
-                            Log.i("TAG", tagName);
-                            dialogInterface.dismiss();
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Log.i("TAG", "Cancel");
-                            dialogInterface.dismiss();
-                        }
-                    }).create();
-            alertDialog.show();
+            //PrivateAlbum.addPrivateAlbum(this, imageURI);
+            //PrivateAlbum.getImage(this, "");
+            //PrivateAlbum.removeImage(this, "");
+            PrivateAlbum.testQuery(this, "");
             return true;
         }
         else if (id == R.id.analyzeText) {

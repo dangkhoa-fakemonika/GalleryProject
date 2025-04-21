@@ -254,6 +254,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             albumValues.put(AlbumsTable.COL_NAME, newAlbumName);
             sqLiteDatabase.update(AlbumsTable.TABLE_NAME, albumValues, AlbumsTable.COL_NAME + " =?", new String[]{albumName});
         }
+
+        public void deleteImage(String imageURI) {
+            sqLiteDatabase.delete(AlbumsTable.TABLE_NAME, AlbumsTable.COL_IMAGE_URI + " = ?", new String[]{imageURI});
+        }
     }
 
     public static class TagsController {
@@ -339,5 +343,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return result;
         }
 
+        public void deleteImage(String imageURI) {
+            sqLiteDatabase.delete(TagsTable.TABLE_NAME, TagsTable.COL_IMAGE_URI + " = ?", new String[]{imageURI});
+        }
     }
 }
