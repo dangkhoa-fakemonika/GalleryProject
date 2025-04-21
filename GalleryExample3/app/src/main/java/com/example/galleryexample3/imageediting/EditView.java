@@ -558,7 +558,7 @@ public class EditView extends AppCompatActivity {
             public void onClick(View view) {
                 String uri = "";
                 try {
-                     uri = EditImageManager.cacheBitmapToUri(EditView.this, modBitmap).toString();
+                     uri = EditImageManager.cacheBitmapToUri(getApplicationContext(), modBitmap).toString();
                      Log.v("EditView Cache", uri);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

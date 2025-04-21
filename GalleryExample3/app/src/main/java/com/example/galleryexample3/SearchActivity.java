@@ -77,7 +77,7 @@ public class SearchActivity extends AppCompatActivity implements SearchViewFragm
     @Override
     public void switchBetweenFragment(String fromFragment, SearchItemListAdapter.MatchItem item) {
         if (fromFragment.equals("search") && item != null){
-            loadFragmentToView(new SearchViewImageFragment(item.getMatchName()), item.getMatchName());
+            loadFragmentToView(new SearchViewImageFragment(item), item.getMatchName());
         }
     }
 

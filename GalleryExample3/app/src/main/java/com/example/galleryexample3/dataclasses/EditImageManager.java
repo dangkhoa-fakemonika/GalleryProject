@@ -20,5 +20,4 @@ public class EditImageManager {
         outputFile.close();
         return FileProvider.getUriForFile(context, context.getPackageName() + ".provider", imageFile);
     }
-
 }
