@@ -60,7 +60,7 @@ public class SearchViewImageFragment extends Fragment {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 String imageUri = imagesList.get(position);
-                String dateAdded = ImageGalleryProcessing.getImageDateAdded(parentActivity.getApplicationContext(), Uri.parse(imageUri));
+                String dateAdded = ImageGalleryProcessing.getImageDateAdded(parentActivity.getApplicationContext(), imageUri);
                 Intent intent = new Intent(parentActivity.getApplicationContext(), SingleImageView.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("imageURI", imageUri);
