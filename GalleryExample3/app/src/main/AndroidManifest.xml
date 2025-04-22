@@ -61,6 +61,7 @@
         <activity android:name=".imageediting.PaintingActivity" android:exported="true"/>
         <activity android:name=".MoreInformationActivity" android:exported="true"/>
         <activity android:name=".GroupImageView" android:exported="true"/>
+        <activity android:name=".TagManagementActivity" android:exported="true"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.galleryexample3.provider"

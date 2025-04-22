@@ -47,7 +47,7 @@ class AlbumsInfoTable{
 class TagsTable{
     public static final String TABLE_NAME = "tags";
     public static final String COL_NAME = "name";
-    public static final String COL_IMAGE_URI = "imageuri";
+    public static final String COL_IMAGE_URI = "imageUri";
 
     public static String createTableQuery(){
         return "CREATE TABLE " + TABLE_NAME + "(" +
@@ -56,9 +56,19 @@ class TagsTable{
     }
 }
 
+class TagsInfoTable{
+    public static final String TABLE_NAME = "tags_info";
+    public static final String COL_NAME = "name";
+
+    public static String createTableQuery(){
+        return "CREATE TABLE " + TABLE_NAME + "(" +
+                COL_NAME + " TEXT) ";
+    }
+}
+
 public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DB_NAME = "hddb";
-    private static final int DB_VERSION = 5;
+    private static final int DB_VERSION = 6;
     private static volatile DatabaseHandler instance = null;
     private static SQLiteDatabase sqLiteDatabase;
 
@@ -82,6 +92,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(AlbumsTable.createTableQuery());
         sqLiteDatabase.execSQL(AlbumsInfoTable.createTableQuery());
         sqLiteDatabase.execSQL(TagsTable.createTableQuery());
+        sqLiteDatabase.execSQL(TagsInfoTable.createTableQuery());
     }
 
     @Override
@@ -89,6 +100,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AlbumsTable.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AlbumsInfoTable.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TagsTable.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TagsInfoTable.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 
@@ -100,7 +112,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return new TagsController();
     }
 
-
     public static class AlbumTableController {
 
         public AlbumTableController(){
@@ -108,22 +119,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void addImageToAlbum(String albumName, String imageURI){
-            createAlbum(albumName);
-
             ContentValues values = new ContentValues();
             values.put(AlbumsTable.COL_NAME, albumName);
             values.put(AlbumsTable.COL_IMAGE_URI, imageURI);
-            if (sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values) > -1){
-                Log.e("ajsdkas;ld", "asdjasdjs;akd");
+//            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values) > -1
+            if (!checkAlbumExisted(albumName)){
                 setAlbumThumbnail(albumName, imageURI);
+                createAlbum(albumName);
             }
         }
+
+        public boolean checkAlbumExisted(String albumName){
+            Cursor cur = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME}, AlbumsInfoTable.COL_NAME + " =?", new String[]{albumName}, null, null, null);
+            int count = cur.getCount();
+            cur.close();
+            return count != 0;
+        }
+
         public void setAlbumThumbnail(String albumName, String imageURI){
             ContentValues values = new ContentValues();
             values.put(AlbumsInfoTable.THUMBNAIL_URI, imageURI);
-            sqLiteDatabase.update( AlbumsInfoTable.TABLE_NAME, values,AlbumsInfoTable.COL_NAME + " = ?", new String[]{albumName});
+            sqLiteDatabase.update(AlbumsInfoTable.TABLE_NAME, values,AlbumsInfoTable.COL_NAME + " = ?", new String[]{albumName});
         }
         public void createAlbum(String albumName){
+            if (checkAlbumExisted(albumName))
+                return;
+
             Cursor cur = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME}, AlbumsInfoTable.COL_NAME + "=?", new String[]{albumName}, null, null, null);
 
             if (cur.getCount() == 0){
@@ -266,16 +287,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         }
 
+        public void createNewTag(String tagName){
+            ContentValues values = new ContentValues();
+            values.put(TagsInfoTable.COL_NAME, tagName);
+            sqLiteDatabase.insert(TagsInfoTable.TABLE_NAME, null, values);
+        }
+
+        public boolean checkTagExisted(String tagName){
+            Cursor cur = sqLiteDatabase.query(TagsInfoTable.TABLE_NAME, new String[] {TagsInfoTable.COL_NAME}, TagsTable.COL_NAME + " =?", new String[]{tagName}, null, null, null, null);
+            int count = cur.getCount();
+            cur.close();
+            return count != 0;
+        }
+
         public void addTagsToImage(String tagName, String imageURI){
+            if (checkTagExisted(tagName)){
+                return;
+            }
+            createNewTag(tagName);
+
             ContentValues values = new ContentValues();
             values.put(TagsTable.COL_NAME, tagName);
             values.put(TagsTable.COL_IMAGE_URI, imageURI);
             long a = sqLiteDatabase.insert(TagsTable.TABLE_NAME, null, values);
-            Log.i("INSERT CHECK",  a + "");
         }
 
         public void deleteTag(String tagName){
             sqLiteDatabase.delete(TagsTable.TABLE_NAME, TagsTable.COL_NAME + " =?", new String[]{tagName});
+            sqLiteDatabase.delete(TagsInfoTable.TABLE_NAME, TagsInfoTable.COL_NAME + " =?", new String[]{tagName});
         }
 
         public void removeTag(String tagName, String imageURI){
@@ -283,7 +322,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public ArrayList<String> getAllTags(){
-            Cursor cur = sqLiteDatabase.query(true, TagsTable.TABLE_NAME, new String[] {TagsTable.COL_NAME}, null, null, null, null, null, null);
+            Cursor cur = sqLiteDatabase.query(TagsInfoTable.TABLE_NAME, new String[] {TagsInfoTable.COL_NAME}, null, null, null, null, null, null);
             ArrayList<String> result = new ArrayList<>();
 
             if (cur.getCount() == 0)
@@ -291,7 +330,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             cur.moveToFirst();
             do {
-                int uriCol = cur.getColumnIndex(TagsTable.COL_NAME);
+                int uriCol = cur.getColumnIndex(TagsInfoTable.COL_NAME);
                 String uri = null;
                 if (uriCol != -1)
                     uri = cur.getString(uriCol);
