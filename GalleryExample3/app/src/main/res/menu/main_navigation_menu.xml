@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<group
+    android:checkableBehavior="single">
+    <item
+        android:id="@+id/navManageTags"
+        android:icon="@drawable/style_24px"
+        android:title="Manage Tags"/>
+    <item
+        android:id="@+id/navToCamera"
+        android:icon="@drawable/photo_camera_24dp"
+        android:title="Camera"/>
+    <item
+        android:id="@+id/navSearchImage"
+        android:icon="@drawable/search_24dp"
+        android:title="Search"/>
+    <item
+        android:id="@+id/navSettings"
+        android:icon="@drawable/settings_24px"
+        android:title="Settings"/>
+    <item
+        android:id="@+id/navClose"
+        android:icon="@drawable/close_24px"
+        android:title="Close"/>
+
+
+</group>
+</menu>

@@ -22,16 +22,19 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.navigation.NavigationView;
 
-public class MainActivityNew extends AppCompatActivity {
+public class MainActivityNew extends AppCompatActivity{
     private Context context;
     private Toolbar myToolbar;
     private AppBarLayout myAppBarLayout;
@@ -69,6 +72,7 @@ public class MainActivityNew extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+//        DrawerLayout drawerLayout = findViewById(R.id.drawer_nav_view);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_new);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -124,6 +128,17 @@ public class MainActivityNew extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, galleryFragment).commit();
 
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.mainDrawerLayout);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.drawer_nav_view);
+
+        myToolbar.setNavigationIcon(R.drawable.menu_24px);
+        myToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
         bottomNavView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -134,6 +149,32 @@ public class MainActivityNew extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, albumOverviewFragment).commit();
 
                 return false;
+            }
+        });
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.navClose){
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return true;
+                }
+
+                Intent intent;
+                if (item.getItemId() == R.id.navManageTags)
+                    intent = new Intent(MainActivityNew.this, TagManagementActivity.class);
+                else if (item.getItemId() == R.id.navToCamera)
+                    intent = new Intent(MainActivityNew.this, CameraActivity.class);
+                else if (item.getItemId() == R.id.navSearchImage)
+                    intent = new Intent(MainActivityNew.this, SearchActivity.class);
+                else if (item.getItemId() == R.id.navSettings)
+                    intent = new Intent(MainActivityNew.this, MainActivityNew.class);
+                else
+                    intent = new Intent(MainActivityNew.this, MainActivityNew.class);
+
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(intent);
+                return true;
             }
         });
     }

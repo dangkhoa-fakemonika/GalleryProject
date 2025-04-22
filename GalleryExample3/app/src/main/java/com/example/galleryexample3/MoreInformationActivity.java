@@ -148,7 +148,5 @@ public class MoreInformationActivity extends Activity {
                     }).create();
             alertDialog.show();
         });
-
-
     }
 }

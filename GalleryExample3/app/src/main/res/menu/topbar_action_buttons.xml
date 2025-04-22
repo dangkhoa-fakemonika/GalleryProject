@@ -13,4 +13,5 @@
         android:icon="@drawable/search_24dp"
         android:title="Settings">
     </item>
+
 </menu>

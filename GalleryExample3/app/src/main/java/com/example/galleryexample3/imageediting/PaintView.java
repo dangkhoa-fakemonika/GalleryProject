@@ -57,7 +57,6 @@ public class PaintView extends androidx.appcompat.widget.AppCompatImageView {
 
         imageURI = gotBundle.getString("imageURI");
         temp = BitmapFactory.decodeFile(imageURI);
-        Log.i("debug", temp.getWidth() + " " + temp.getHeight());
         src = new Rect(0, 0, temp.getWidth(), temp.getHeight());
         dst = new Rect(0, 0, temp.getWidth(), temp.getHeight());
 
