@@ -7,19 +7,24 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +62,6 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
         // Set up data
         View view = inflater.inflate(R.layout.main_gallery_fragment, container, false);
         imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
-
         databaseHandler = DatabaseHandler.getInstance(requireContext());
 
         // RecyclerView
@@ -65,6 +69,136 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
         GalleryImageGridAdapter galleryAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
         gridRecyclerView.setAdapter(galleryAdapter);
         gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+
+        Toolbar myToolbar = (Toolbar) requireActivity().findViewById(R.id.toolBar);
+        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int selectedId = item.getItemId();
+                if (selectedId == R.id.filterButton) {
+                    PopupMenu popup = new PopupMenu(requireContext(), myToolbar, Gravity.END);
+                    popup.inflate(R.menu.filter_menu_main);
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            int id = menuItem.getItemId();
+                            if (id == R.id.name_asc){
+                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " ASC");
+                            }
+                            if (id == R.id.name_desc){
+                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " DESC");
+
+                            }
+                            if (id == R.id.date_asc){
+                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
+
+                            }
+                            if (id == R.id.date_desc){
+                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " DESC");
+
+                            }
+                            if (id == R.id.size_asc){
+                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " ASC");
+
+                            }
+                            if (id == R.id.size_desc){
+                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " DESC");
+
+                            }
+                            final GalleryImageGridAdapter tempAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
+                            gridRecyclerView.setAdapter(tempAdapter);
+                            gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+                            return true;
+                        }
+                    });
+
+                    popup.show();
+                }
+                    return true;
+            }
+        });
+
+
+//        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                int selectedId = item.getItemId();
+//                if (selectedId == R.id.filterButton){
+//                    View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.spinner_dialog_layout, null);
+//                    Spinner spinner = dialogView.findViewById(R.id.spinnerDialog);
+//                    final int[] selectedOption = {0};
+//                    String[] options = new String[]{
+//                            "Name Ascending",
+//                            "Name Descending",
+//                            "Date Ascending",
+//                            "Date Descending",
+//                            "Size Ascending",
+//                            "Size Descending"
+//                    };
+//                    spinner.setAdapter(new ArrayAdapter<String>(requireContext(), R.layout.spinner_element, options));
+//                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                        @Override
+//                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                            selectedOption[0] = i;
+//                        }
+//
+//                        @Override
+//                        public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//                        }
+//                    });
+//
+//                    AlertDialog alertDialog = new AlertDialog.Builder(requireContext())
+//                            .setTitle("Set Layout Filter")
+//                            .setView(dialogView)
+//                            .setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialogInterface, int i) {
+//                                    switch (selectedOption[0]){
+//                                        case 0:
+//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " ASC");
+//                                            break;
+//                                        case 1:
+//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " DESC");
+//                                            break;
+//                                        case 2:
+//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
+//                                            break;
+//                                        case 3:
+//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " DESC");
+//                                            break;
+//                                        case 4:
+//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " ASC");
+//                                            break;
+//                                        case 5:
+//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " DESC");
+//                                            break;
+//                                        default:
+//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
+//                                            break;
+//
+//                                    }
+//
+//                                    final GalleryImageGridAdapter tempAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
+//                                    gridRecyclerView.setAdapter(tempAdapter);
+//                                    gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+//                                    dialogInterface.dismiss();
+//                                }
+//                            })
+//                            .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialogInterface, int i) {
+//                                    dialogInterface.dismiss();
+//                                }
+//                            }).create();
+//                    alertDialog.show();
+//
+//                    return true;
+//                }
+//
+//                return false;
+//            }
+//        });
 
         // OptionBars
         optionBars = (LinearLayout) view.findViewById(R.id.optionBars);

@@ -16,6 +16,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,6 +42,7 @@ import java.util.List;
 public class MoreInformationActivity extends Activity {
     private String imageURI;
     private DatabaseHandler databaseHandler;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,7 @@ public class MoreInformationActivity extends Activity {
 
         imageURI = gotBundle.getString("imageURI");
         databaseHandler = new DatabaseHandler(this);
+        context = this;
 
         titleTextView.setText(ImageGalleryProcessing.getName(this, imageURI));
         timeTextView.setText(ImageGalleryProcessing.getImageDateAdded(this, imageURI));
@@ -134,9 +137,13 @@ public class MoreInformationActivity extends Activity {
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            String tagName = autoCompleteTextView.getText().toString();
-                            databaseHandler.tags().addTagsToImage(tagName, imageURI);
-                            dialogInterface.dismiss();
+                            String tagName = autoCompleteTextView.getText().toString().trim();
+                            if (tagName.length() < 4 || tagName.length() > 20){
+                                Toast.makeText(context, "Tag names' length must be at least 4 and at most 20 characters.", Toast.LENGTH_LONG).show();
+                            } else {
+                                databaseHandler.tags().addTagsToImage(tagName, imageURI);
+                                dialogInterface.dismiss();
+                            }
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

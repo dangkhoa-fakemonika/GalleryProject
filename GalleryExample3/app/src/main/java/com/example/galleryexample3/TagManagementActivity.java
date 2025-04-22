@@ -2,6 +2,7 @@ package com.example.galleryexample3;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,8 +23,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 
 public class TagManagementActivity extends Activity {
-
-
+    Context context;
     DatabaseHandler databaseHandler;
 
     @Override
@@ -42,6 +43,7 @@ public class TagManagementActivity extends Activity {
             Intent intent = new Intent(TagManagementActivity.this, MainActivityNew.class);
             startActivity(intent);
         });
+        context = this;
 
         addTagsButton.setOnClickListener(listener -> {
             View dialogView = LayoutInflater.from(TagManagementActivity.this).inflate(R.layout.one_field_dialog_tag_layout, null);
@@ -58,9 +60,17 @@ public class TagManagementActivity extends Activity {
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            String tagName = autoCompleteTextView.getText().toString();
-                            databaseHandler.tags().createNewTag(tagName);
-                            dialogInterface.dismiss();
+                            String tagName = autoCompleteTextView.getText().toString().trim();
+                            if (tagName.length() < 4 || tagName.length() > 20){
+                                Toast.makeText(context, "Tag names' length must be at least 4 and at most 20 characters.", Toast.LENGTH_LONG).show();
+                            } else if (databaseHandler.tags().checkTagExisted(tagName)) {
+                                Toast.makeText(context, "Tag already exists.", Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                databaseHandler.tags().createNewTag(tagName);
+                                dialogInterface.dismiss();
+                            }
+
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

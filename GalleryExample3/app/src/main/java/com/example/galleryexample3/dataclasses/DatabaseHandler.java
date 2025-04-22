@@ -122,7 +122,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(AlbumsTable.COL_NAME, albumName);
             values.put(AlbumsTable.COL_IMAGE_URI, imageURI);
-//            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values) > -1
+            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values);
             if (!checkAlbumExisted(albumName)){
                 setAlbumThumbnail(albumName, imageURI);
                 createAlbum(albumName);
@@ -288,6 +288,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void createNewTag(String tagName){
+            if (checkTagExisted(tagName))
+                return;
+
             ContentValues values = new ContentValues();
             values.put(TagsInfoTable.COL_NAME, tagName);
             sqLiteDatabase.insert(TagsInfoTable.TABLE_NAME, null, values);
@@ -301,11 +304,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void addTagsToImage(String tagName, String imageURI){
-            if (checkTagExisted(tagName)){
-                return;
-            }
             createNewTag(tagName);
-
             ContentValues values = new ContentValues();
             values.put(TagsTable.COL_NAME, tagName);
             values.put(TagsTable.COL_IMAGE_URI, imageURI);

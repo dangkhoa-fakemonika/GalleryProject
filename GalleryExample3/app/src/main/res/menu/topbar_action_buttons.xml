@@ -2,16 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/openCamera"
-        android:icon="@drawable/photo_camera_24dp"
+        android:id="@+id/filterButton"
+        android:icon="@drawable/filter_list_24px"
         app:showAsAction="ifRoom"
-        android:title="Add">
-    </item>
-    <item
-        android:id="@+id/searchImage"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/search_24dp"
-        android:title="Settings">
-    </item>
+        android:title="Filter Button"/>
 
 </menu>

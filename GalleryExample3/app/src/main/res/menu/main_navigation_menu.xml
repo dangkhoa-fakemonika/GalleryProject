@@ -19,6 +19,13 @@
         android:icon="@drawable/settings_24px"
         android:title="Settings"/>
     <item
+        android:id="@+id/navPrivateAlbum"
+        android:icon="@drawable/folder_eye_24px"
+        android:title="Private Album"
+        android:visible="false">
+
+    </item>
+    <item
         android:id="@+id/navClose"
         android:icon="@drawable/close_24px"
         android:title="Close"/>
