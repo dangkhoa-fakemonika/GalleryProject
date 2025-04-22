@@ -30,8 +30,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
@@ -72,7 +74,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SingleImageView extends Activity implements PopupMenu.OnMenuItemClickListener {
+public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
     public final static String FLAG_ALBUM = "albumName";
     public final static String FLAG_TAG = "tagName";
     public final static String FLAG_SEARCH_NAME = "fileName";
@@ -117,7 +119,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             }
         }
     }
-
     @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,6 +142,14 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
         ImageButton shareButton = (ImageButton) findViewById(R.id.shareButton);
+//        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+//            @Override
+//            public void handleOnBackPressed() {
+//                Log.v(this.getClass().toString(), "Backpressed");
+//                finish();
+//            }
+//        };
+//        getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 
         // View/hide utility buttons
         toggleUtility = new View.OnClickListener() {
@@ -213,8 +222,9 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         });
 
         backButton.setOnClickListener(listener -> {
-            Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
-            startActivity(intent);
+//            Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
+//            startActivity(intent);
+            getOnBackPressedDispatcher().onBackPressed();
         });
 
         editModeButton.setOnClickListener(listener -> {

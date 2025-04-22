@@ -25,6 +25,7 @@ import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.GalleryAlbumGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
+import com.example.galleryexample3.userinterface.SearchItemListAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -77,8 +78,8 @@ public class MainAlbumOverviewFragment extends Fragment {
                 String albumName = albumsList.get(position);
                 Intent intent = new Intent(context, GroupImageView.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("groupType", "album");
-                bundle.putString("groupName", albumName);
+                bundle.putInt(GroupImageView.BUKEY_GROUP_TYPE, SearchItemListAdapter.MATCH_ALBUM);
+                bundle.putString(GroupImageView.BUKEY_GROUP_NAME, albumName);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
