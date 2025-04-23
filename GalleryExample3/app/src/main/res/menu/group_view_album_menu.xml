@@ -2,9 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/filterButton"
-        android:icon="@drawable/filter_list_24px"
-        app:showAsAction="ifRoom"
-        android:title="Filter Button"/>
-
+        android:icon="@drawable/edit_square_24dp"
+        android:id="@+id/edit_button"
+        android:title="Edit Album"
+        app:showAsAction="ifRoom|collapseActionView"/>
 </menu>

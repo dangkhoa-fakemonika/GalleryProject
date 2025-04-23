@@ -1,5 +1,6 @@
 package com.example.galleryexample3;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
@@ -9,12 +10,18 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiNetworkSpecifier;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -30,8 +37,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
@@ -72,7 +81,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SingleImageView extends Activity implements PopupMenu.OnMenuItemClickListener {
+public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
     public final static String FLAG_ALBUM = "albumName";
     public final static String FLAG_TAG = "tagName";
     public final static String FLAG_SEARCH_NAME = "fileName";
@@ -117,7 +126,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
             }
         }
     }
-
     @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,6 +149,14 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
         ImageButton moreOptionButton = (ImageButton) findViewById(R.id.moreOptionButton);
         ImageButton shareButton = (ImageButton) findViewById(R.id.shareButton);
+//        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+//            @Override
+//            public void handleOnBackPressed() {
+//                Log.v(this.getClass().toString(), "Backpressed");
+//                finish();
+//            }
+//        };
+//        getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 
         // View/hide utility buttons
         toggleUtility = new View.OnClickListener() {
@@ -175,7 +191,7 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
 
-        databaseHandler = new DatabaseHandler(this);
+        databaseHandler = DatabaseHandler.getInstance(this);
         context = this;
         if (gotBundle == null)
             return;
@@ -213,8 +229,9 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         });
 
         backButton.setOnClickListener(listener -> {
-            Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
-            startActivity(intent);
+//            Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
+//            startActivity(intent);
+            getOnBackPressedDispatcher().onBackPressed();
         });
 
         editModeButton.setOnClickListener(listener -> {
@@ -240,10 +257,12 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             boolean r = ImageGalleryProcessing.deleteImage(context, imageURI);
+                            databaseHandler.tags().deleteImage(imageURI);
+                            databaseHandler.albums().deleteImage(imageURI);
                             //boolean r = ImageGalleryProcessing.changeNameImage(this, imageURI, "newtest1.png");
                             if (r){
                                 Toast.makeText(context, "Image deleted.", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(SingleImageView.this, MainActivity.class);
+                                Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
                                 startActivity(intent);
                             }
                             else{
@@ -309,7 +328,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
         if (!osv) {
             Handler handler = new Handler();
             mediaStoreObserver = new MediaStoreObserver(handler);
-
             ContentResolver contentResolver = this.getContentResolver();
             contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
             osv = true;
@@ -346,12 +364,16 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            String albumName = editText.getText().toString();
-//                            Log.i("ALBUM", albumName);
-                            databaseHandler.albums().addImageToAlbum(albumName, imageURI);
-                            Toast.makeText(context, "Added to " + albumName, Toast.LENGTH_LONG).show();
+                            String albumName = editText.getText().toString().trim();
 
-                            dialogInterface.dismiss();
+                            if (albumName.length() < 4 || albumName.length() > 20){
+                                Toast.makeText(context, "Album names' length must be at least 4 and at most 20 characters.", Toast.LENGTH_LONG).show();
+                            } else {
+                                databaseHandler.albums().addImageToAlbum(albumName, imageURI);
+                                Toast.makeText(context, "Added to " + albumName, Toast.LENGTH_LONG).show();
+                                dialogInterface.dismiss();
+                            }
+
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -383,8 +405,10 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                         public void onSuccess(Text visionText) {
                             String resultText = visionText.getText();
 
-                            if (resultText.trim().isEmpty())
+                            if (resultText.trim().isEmpty()){
                                 Toast.makeText(context,"No words scanned", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
 
                             View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.text_extraction_dialog_layout, null);
 
@@ -414,7 +438,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                             new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-
                                     Toast.makeText(context,"Words scanned failed", Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -447,14 +470,10 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                                         String ssid = Objects.requireNonNull(barcode.getWifi()).getSsid();
                                         String password = barcode.getWifi().getPassword();
 
-//                                        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-//                                        boolean isConnectable = wifiManager.isEasyConnectSupported();
-//                                        if (isConnectable){
-//                                            wifiManager.
-//                                        }
-//                                        else {
-//
-//                                        }
+                                        if (ssid == null || password == null){
+                                            Toast.makeText(context, "Can't get WiFi credentials", Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
 
                                         View wifiDialog = LayoutInflater.from(SingleImageView.this).inflate(R.layout.selection_dialog_layout, null);
                                         TextView wifiName = wifiDialog.findViewById(R.id.setBackScreen);
@@ -476,7 +495,27 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                                                     public void onClick(DialogInterface dialogInterface, int i) {
                                                         dialogInterface.dismiss();
                                                     }
-                                                }).create();
+                                                }).setNeutralButton("Connect", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        if (context.checkSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED ||
+                                                                context.checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED ||
+                                                                context.checkSelfPermission(Manifest.permission.CHANGE_WIFI_STATE) != PackageManager.PERMISSION_GRANTED ||
+                                                                context.checkSelfPermission(Manifest.permission.CHANGE_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
+                                                        ) {
+                                                            ((Activity) context).requestPermissions(new String[]{Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CHANGE_NETWORK_STATE}, 101);
+                                                        }
+
+                                                        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                                                        boolean isConnectable = wifiManager.isEasyConnectSupported();
+                                                        if (isConnectable && wifiManager.isWifiEnabled()){
+                                                            WifiNetworkSpecifier wifiNetworkSpecifier = new WifiNetworkSpecifier.Builder().setSsid(ssid).setWpa2Passphrase(password).build();
+                                                            NetworkRequest networkRequest = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).setNetworkSpecifier(wifiNetworkSpecifier).build();
+
+                                                        }
+                                                    }
+                                                })
+                                                .create();
                                         alertDialogWifi.show();
                                         break;
 
@@ -542,7 +581,6 @@ public class SingleImageView extends Activity implements PopupMenu.OnMenuItemCli
                                                     }
                                                 }).create();
                                         textDialogUrl.show();
-
                                         ClipBoardProcessing.getTextToClipBoard(context, text);
                                         break;
 

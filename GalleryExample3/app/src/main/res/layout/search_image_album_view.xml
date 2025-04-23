@@ -3,11 +3,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
     xmlns:tools="http://schemas.android.com/tools">
-   <FrameLayout
+   <androidx.appcompat.widget.Toolbar
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:background="@color/color_primary"
+       style="@style/Widget.AppCompat.SearchView"
+       android:id="@+id/searchToolBar" />
+   <androidx.recyclerview.widget.RecyclerView
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:id="@+id/frameLayout"
-       />
+       android:layout_below="@+id/searchToolBar"
+       app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+       android:id="@+id/searchRecyclerView"
+       tools:listitem="@layout/search_list_item"/>
+   <TextView
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:gravity="center"
+       android:textSize="40dp"
+       android:text="No matchings item"
+       android:layout_below="@+id/searchToolBar"
+       android:id="@+id/noResultRecyclerView"
+       tools:listitem="@layout/search_list_item">
+
+   </TextView>
 </RelativeLayout>

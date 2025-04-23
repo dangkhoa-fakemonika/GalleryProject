@@ -1,17 +1,24 @@
 package com.example.galleryexample3;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +34,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
 import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.google.android.material.appbar.AppBarLayout;
@@ -96,24 +104,6 @@ public class MainActivityNew extends AppCompatActivity{
         myToolbar = (Toolbar) findViewById(R.id.toolBar);
         setSupportActionBar(myToolbar);
 
-        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int selectedId = item.getItemId();
-                if (selectedId == R.id.openCamera){
-                    Intent myIntent = new Intent(MainActivityNew.this, CameraActivity.class);
-                    startActivity(myIntent);
-                    return true;
-                }else if (selectedId == R.id.searchImage){
-                    Intent myIntent = new Intent(MainActivityNew.this, SearchActivity.class);
-                    startActivity(myIntent);
-                    return true;
-                }
-                return false;
-            }
-        });
-//        myAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
@@ -129,6 +119,13 @@ public class MainActivityNew extends AppCompatActivity{
 
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.mainDrawerLayout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.drawer_nav_view);
+
+        SharedPreferences sharedPref = this.getSharedPreferences("appSettings", Context.MODE_PRIVATE);
+        boolean privateAlbum = sharedPref.getBoolean("isPrivateAlbumEnabled", false);
+        Menu menu = navigationView.getMenu();
+        MenuItem menuItem = menu.findItem(R.id.navPrivateAlbum);
+        Log.i("PRIVATE", privateAlbum + "");
+        menuItem.setVisible(privateAlbum);
 
         myToolbar.setNavigationIcon(R.drawable.menu_24px);
         myToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -167,6 +164,8 @@ public class MainActivityNew extends AppCompatActivity{
                 else if (item.getItemId() == R.id.navSearchImage)
                     intent = new Intent(MainActivityNew.this, SearchActivity.class);
                 else if (item.getItemId() == R.id.navSettings)
+                    intent = new Intent(MainActivityNew.this, SettingsActivity.class);
+                else if (item.getItemId() == R.id.navPrivateAlbum)
                     intent = new Intent(MainActivityNew.this, MainActivityNew.class);
                 else
                     intent = new Intent(MainActivityNew.this, MainActivityNew.class);

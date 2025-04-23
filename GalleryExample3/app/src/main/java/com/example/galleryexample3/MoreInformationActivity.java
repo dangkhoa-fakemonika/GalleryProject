@@ -16,6 +16,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,6 +42,7 @@ import java.util.List;
 public class MoreInformationActivity extends Activity {
     private String imageURI;
     private DatabaseHandler databaseHandler;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class MoreInformationActivity extends Activity {
         TextView locationTextView = findViewById(R.id.locationTextView);
         ImageButton backButton = findViewById(R.id.backButton);
         Button addTagsButton = findViewById(R.id.addTagsButton);
+        Button renameImageButton = findViewById(R.id.renameImageButton);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -61,7 +64,8 @@ public class MoreInformationActivity extends Activity {
         if (gotBundle == null) return;
 
         imageURI = gotBundle.getString("imageURI");
-        databaseHandler = new DatabaseHandler(this);
+        databaseHandler = DatabaseHandler.getInstance(this);
+        context = this;
 
         titleTextView.setText(ImageGalleryProcessing.getName(this, imageURI));
         timeTextView.setText(ImageGalleryProcessing.getImageDateAdded(this, imageURI));
@@ -134,15 +138,45 @@ public class MoreInformationActivity extends Activity {
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            String tagName = autoCompleteTextView.getText().toString();
-                            databaseHandler.tags().addTagsToImage(tagName, imageURI);
-                            dialogInterface.dismiss();
+                            String tagName = autoCompleteTextView.getText().toString().trim();
+                            if (tagName.length() < 4 || tagName.length() > 20){
+                                Toast.makeText(context, "Tag names' length must be at least 4 and at most 20 characters.", Toast.LENGTH_LONG).show();
+                            } else {
+                                databaseHandler.tags().addTagsToImage(tagName, imageURI);
+                                dialogInterface.dismiss();
+                            }
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Log.i("TAG", "Cancel");
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+        });
+
+        renameImageButton.setOnClickListener((l) -> {
+            View dialogView = LayoutInflater.from(MoreInformationActivity.this).inflate(R.layout.one_field_dialog_layout, null);
+            TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
+            TextInputEditText editText = dialogView.findViewById(R.id.editText);
+            inputTextLayout.setHint("New name");
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Rename Image")
+                    .setView(dialogView)
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            String imageNewName = editText.getText().toString().trim();
+//                            ImageGalleryProcessing.changeNameImage(context, imageURI, imageNewName);
+                            Toast.makeText(context, "Image renamed", Toast.LENGTH_LONG).show();
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
                         }
                     }).create();

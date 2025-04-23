@@ -81,7 +81,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return instance;
     }
 
-    public DatabaseHandler(Context context){
+    private DatabaseHandler(Context context){
         super(context, DB_NAME, null, DB_VERSION);
         if (sqLiteDatabase == null)
             sqLiteDatabase = this.getWritableDatabase();
@@ -122,7 +122,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(AlbumsTable.COL_NAME, albumName);
             values.put(AlbumsTable.COL_IMAGE_URI, imageURI);
-//            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values) > -1
+            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values);
             if (!checkAlbumExisted(albumName)){
                 setAlbumThumbnail(albumName, imageURI);
                 createAlbum(albumName);
@@ -184,6 +184,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return result;
         }
 
+        public void removeImageFromAlbum(String albumName, String imageURI){
+            sqLiteDatabase.delete(AlbumsTable.TABLE_NAME, AlbumsTable.COL_NAME + " =? AND " + AlbumsTable.COL_IMAGE_URI + " =?", new String[]{albumName, imageURI});
+        }
+
         public ArrayList<String> getAllAlbums(){
             Cursor cur = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME}, null, null, null, null, null);
             ArrayList<String> result = new ArrayList<>();
@@ -215,6 +219,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
             return null;
         }
+
         public ArrayList<SearchItemListAdapter.MatchItem> getMatchAlbumItems(String name) {
             ArrayList<SearchItemListAdapter.MatchItem> l = new ArrayList<>();
             String[] args = new String[]{"%"+ name + "%"};
@@ -243,6 +248,31 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
             return l;
         }
+
+        public ArrayList<String> getAllAlbumsWithFilters(String field, String order) {
+            ArrayList<String> l = new ArrayList<>();
+            String[] args = new String[]{};
+            String statement = "SELECT albums.name, count(albums.imageURI) as totals, albums_info.thumbnail_uri, albums_info.time_create " +
+                    "FROM albums " +
+                    "JOIN albums_info on albums_info.name = albums.name " +
+                    "GROUP BY albums.name, albums_info.name " +
+                    "ORDER BY " + field + order;
+
+            try(Cursor cursor = sqLiteDatabase.rawQuery(statement, args)){
+                if (cursor.moveToFirst()){
+                    Log.e("Something here", String.valueOf(cursor.getCount()));
+                    int columnName = cursor.getColumnIndex("name");
+                    do {
+                        String matchName = cursor.getString(columnName);
+                        l.add(matchName);
+                    } while (cursor.moveToNext());
+                }
+            }catch (Exception e){
+                Log.e("DatabaseHandler", e.toString());
+            }
+            return l;
+        }
+
         public ArrayList<String> getAllAlbumsTemp(){
             Cursor cur = sqLiteDatabase.query(true, AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME},  null,null, null, null, null, null);
             ArrayList<String> result = new ArrayList<>();
@@ -288,6 +318,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void createNewTag(String tagName){
+            if (checkTagExisted(tagName))
+                return;
+
             ContentValues values = new ContentValues();
             values.put(TagsInfoTable.COL_NAME, tagName);
             sqLiteDatabase.insert(TagsInfoTable.TABLE_NAME, null, values);
@@ -301,11 +334,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void addTagsToImage(String tagName, String imageURI){
-            if (checkTagExisted(tagName)){
-                return;
-            }
             createNewTag(tagName);
-
             ContentValues values = new ContentValues();
             values.put(TagsTable.COL_NAME, tagName);
             values.put(TagsTable.COL_IMAGE_URI, imageURI);
