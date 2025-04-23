@@ -39,6 +39,7 @@ import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -52,6 +53,8 @@ public class MainActivityNew extends AppCompatActivity{
     final int REQUEST_READ_EXTERNAL_STORAGE = 102;
     final int REQUEST_CAMERA = 103;
 
+    private FloatingActionButton cameraFAB;
+    private FloatingActionButton addAlbumFAB;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
