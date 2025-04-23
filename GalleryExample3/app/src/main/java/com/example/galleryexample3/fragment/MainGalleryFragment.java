@@ -105,6 +105,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                     Intent intent = new Intent(context, SingleImageView.class);
                     Bundle bundle = new Bundle();
                     bundle.putString("imageURI", imageUri);
+                    Log.e("uri", imageUri);
                     bundle.putString("dateAdded", dateAdded);
                     bundle.putInt("position", position);
                     intent.putExtras(bundle);

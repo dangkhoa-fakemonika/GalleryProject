@@ -120,7 +120,6 @@ public class MainActivityNew extends AppCompatActivity{
             return insets;
         });
 
-
         MainGalleryFragment galleryFragment = new MainGalleryFragment();
         MainAlbumOverviewFragment albumOverviewFragment = new MainAlbumOverviewFragment();
 
