@@ -58,6 +58,7 @@ public class MoreAlbumInformationActivity extends Activity {
         ImageButton backButton = findViewById(R.id.backButton);
         Button deleteAlbum = findViewById(R.id.deleteAlbum);
         Button renameAlbum = findViewById(R.id.renameAlbum);
+        Button changeThumbnail = findViewById(R.id.changeAlbumThumbnail);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -73,9 +74,7 @@ public class MoreAlbumInformationActivity extends Activity {
         sizeTextView.setText("Placeholder Text");
 
         backButton.setOnClickListener(listener -> {
-            Intent intent = new Intent(MoreAlbumInformationActivity.this, MainActivityNew.class);
-            intent.putExtras(gotBundle);
-            startActivity(intent);
+            finish();
         });
 
 
@@ -113,9 +112,14 @@ public class MoreAlbumInformationActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String albumNewName = editText.getText().toString().trim();
-//                            databaseHandler.albums().renameAlbum();
-                            Toast.makeText(context, "Image renamed", Toast.LENGTH_LONG).show();
-                            dialogInterface.dismiss();
+                            if (databaseHandler.albums().checkAlbumExisted(albumNewName)){
+                                Toast.makeText(context, "An album already existed with that name", Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                databaseHandler.albums().changeName(groupName, albumNewName);
+                                Toast.makeText(context, "Album renamed", Toast.LENGTH_LONG).show();
+                                dialogInterface.dismiss();
+                            }
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -125,6 +129,10 @@ public class MoreAlbumInformationActivity extends Activity {
                         }
                     }).create();
             alertDialog.show();
+        });
+
+        changeThumbnail.setOnClickListener((l) -> {
+
         });
 
     }

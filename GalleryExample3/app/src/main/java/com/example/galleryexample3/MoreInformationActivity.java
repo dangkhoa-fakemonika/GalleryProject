@@ -80,9 +80,10 @@ public class MoreInformationActivity extends Activity {
         tagRecyclerView.setAdapter(tagListAdapter);
 
         backButton.setOnClickListener(listener -> {
-            Intent intent = new Intent(MoreInformationActivity.this, SingleImageView.class);
-            intent.putExtras(gotBundle);
-            startActivity(intent);
+//            Intent intent = new Intent(MoreInformationActivity.this, SingleImageView.class);
+//            intent.putExtras(gotBundle);
+//            startActivity(intent);
+            finish();
         });
 
         Context thisContext = this;
@@ -169,7 +170,7 @@ public class MoreInformationActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String imageNewName = editText.getText().toString().trim();
-//                            ImageGalleryProcessing.changeNameImage(context, imageURI, imageNewName);
+                            ImageGalleryProcessing.changeNameImage(context, imageURI, imageNewName);
                             Toast.makeText(context, "Image renamed", Toast.LENGTH_LONG).show();
                             dialogInterface.dismiss();
                         }

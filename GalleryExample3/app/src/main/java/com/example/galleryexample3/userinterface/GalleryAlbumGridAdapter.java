@@ -49,6 +49,13 @@ public class GalleryAlbumGridAdapter extends RecyclerView.Adapter<GalleryAlbumGr
         }
     }
 
+    public void updateDataList(ArrayList<String> newAlbumList, ArrayList<String> newThumbnailList){
+        albumsList.clear();
+        albumsList.addAll(newAlbumList);
+        albumThumbnailsList = newThumbnailList;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public GalleryAlbumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -59,8 +66,8 @@ public class GalleryAlbumGridAdapter extends RecyclerView.Adapter<GalleryAlbumGr
     @Override
     public void onBindViewHolder(@NonNull GalleryAlbumViewHolder holder, int position) {
         holder.albumName.setText(albumsList.get(position));
-        Log.e("In BindView", String.valueOf(albumThumbnailsList.size()));
-        Log.e("In BindView", albumThumbnailsList.get(position));
+//        Log.e("In BindView", String.valueOf(albumThumbnailsList.size()));
+//        Log.e("In BindView", albumThumbnailsList.get(position));
         Glide.with(context)
                 .load(albumThumbnailsList.get(position))
                 .error(R.drawable.uoh)

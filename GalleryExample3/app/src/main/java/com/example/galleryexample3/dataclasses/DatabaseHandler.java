@@ -311,6 +311,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         public void deleteImage(String imageURI) {
             sqLiteDatabase.delete(AlbumsTable.TABLE_NAME, AlbumsTable.COL_IMAGE_URI + " = ?", new String[]{imageURI});
         }
+
+        public boolean checkAlbumHaveImage(String albumName, String imageURI){
+            Cursor cur = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME}, AlbumsTable.COL_NAME + " =? AND " + AlbumsTable.COL_IMAGE_URI + " =?", new String[]{albumName, imageURI}, null, null, null);
+            int count = cur.getCount();
+            cur.close();
+            return count != 0;
+        }
+
+        public void changeName(String oldAlbumName, String newAlbumName){
+            if (checkAlbumExisted(newAlbumName))
+                return;
+
+            ContentValues value = new ContentValues();
+            value.put(AlbumsTable.COL_NAME, newAlbumName);
+            sqLiteDatabase.update(AlbumsTable.TABLE_NAME, value, AlbumsTable.COL_NAME + " =?", new String[]{oldAlbumName});
+            ContentValues valueInfo = new ContentValues();
+            valueInfo.put(AlbumsInfoTable.COL_NAME, newAlbumName);
+            sqLiteDatabase.update(AlbumsInfoTable.TABLE_NAME, valueInfo, AlbumsInfoTable.COL_NAME + " =?", new String[]{oldAlbumName});
+        }
     }
 
     public static class TagsController {

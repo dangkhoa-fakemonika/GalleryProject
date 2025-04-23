@@ -41,14 +41,14 @@ public class MainAlbumOverviewFragment extends Fragment {
     private ArrayList<String> albumThumbnailsList;
     boolean selectionEnabled = false;
     DatabaseHandler databaseHandler;
-    private String sortType;
+    private final String[] sortType = {"albums.name", " ASC"};
+    GalleryAlbumGridAdapter albumAdapter;
 
     public MainAlbumOverviewFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sortType = "";
     }
 
     @Override
@@ -56,38 +56,12 @@ public class MainAlbumOverviewFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Set up data
         View view = inflater.inflate(R.layout.main_album_overview_fragment, container, false);
-        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(requireContext());
-        Intent gotIntent = requireActivity().getIntent();
-        Bundle gotBundle = gotIntent.getExtras();
-        sortType = gotBundle == null ? "Date - Ascending" : gotBundle.getString("sortType", "Date - Ascending");
-        switch (Objects.requireNonNull(sortType)) {
-            case "Name - Ascending":
-                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums.name", " ASC");
-                break;
-            case "Name - Descending":
-                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums.name", " DESC");
-                break;
-            case "Date - Ascending":
-                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums_info.time_create", " ASC");
-                break;
-            case "Date - Descending":
-                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums_info.time_create", " DESC");
-                break;
-            case "Size - Ascending":
-                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("totals", " ASC");
-                break;
-            case "Size - Descending":
-                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("totals", " DESC");
-                break;
-        }
-
-//        albumsList = databaseHandler.albums().getAllAlbums();
-
+        databaseHandler = DatabaseHandler.getInstance(requireContext());
+        albumsList = databaseHandler.albums().getAllAlbumsWithFilters(sortType[0], sortType[1]);
 
         albumThumbnailsList = new ArrayList<>();
         RecyclerView gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
         TextView noAlbumText = view.findViewById(R.id.noAlbumText);
-        final GalleryAlbumGridAdapter[] albumAdapter = new GalleryAlbumGridAdapter[1];
 
         if (albumsList.isEmpty()) {
             gridRecyclerView.setVisibility(View.GONE);
@@ -97,8 +71,8 @@ public class MainAlbumOverviewFragment extends Fragment {
                 String thumbnail = databaseHandler.albums().getAlbumThumbnail(album);
                 albumThumbnailsList.add(thumbnail);
             }
-            albumAdapter[0] = new GalleryAlbumGridAdapter(requireContext(), albumsList, albumThumbnailsList);
-            gridRecyclerView.setAdapter(albumAdapter[0]);
+            albumAdapter = new GalleryAlbumGridAdapter(requireContext(), albumsList, albumThumbnailsList);
+            gridRecyclerView.setAdapter(albumAdapter);
             noAlbumText.setVisibility(View.GONE);
             gridRecyclerView.setVisibility(View.VISIBLE);
             gridRecyclerView.scrollToPosition(albumsList.size() - 1);
@@ -117,36 +91,38 @@ public class MainAlbumOverviewFragment extends Fragment {
                         public boolean onMenuItemClick(MenuItem menuItem) {
                             int id = menuItem.getItemId();
                             if (id == R.id.name_asc){
-                                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums.name", " ASC");
-                                sortType = "Name - Ascending";
+                                sortType[0] = "albums.name";
+                                sortType[1] = " ASC";
                             }
                             else if (id == R.id.name_desc){
-                                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums.name", " DESC");
-                                sortType = "Name - Descending";
+                                sortType[0] = "albums.name";
+                                sortType[1] = " DESC";
                             }
                             else if (id == R.id.date_asc){
-                                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums_info.time_create", " ASC");
-                                sortType = "Date - Ascending";
+                                sortType[0] = "albums_info.time_create";
+                                sortType[1] = " ASC";
                             }
                             else if (id == R.id.date_desc){
-                                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("albums_info.time_create", " DESC");
-                                sortType = "Date - Descending";
+                                sortType[0] = "albums_info.time_create";
+                                sortType[1] = " DESC";
                             }
                             else if (id == R.id.size_asc){
-                                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("totals", " ASC");
-                                sortType = "Size - Ascending";
+                                sortType[0] = "totals";
+                                sortType[1] = " ASC";
                             }
                             else if (id == R.id.size_desc){
-                                albumsList = databaseHandler.albums().getAllAlbumsWithFilters("totals", " DESC");
-                                sortType = "Size - Descending";
+                                sortType[0] = "totals";
+                                sortType[1] = " DESC";
                             }
+
+                            albumsList = databaseHandler.albums().getAllAlbumsWithFilters(sortType[0], sortType[1]);
                             albumThumbnailsList.clear();
                             for (String album : albumsList) {
                                 String thumbnail = databaseHandler.albums().getAlbumThumbnail(album);
                                 albumThumbnailsList.add(thumbnail);
                             }
-                            albumAdapter[0] = new GalleryAlbumGridAdapter(requireContext(), albumsList, albumThumbnailsList);
-                            gridRecyclerView.setAdapter(albumAdapter[0]);
+                                Log.i("ALBUM DEBUG", albumThumbnailsList.size() + "");
+                            albumAdapter.updateDataList(albumsList, albumThumbnailsList);
                             gridRecyclerView.scrollToPosition(albumsList.size() - 1);
                             return true;
                         }
@@ -169,7 +145,6 @@ public class MainAlbumOverviewFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putInt(GroupImageView.BUKEY_GROUP_TYPE, SearchItemListAdapter.MATCH_ALBUM);
                 bundle.putString(GroupImageView.BUKEY_GROUP_NAME, albumName);
-                bundle.putString("sortType", sortType);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
