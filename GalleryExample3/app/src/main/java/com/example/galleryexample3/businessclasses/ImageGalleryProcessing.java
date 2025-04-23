@@ -54,7 +54,7 @@ public class ImageGalleryProcessing {
 
     public static boolean deleteImage(Context context, String URI) {
         int res = context.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA + " = ?", new String[]{URI});
-        try (DatabaseHandler databaseHandler = new DatabaseHandler(context)) {
+        try (DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
             databaseHandler.tags().deleteImage(URI);
             databaseHandler.albums().deleteImage(URI);
         }
@@ -113,7 +113,8 @@ public class ImageGalleryProcessing {
         sort_type_map.put("DATE_ADDED", MediaStore.Images.Media.DATE_ADDED);
         sort_type_map.put("DISPLAY_NAME", MediaStore.Images.Media.DISPLAY_NAME);
         sort_type_map.put("DATE_MODIFIED", MediaStore.Images.Media.DATE_MODIFIED);
-        if (!Objects.equals(sort_type, "DATE_ADDED") && !Objects.equals(sort_type, "DISPLAY_NAME") && !Objects.equals(sort_type, "DATE_MODIFIED")) {
+        sort_type_map.put("SIZE", MediaStore.Images.Media.SIZE);
+        if (!Objects.equals(sort_type, "DATE_ADDED") && !Objects.equals(sort_type, "DISPLAY_NAME") && !Objects.equals(sort_type, "DATE_MODIFIED") && !Objects.equals(sort_type, "SIZE")) {
             sort_type = "DATE_ADDED";
         }
         if (!Objects.equals(sort_order, " DESC") && !Objects.equals(sort_order, " ASC")) {

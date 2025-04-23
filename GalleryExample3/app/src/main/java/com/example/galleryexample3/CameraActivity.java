@@ -1,6 +1,7 @@
 package com.example.galleryexample3;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -104,6 +105,11 @@ public class CameraActivity extends AppCompatActivity {
                     // This should never be reached.
                 }
             }, ContextCompat.getMainExecutor(this));
+        });
+
+        findViewById(R.id.backToMain).setOnClickListener((l) -> {
+            Intent intent = new Intent(CameraActivity.this, MainActivityNew.class);
+            startActivity(intent);
         });
 
     }

@@ -48,7 +48,7 @@ public class TagListAdapter extends RecyclerView.Adapter<TagListAdapter.ViewHold
     public TagListAdapter(Context context, ArrayList<String> dataSet, String imageUri) {
         localDataSet = dataSet;
         this.imageUri = imageUri;
-        databaseHandler = new DatabaseHandler(context);
+        databaseHandler = DatabaseHandler.getInstance(context);
         this.context = context;
     }
 

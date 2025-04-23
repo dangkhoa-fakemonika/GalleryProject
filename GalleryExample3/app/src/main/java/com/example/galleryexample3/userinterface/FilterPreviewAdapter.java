@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.Target;
 import com.example.galleryexample3.R;
+import com.example.galleryexample3.dataclasses.FilterPreview;
 
 import java.util.ArrayList;
 
@@ -41,9 +42,9 @@ public class FilterPreviewAdapter extends RecyclerView.Adapter<FilterPreviewAdap
     @Override
     public void onBindViewHolder(@NonNull FilterPreviewViewHolder holder, int position) {
         FilterPreview filter = filterList.get(position);
-        holder.filterName.setText(filter.filterName);
+        holder.filterName.setText(filter.getFilterName());
         Glide.with(context)
-                .load(filter.bitmap)
+                .load(filter.getBitmap())
                 .centerCrop()
                 .into(holder.previewImage);
     }
@@ -61,24 +62,6 @@ public class FilterPreviewAdapter extends RecyclerView.Adapter<FilterPreviewAdap
             super(itemView);
             previewImage = itemView.findViewById(R.id.previewImage);
             filterName = itemView.findViewById(R.id.filterName);
-        }
-    }
-
-    public static class FilterPreview {
-        private String filterName;
-        private Bitmap bitmap;
-
-        public FilterPreview(String name, Bitmap imageUrl) {
-            this.filterName = name;
-            this.bitmap = imageUrl;
-        }
-
-        public String getFilterName() {
-            return filterName;
-        }
-
-        public Bitmap getBitmap() {
-            return bitmap;
         }
     }
 }

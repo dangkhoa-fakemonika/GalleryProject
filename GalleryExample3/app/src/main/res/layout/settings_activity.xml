@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/black">
+
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/black">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:src="@drawable/arrow_back_24dp"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"/>
+
+        <TextView
+            android:id="@+id/dateAddedText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="Settings"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textAlignment="center" />
+
+        <Space
+            android:layout_width="40dp"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:orientation="vertical"
+            android:layout_below="@+id/topBar"
+            android:padding="20dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="8dp"
+                >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Enable Private Album"
+                    android:textColor="@color/white"
+                    android:layout_alignParentStart="true"
+                    android:textSize="18sp"
+                    />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/enablePrivateAlbum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:background="@android:color/transparent"
+                    app:thumbTint="@android:color/holo_blue_dark"
+                    app:trackTint="@android:color/darker_gray" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete All App Storage"
+                    android:textColor="@color/white"
+                    android:layout_alignParentStart="true"
+                    android:textSize="18sp"
+                    />
+            </RelativeLayout>
+
+        </LinearLayout>
+</RelativeLayout>

@@ -27,7 +27,7 @@ public class TagGridAdapter extends RecyclerView.Adapter<TagGridAdapter.TagGridV
     public TagGridAdapter(Context context, ArrayList<String> tagList) {
         this.context = context;
         this.tagList = tagList;
-        this.databaseHandler = new DatabaseHandler(context);
+        this.databaseHandler = DatabaseHandler.getInstance(context);
     }
 
     public String getTagName (int position) {

@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <!-- <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> -->
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -41,6 +46,22 @@
 <!--            android:value="ica" />-->
         <!-- To use multiple models: android:value="ocr,ocr_chinese,ocr_devanagari,ocr_japanese,ocr_korean,..." -->
 
+        <receiver android:name=".businessclasses.WidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
+        <activity android:name=".businessclasses.WidgetConfigActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivityNew"
             android:exported="true">
@@ -62,6 +83,9 @@
         <activity android:name=".MoreInformationActivity" android:exported="true"/>
         <activity android:name=".GroupImageView" android:exported="true"/>
         <activity android:name=".TagManagementActivity" android:exported="true"/>
+        <activity android:name=".SettingsActivity" android:exported="true"/>
+        <activity android:name=".MoreAlbumInformationActivity" android:exported="true"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.galleryexample3.provider"
