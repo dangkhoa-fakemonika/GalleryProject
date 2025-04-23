@@ -122,11 +122,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(AlbumsTable.COL_NAME, albumName);
             values.put(AlbumsTable.COL_IMAGE_URI, imageURI);
-//            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values) > -1
+            sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values);
             if (!checkAlbumExisted(albumName)){
-                setAlbumThumbnail(albumName, imageURI);
                 createAlbum(albumName);
             }
+            setAlbumThumbnail(albumName, imageURI);
+
         }
 
         public boolean checkAlbumExisted(String albumName){
@@ -288,6 +289,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void createNewTag(String tagName){
+            if (!checkTagExisted(tagName)){
+                createNewTag(tagName);
+            }
             ContentValues values = new ContentValues();
             values.put(TagsInfoTable.COL_NAME, tagName);
             sqLiteDatabase.insert(TagsInfoTable.TABLE_NAME, null, values);
@@ -301,10 +305,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void addTagsToImage(String tagName, String imageURI){
-            if (checkTagExisted(tagName)){
-                return;
-            }
-            createNewTag(tagName);
 
             ContentValues values = new ContentValues();
             values.put(TagsTable.COL_NAME, tagName);
@@ -360,7 +360,35 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cur.close();
             return result;
         }
+        public ArrayList<SearchItemListAdapter.MatchItem> getMatchTagsItem(String name){
+            ArrayList<SearchItemListAdapter.MatchItem> l = new ArrayList<>();
+            String[] args = new String[]{"%"+ name + "%"};
+            String statement = "select tags.name, count(tags.imageUri) as totals, tags.imageUri " +
+                    " from tags " +
+                    " where tags.name like ? " +
+                    " group by tags.name";
 
+            Log.v("Statement", statement);
+
+            try(Cursor cursor = sqLiteDatabase.rawQuery(statement, args)){
+                Log.v("After Query:", statement);
+                if (cursor.moveToFirst()){
+                    int columnName = cursor.getColumnIndex("name");
+                    int countIndex = cursor.getColumnIndex("totals");
+                    int thumbnailUri = cursor.getColumnIndex("imageUri");
+                    int matchType = SearchItemListAdapter.MATCH_TAG;
+                    do {
+                        String matchName = cursor.getString(columnName);
+                        String albumsTotals = String.valueOf(cursor.getLong(countIndex));
+                        String uri = cursor.getString(thumbnailUri);
+                        l.add(new SearchItemListAdapter.MatchItem(matchName, albumsTotals, uri, matchType));
+                    } while (cursor.moveToNext());
+                }
+            }catch (Exception e){
+                Log.e("DatabaseHandler", e.toString());
+            }
+            return l;
+        }
         public ArrayList<String> getImagesOfTag(String tagName){
             Cursor cur = sqLiteDatabase.query(TagsTable.TABLE_NAME, new String[] {TagsTable.COL_IMAGE_URI}, TagsTable.COL_NAME + " =?", new String[]{tagName}, null, null, null);
             ArrayList<String> result = new ArrayList<>();

@@ -299,9 +299,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
             Log.v("albumName", albumName);
         } else if (tagName != null) {
 //            Currently has no Tag retrieve Logic
-            imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
-            Log.v("tagName", tagName);
-
+            imagesList = databaseHandler.tags().getImagesOfTag(tagName);
         }else {
             imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
         }

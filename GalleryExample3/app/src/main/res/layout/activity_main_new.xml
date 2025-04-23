@@ -9,61 +9,82 @@
     android:background="@color/black"
     tools:openDrawer="start">
 
-<RelativeLayout
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolBar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"
-        android:background="@color/black"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
-
-<!--    <com.google.android.material.appbar.AppBarLayout-->
-<!--        android:id="@+id/appBarLayout"-->
-<!--        android:layout_alignParentTop="true"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content">-->
-<!--        -->
-<!--        -->
-<!--    </com.google.android.material.appbar.AppBarLayout>-->
-
-    <FrameLayout
-        android:id="@+id/frameLayout"
+    <RelativeLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottomNavigationBar"
-        android:layout_below="@+id/toolBar"
-        android:layout_marginBottom="0dp">
+        >
 
-    </FrameLayout>
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="4dp"
+            android:background="@color/black"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    
+    <!--    <com.google.android.material.appbar.AppBarLayout-->
+    <!--        android:id="@+id/appBarLayout"-->
+    <!--        android:layout_alignParentTop="true"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content">-->
+    <!--        -->
+    <!--        -->
+    <!--    </com.google.android.material.appbar.AppBarLayout>-->
+    
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/bottomNavigationBar"
+            android:layout_below="@+id/toolBar"
+            android:layout_marginBottom="0dp">
+    
+        </FrameLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:src="@drawable/photo_camera_24dp"
+            android:contentDescription="Add new camera"
+            android:layout_above="@+id/bottomNavigationBar"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"
+            />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_new_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:src="@drawable/library_add_24px"
+            android:contentDescription="Create new album"
+            android:layout_above="@+id/bottomNavigationBar"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"
+            />
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:menu="@menu/main_bottom_nav">
+    
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:menu="@menu/main_bottom_nav">
+    </RelativeLayout>
 
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
-
-</RelativeLayout>
-
-<com.google.android.material.navigation.NavigationView
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:id="@+id/drawer_nav_view"
-    android:background="@color/black"
-    app:itemTextColor="@color/white"
-    app:menu="@menu/main_navigation_menu"
-    app:itemIconTint="@color/white"
-    android:layout_gravity="start"
-    />
+    <com.google.android.material.navigation.NavigationView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/drawer_nav_view"
+        android:background="@color/black"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/main_navigation_menu"
+        app:itemIconTint="@color/white"
+        android:layout_gravity="start"
+        />
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -74,7 +75,19 @@ public class GroupImageView extends AppCompatActivity {
         addMenuToToolBarForAlbum();
         GalleryImageGridAdapter galleryAdapter = new GalleryImageGridAdapter(this, imagesList);
         gridRecyclerView.setAdapter(galleryAdapter);
-
+        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
+        myToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
         cancelSelectionButton.setOnClickListener(v -> {
             selectionEnabled = false;
             galleryAdapter.setSelectionMode(selectionEnabled);
@@ -129,8 +142,7 @@ public class GroupImageView extends AppCompatActivity {
             imagesList = databaseHandler.albums().getImagesOfAlbum(groupName);
         } else if (groupType == SearchItemListAdapter.MATCH_TAG) {
 //            No logic for tags yet
-            imagesList = ImageGalleryProcessing.getImagesByName(this, groupName, "DATE_ADDED", "ASC");
-
+            imagesList = databaseHandler.tags().getImagesOfTag(groupName);
         }
     }
     public void addMenuToToolBarForAlbum(){

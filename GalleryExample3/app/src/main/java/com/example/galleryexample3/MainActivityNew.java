@@ -31,6 +31,7 @@ import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -39,6 +40,8 @@ public class MainActivityNew extends AppCompatActivity{
     private Toolbar myToolbar;
     private AppBarLayout myAppBarLayout;
     private TextView toolBarTitle;
+    private FloatingActionButton cameraFAB;
+    private FloatingActionButton addAlbumFAB;
     final int REQUEST_MANAGE_EXTERNAL_STORAGE = 100;
     final int REQUEST_WRITE_EXTERNAL_STORAGE = 101;
     final int REQUEST_READ_EXTERNAL_STORAGE = 102;
@@ -95,16 +98,27 @@ public class MainActivityNew extends AppCompatActivity{
         context = this;
         myToolbar = (Toolbar) findViewById(R.id.toolBar);
         setSupportActionBar(myToolbar);
+        cameraFAB = (FloatingActionButton) findViewById(R.id.fab_camera);
+        addAlbumFAB = (FloatingActionButton) findViewById(R.id.fab_new_album);
+        addAlbumFAB.hide();
+        cameraFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(MainActivityNew.this, CameraActivity.class);
+                startActivity(myIntent);
+            }
+        });
+        addAlbumFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+            }
+        });
         myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int selectedId = item.getItemId();
-                if (selectedId == R.id.openCamera){
-                    Intent myIntent = new Intent(MainActivityNew.this, CameraActivity.class);
-                    startActivity(myIntent);
-                    return true;
-                }else if (selectedId == R.id.searchImage){
+                if (selectedId == R.id.searchImage){
                     Intent myIntent = new Intent(MainActivityNew.this, SearchActivity.class);
                     startActivity(myIntent);
                     return true;
@@ -143,10 +157,16 @@ public class MainActivityNew extends AppCompatActivity{
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
-                if (id == R.id.gallery)
+                if (id == R.id.gallery){
                     getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, galleryFragment).commit();
-                else
+                    cameraFAB.show();
+                    addAlbumFAB.hide();
+                }
+                else{
                     getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, albumOverviewFragment).commit();
+                    addAlbumFAB.show();
+                    cameraFAB.hide();
+                }
 
                 return false;
             }

@@ -111,8 +111,8 @@ public class SearchActivity extends AppCompatActivity implements MenuProvider {
             if (matchItem != null){
                 l.add(matchItem);
             }
-            ArrayList<SearchItemListAdapter.MatchItem> matchAlbums = getDatabaseHandler().albums().getMatchAlbumItems(name);
-            l.addAll(matchAlbums);
+            l.addAll(databaseHandler.albums().getMatchAlbumItems(name));
+            l.addAll(databaseHandler.tags().getMatchTagsItem(name));
         }
         return l;
     }
