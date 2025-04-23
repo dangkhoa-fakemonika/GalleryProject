@@ -84,6 +84,7 @@
         <activity android:name=".GroupImageView" android:exported="true"/>
         <activity android:name=".TagManagementActivity" android:exported="true"/>
         <activity android:name=".SettingsActivity" android:exported="true"/>
+        <activity android:name=".MoreAlbumInformationActivity" android:exported="true"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

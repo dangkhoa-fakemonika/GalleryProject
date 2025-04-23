@@ -68,7 +68,7 @@ public class MoreAlbumInformationActivity extends Activity {
         databaseHandler = DatabaseHandler.getInstance(this);
         context = this;
 
-        titleTextView.setText("Placeholder Text");
+        titleTextView.setText(groupName);
         timeTextView.setText("Placeholder Text");
         sizeTextView.setText("Placeholder Text");
 
@@ -88,6 +88,8 @@ public class MoreAlbumInformationActivity extends Activity {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             databaseHandler.albums().deleteAlbum(groupName);
                             dialogInterface.dismiss();
+                            Intent intent = new Intent(MoreAlbumInformationActivity.this, MainActivityNew.class);
+                            startActivity(intent);
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

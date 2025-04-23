@@ -84,6 +84,21 @@ public class GroupImageView extends AppCompatActivity {
         GalleryImageGridAdapter galleryAdapter = new GalleryImageGridAdapter(this, imagesList);
         gridRecyclerView.setAdapter(galleryAdapter);
 
+        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.edit_button){
+                    Intent intent = new Intent(GroupImageView.this, MoreAlbumInformationActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(GroupImageView.BUKEY_GROUP_TYPE, SearchItemListAdapter.MATCH_ALBUM);
+                    bundle.putString(GroupImageView.BUKEY_GROUP_NAME, groupName);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+                return false;
+            }
+        });
+
         cancelSelectionButton.setOnClickListener(v -> {
             selectionEnabled = false;
             galleryAdapter.setSelectionMode(selectionEnabled);
