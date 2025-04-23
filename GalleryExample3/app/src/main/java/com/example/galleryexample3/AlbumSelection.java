@@ -30,7 +30,7 @@ import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
+@Deprecated
 public class AlbumSelection extends Activity {
 
     @Override
@@ -42,7 +42,7 @@ public class AlbumSelection extends Activity {
         Button addAlbum = (Button) findViewById(R.id.newAlbum);
         EditText albumNameText = (EditText) findViewById(R.id.albumeNameText);
 
-        DatabaseHandler databaseHandler = new DatabaseHandler(this);
+        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(this);
         backButton.setOnClickListener((l) ->{
             Intent intent = new Intent(AlbumSelection.this, MainActivity.class);
             startActivity(intent);
@@ -85,7 +85,7 @@ public class AlbumSelection extends Activity {
         super.onResume();
     }
 }
-
+@Deprecated
 class MyAlbumGridAdapter extends BaseAdapter {
     String[] albumNames;
     Context context;

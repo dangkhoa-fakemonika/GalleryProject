@@ -17,7 +17,7 @@ import com.example.galleryexample3.userinterface.ImageBaseAdapter;
 import com.example.galleryexample3.userinterface.ScaleListener;
 
 import java.util.ArrayList;
-
+@Deprecated
 public class AlbumDisplay extends Activity {
     /** The images. */
 
@@ -53,7 +53,7 @@ public class AlbumDisplay extends Activity {
         nextPage = (Button) findViewById(R.id.nextPage);
         pageNumber = (TextView) findViewById(R.id.pageNumber);
 
-        DatabaseHandler databaseHandler = new DatabaseHandler(this);
+        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(this);
 
         ArrayList<String> albumImages = new ArrayList<>();
         Intent gotIntent = getIntent();

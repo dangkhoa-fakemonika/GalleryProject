@@ -41,6 +41,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuItemClickListener {
     RecyclerView gridRecyclerView;
@@ -48,6 +49,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
     private ArrayList<String> imagesList;
     boolean selectionEnabled = false;
     DatabaseHandler databaseHandler;
+    String sortType;
 
     public MainGalleryFragment() { }
 
@@ -61,13 +63,37 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                              Bundle savedInstanceState) {
         // Set up data
         View view = inflater.inflate(R.layout.main_gallery_fragment, container, false);
-        imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
+        Intent gotIntent = requireActivity().getIntent();
+        Bundle gotBundle = gotIntent.getExtras();
+        sortType = gotBundle == null ? "Date - Ascending" : gotBundle.getString("sortType", "Date - Ascending");
+        switch (Objects.requireNonNull(sortType)) {
+            case "Name - Ascending":
+                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " ASC");
+                break;
+            case "Name - Descending":
+                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " DESC");
+                break;
+            case "Date - Ascending":
+                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
+                break;
+            case "Date - Descending":
+                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " DESC");
+                break;
+            case "Size - Ascending":
+                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " ASC");
+                break;
+            case "Size - Descending":
+                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " DESC");
+                break;
+        }
+
+//        imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
         databaseHandler = DatabaseHandler.getInstance(requireContext());
 
         // RecyclerView
         gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
-        GalleryImageGridAdapter galleryAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
-        gridRecyclerView.setAdapter(galleryAdapter);
+        final GalleryImageGridAdapter[] galleryAdapter = {new GalleryImageGridAdapter(requireContext(), imagesList)};
+        gridRecyclerView.setAdapter(galleryAdapter[0]);
         gridRecyclerView.scrollToPosition(imagesList.size() - 1);
 
         Toolbar myToolbar = (Toolbar) requireActivity().findViewById(R.id.toolBar);
@@ -75,7 +101,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int selectedId = item.getItemId();
-                if (selectedId == R.id.filterButton) {
+                if (selectedId == R.id.filterButton && !selectionEnabled) {
                     PopupMenu popup = new PopupMenu(requireContext(), myToolbar, Gravity.END);
                     popup.inflate(R.menu.filter_menu_main);
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -105,8 +131,8 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                                 imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " DESC");
 
                             }
-                            final GalleryImageGridAdapter tempAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
-                            gridRecyclerView.setAdapter(tempAdapter);
+                            galleryAdapter[0] = new GalleryImageGridAdapter(requireContext(), imagesList);
+                            gridRecyclerView.setAdapter(galleryAdapter[0]);
                             gridRecyclerView.scrollToPosition(imagesList.size() - 1);
                             return true;
                         }
@@ -118,88 +144,6 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             }
         });
 
-
-//        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                int selectedId = item.getItemId();
-//                if (selectedId == R.id.filterButton){
-//                    View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.spinner_dialog_layout, null);
-//                    Spinner spinner = dialogView.findViewById(R.id.spinnerDialog);
-//                    final int[] selectedOption = {0};
-//                    String[] options = new String[]{
-//                            "Name Ascending",
-//                            "Name Descending",
-//                            "Date Ascending",
-//                            "Date Descending",
-//                            "Size Ascending",
-//                            "Size Descending"
-//                    };
-//                    spinner.setAdapter(new ArrayAdapter<String>(requireContext(), R.layout.spinner_element, options));
-//                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//                        @Override
-//                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                            selectedOption[0] = i;
-//                        }
-//
-//                        @Override
-//                        public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//                        }
-//                    });
-//
-//                    AlertDialog alertDialog = new AlertDialog.Builder(requireContext())
-//                            .setTitle("Set Layout Filter")
-//                            .setView(dialogView)
-//                            .setPositiveButton("Apply", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialogInterface, int i) {
-//                                    switch (selectedOption[0]){
-//                                        case 0:
-//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " ASC");
-//                                            break;
-//                                        case 1:
-//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " DESC");
-//                                            break;
-//                                        case 2:
-//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
-//                                            break;
-//                                        case 3:
-//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " DESC");
-//                                            break;
-//                                        case 4:
-//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " ASC");
-//                                            break;
-//                                        case 5:
-//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " DESC");
-//                                            break;
-//                                        default:
-//                                            imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
-//                                            break;
-//
-//                                    }
-//
-//                                    final GalleryImageGridAdapter tempAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
-//                                    gridRecyclerView.setAdapter(tempAdapter);
-//                                    gridRecyclerView.scrollToPosition(imagesList.size() - 1);
-//                                    dialogInterface.dismiss();
-//                                }
-//                            })
-//                            .setNegativeButton("Close", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialogInterface, int i) {
-//                                    dialogInterface.dismiss();
-//                                }
-//                            }).create();
-//                    alertDialog.show();
-//
-//                    return true;
-//                }
-//
-//                return false;
-//            }
-//        });
-
         // OptionBars
         optionBars = (LinearLayout) view.findViewById(R.id.optionBars);
         ImageButton deleteButton = (ImageButton) view.findViewById(R.id.deleteButton);
@@ -209,10 +153,40 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
 
         // Set up on click events
         moreOptionButton.setOnClickListener(this::showMenu);
+        deleteButton.setOnClickListener((l) -> {
+            if (galleryAdapter[0].getSelectedImagesCount() == 0){
+                Toast.makeText(requireContext(), "Select an image first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            AlertDialog alertDialog = new AlertDialog.Builder(requireContext())
+                    .setTitle("Delete all selected images?")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            HashSet<Integer> positions = galleryAdapter[0].getSelectedPositions();
+                            positions.forEach((pos) -> {
+                                ImageGalleryProcessing.deleteImage(requireContext(), imagesList.get(pos));
+                                databaseHandler.tags().deleteImage(imagesList.get(pos));
+                                databaseHandler.albums().deleteImage(imagesList.get(pos));
+                            });
+                            Toast.makeText(requireContext(), "All images deleted.", Toast.LENGTH_LONG).show();
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+        });
 
         cancelSelectionButton.setOnClickListener(v -> {
             selectionEnabled = false;
-            galleryAdapter.setSelectionMode(selectionEnabled);
+            galleryAdapter[0].setSelectionMode(selectionEnabled);
 
             optionBars.setVisibility(View.GONE);
             if (getActivity() instanceof MainActivityNew) {
@@ -226,8 +200,8 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 Context context = requireContext();
                 if (selectionEnabled) {
-                    galleryAdapter.toggleSelection(position);
-                    int selectedImagesCount = galleryAdapter.getSelectedImagesCount();
+                    galleryAdapter[0].toggleSelection(position);
+                    int selectedImagesCount = galleryAdapter[0].getSelectedImagesCount();
                     if (selectedImagesCount != 0)
                         selectionTextView.setText("Selected " + selectedImagesCount + " image" + (selectedImagesCount > 1 ? "s" : ""));
                     else
@@ -241,6 +215,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                     bundle.putString("imageURI", imageUri);
                     bundle.putString("dateAdded", dateAdded);
                     bundle.putInt("position", position);
+                    bundle.putString("sortType", sortType);
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }
@@ -253,8 +228,8 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             public boolean onItemLongClicked(RecyclerView recyclerView, int position, View v) {
                 if (!selectionEnabled) {
                     selectionEnabled = true;
-                    galleryAdapter.setSelectionMode(selectionEnabled);
-                    galleryAdapter.toggleSelection(position);
+                    galleryAdapter[0].setSelectionMode(selectionEnabled);
+                    galleryAdapter[0].toggleSelection(position);
                     selectionTextView.setText("Selected 1 image");
 
                     optionBars.setVisibility(View.VISIBLE);
@@ -336,6 +311,10 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String tagName = editText.getText().toString();
+                            HashSet<Integer> selectedPositions = galleryAdapter.getSelectedPositions();
+
+                            for (int position : selectedPositions)
+                                databaseHandler.tags().addTagsToImage(tagName, imagesList.get(position));
 
                             Toast.makeText(context, "Added to " + tagName, Toast.LENGTH_LONG).show();
                             dialogInterface.dismiss();

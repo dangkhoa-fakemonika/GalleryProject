@@ -191,7 +191,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
 
-        databaseHandler = new DatabaseHandler(this);
+        databaseHandler = DatabaseHandler.getInstance(this);
         context = this;
         if (gotBundle == null)
             return;

@@ -59,7 +59,7 @@ public class SingleImageViewOld extends Activity {
         // Set image
         imageURI = gotBundle.getString("imageURI");
 
-        DatabaseHandler databaseHandler = new DatabaseHandler(this);
+        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(this);
 
         StringBuilder tagList = new StringBuilder("Tags: ");
         databaseHandler.tags().getTagsOfImage(imageURI).forEach((i) -> {tagList.append(i).append(" ");});

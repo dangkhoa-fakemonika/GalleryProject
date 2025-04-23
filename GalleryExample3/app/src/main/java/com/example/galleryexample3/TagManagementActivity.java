@@ -32,7 +32,7 @@ public class TagManagementActivity extends Activity {
         setContentView(R.layout.tag_management_activity);
 
         RecyclerView tagGridView = (RecyclerView) findViewById(R.id.tagGrid);
-        databaseHandler = new DatabaseHandler(this);
+        databaseHandler = DatabaseHandler.getInstance(this);
         ArrayList<String> tagList = databaseHandler.tags().getAllTags();
 
         TagGridAdapter tagGridAdapter = new TagGridAdapter(this, tagList);

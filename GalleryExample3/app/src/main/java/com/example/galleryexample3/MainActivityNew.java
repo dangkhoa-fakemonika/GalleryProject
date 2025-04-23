@@ -104,46 +104,6 @@ public class MainActivityNew extends AppCompatActivity{
         myToolbar = (Toolbar) findViewById(R.id.toolBar);
         setSupportActionBar(myToolbar);
 
-//        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                int selectedId = item.getItemId();
-//                if (selectedId == R.id.filterButton){
-//                    View dialogView = LayoutInflater.from(MainActivityNew.this).inflate(R.layout.spinner_dialog_layout, null);
-//                    Spinner spinner = dialogView.findViewById(R.id.spinnerDialog);
-//                    spinner.setAdapter(new ArrayAdapter<String>(context, R.layout.spinner_element, new String[]{
-//                            "Name Ascending",
-//                            "Name Descending",
-//                            "Date Ascending",
-//                            "Date Descending",
-//                            "Size Ascending",
-//                            "Size Descending"
-//                    }));
-//                    AlertDialog alertDialog = new AlertDialog.Builder(context)
-//                            .setTitle("Set Layout Filter")
-//                            .setView(dialogView)
-//                            .setPositiveButton("Apply", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialogInterface, int i) {
-//                                    dialogInterface.dismiss();
-//                                }
-//                            })
-//                            .setNegativeButton("Close", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialogInterface, int i) {
-//                                    dialogInterface.dismiss();
-//                                }
-//                            }).create();
-//                    alertDialog.show();
-//
-//                    return true;
-//                }
-//
-//                return false;
-//            }
-//        });
-//        myAppBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);

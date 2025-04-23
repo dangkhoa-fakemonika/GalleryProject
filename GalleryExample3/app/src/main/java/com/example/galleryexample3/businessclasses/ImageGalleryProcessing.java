@@ -54,7 +54,7 @@ public class ImageGalleryProcessing {
 
     public static boolean deleteImage(Context context, String URI) {
         int res = context.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA + " = ?", new String[]{URI});
-        try (DatabaseHandler databaseHandler = new DatabaseHandler(context)) {
+        try (DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
             databaseHandler.tags().deleteImage(URI);
             databaseHandler.albums().deleteImage(URI);
         }

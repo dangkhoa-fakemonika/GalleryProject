@@ -48,7 +48,7 @@ public class PrivateAlbum {
             file = new File(pvFile, fileName + " (" + cnt + ")" + fileExtension);
             cnt++;
         }
-        try (DatabaseHandler databaseHandler = new DatabaseHandler(context)) {
+        try (DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
             Path path1 = Paths.get(URI);
             Path path2 = file.toPath();
             BasicFileAttributes attributes = Files.readAttributes(path1, BasicFileAttributes.class);
