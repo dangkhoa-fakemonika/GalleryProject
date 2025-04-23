@@ -2,6 +2,7 @@ package com.example.galleryexample3.userinterface;
 
 import android.net.Uri;
 import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +20,9 @@ import java.util.ArrayList;
 
 public class WidgetAdapter extends RecyclerView.Adapter<WidgetAdapter.WidgetViewHolder>{
     private ArrayList<String> imagesList;
-    private SparseBooleanArray selectedImages = new SparseBooleanArray();
+    private SparseIntArray selectedImages = new SparseIntArray();
     private OnImageClickListener listener;
+    private int selectedCount = 1;
 
     public interface OnImageClickListener {
         void onSelectionChanged(int selectedCount);
@@ -44,25 +46,27 @@ public class WidgetAdapter extends RecyclerView.Adapter<WidgetAdapter.WidgetView
                 .load(imagesList.get(position))
                 .into(holder.widget_item);
 
-        holder.widget_checkbox.setChecked(selectedImages.get(position, false));
+        holder.widget_checkbox.setChecked(selectedImages.get(position, 0) > 0);
 
         holder.widget_item.setOnClickListener(v -> {
-            if (selectedImages.get(position, false)) {
+            if (selectedImages.get(position, 0) > 0) {
                 selectedImages.delete(position);
             } else {
-                selectedImages.put(position, true);
+                selectedImages.put(position, selectedCount);
+                selectedCount += 1;
             }
-            holder.widget_checkbox.setChecked(selectedImages.get(position, false));
+            holder.widget_checkbox.setChecked(selectedImages.get(position, 0) > 0);
             listener.onSelectionChanged(selectedImages.size());
         });
 
         holder.widget_checkbox.setOnClickListener(v -> {
-            if (selectedImages.get(position, false)) {
+            if (selectedImages.get(position, 0) > 0) {
                 selectedImages.delete(position);
             } else {
-                selectedImages.put(position, true);
+                selectedImages.put(position, selectedCount);
+                selectedCount += 1;
             }
-            holder.widget_checkbox.setChecked(selectedImages.get(position, false));
+            holder.widget_checkbox.setChecked(selectedImages.get(position, 0) > 0);
             listener.onSelectionChanged(selectedImages.size());
         });
     }
@@ -76,7 +80,11 @@ public class WidgetAdapter extends RecyclerView.Adapter<WidgetAdapter.WidgetView
         ArrayList<String> selected = new ArrayList<>();
         for (int i = 0; i < selectedImages.size(); i++) {
             int position = selectedImages.keyAt(i);
-            selected.add(imagesList.get(position));
+            try {
+                selected.add(selectedImages.get(position) - 1, imagesList.get(position));
+            } catch (IndexOutOfBoundsException e) {
+                selected.add(imagesList.get(position));
+            }
         }
         return selected;
     }

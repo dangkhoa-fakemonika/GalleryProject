@@ -38,7 +38,11 @@ public class WidgetConfigActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
         imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " ASC");
-        //widgetAdapter.notifyDataSetChanged();
+        for (int i = imagesList.size() - 1; i >= 0; i--) {
+            if (imagesList.get(i).toLowerCase().endsWith(".gif")) {
+                imagesList.remove(i);
+            }
+        }
 
         widgetAdapter = new WidgetAdapter(imagesList, selectedCount -> {
             button.setEnabled(selectedCount > 0);

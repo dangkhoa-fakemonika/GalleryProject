@@ -1,5 +1,6 @@
 package com.example.galleryexample3.dataclasses;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -188,6 +189,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         public void removeImageFromAlbum(String albumName, String imageURI){
             sqLiteDatabase.delete(AlbumsTable.TABLE_NAME, AlbumsTable.COL_NAME + " =? AND " + AlbumsTable.COL_IMAGE_URI + " =?", new String[]{albumName, imageURI});
+            if (imageURI.equals(getAlbumThumbnail(albumName))) {
+                changeAlbumThumbnail(albumName);
+            }
         }
 
         public ArrayList<String> getAllAlbums(){
@@ -308,8 +312,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             sqLiteDatabase.update(AlbumsTable.TABLE_NAME, albumValues, AlbumsTable.COL_NAME + " =?", new String[]{albumName});
         }
 
+        public void changeAlbumThumbnail (String albumName) {
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[]{AlbumsTable.COL_IMAGE_URI}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
+                if (cursor.moveToLast()) {
+                    @SuppressLint("Range") String newThumb = cursor.getString(cursor.getColumnIndex(AlbumsTable.COL_IMAGE_URI));
+                    setAlbumThumbnail(albumName, newThumb);
+                }
+            }
+        }
         public void deleteImage(String imageURI) {
             sqLiteDatabase.delete(AlbumsTable.TABLE_NAME, AlbumsTable.COL_IMAGE_URI + " = ?", new String[]{imageURI});
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[]{AlbumsInfoTable.COL_NAME}, AlbumsInfoTable.THUMBNAIL_URI + " = ?", new String[]{imageURI}, null, null, null)) {
+                if (cursor.moveToFirst()) {
+                    do {
+                        @SuppressLint("Range") String albumName = cursor.getString(cursor.getColumnIndex("name"));
+                        changeAlbumThumbnail(albumName);
+                    } while (cursor.moveToNext());
+                }
+            }
         }
 
         public boolean checkAlbumHaveImage(String albumName, String imageURI){

@@ -9,6 +9,15 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
+    <TextView
+        android:id="@+id/widget_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:text="Heaven's Door Gallery"
+        android:textSize="14sp"
+        android:textColor="#FFFFFF" />
+
     <LinearLayout
         android:id="@+id/widget_left"
         android:layout_width="60dp"
@@ -30,4 +39,5 @@
         android:clickable="true"
         android:orientation="horizontal"
         android:contentDescription="next_image" />
+
 </FrameLayout>

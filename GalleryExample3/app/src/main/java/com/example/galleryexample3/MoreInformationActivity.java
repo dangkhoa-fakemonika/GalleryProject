@@ -71,7 +71,7 @@ public class MoreInformationActivity extends Activity {
         timeTextView.setText(ImageGalleryProcessing.getImageDateAdded(this, imageURI));
         resolutionTextView.setText(ImageGalleryProcessing.getResolution(this, imageURI));
         sizeTextView.setText(ImageGalleryProcessing.getSize(this, imageURI));
-        locationTextView.setText(imageURI);
+        locationTextView.setText(imageURI.startsWith("/storage/") ? imageURI.substring(20) : imageURI.substring(45));
 
         TagListAdapter tagListAdapter = new TagListAdapter(this, databaseHandler.tags().getTagsOfImage(imageURI), imageURI);
 
