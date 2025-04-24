@@ -24,6 +24,27 @@ import java.util.Objects;
 import java.text.SimpleDateFormat;
 
 public class ImageGalleryProcessing {
+
+    @SuppressLint("Range")
+    public static Uri getUriFromPath(Context context, String imageURI) {
+        try (Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[] {MediaStore.Images.Media._ID}, MediaStore.Images.Media.DATA + " = ?", new String[] {imageURI}, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
+            }
+        }
+        return null;
+    }
+
+    @SuppressLint("Range")
+    public static String getPathFromUri(Context context, Uri imageURI) {
+        try (Cursor cursor = context.getContentResolver().query(imageURI, new String[] {MediaStore.Images.Media.DATA}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
+        }
+        return null;
+    }
+
     public static boolean saveImage(Context context, Bitmap bitmap){
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, "image_" + System.currentTimeMillis() + ".png");
@@ -270,10 +291,14 @@ public class ImageGalleryProcessing {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
         //values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        try(Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {URI}, null)) {
+        try(Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {URI}, null);
+            DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
             if (cursor != null && cursor.moveToFirst()) {
+                String oldName = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
                 Uri uri2 = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
                 int row = context.getContentResolver().update(uri2, values, null, null);
+                databaseHandler.albums().changeImageName(oldName, newName);
+                databaseHandler.tags().changeImageName(oldName, newName);
                 return row > 0;
             }
         }

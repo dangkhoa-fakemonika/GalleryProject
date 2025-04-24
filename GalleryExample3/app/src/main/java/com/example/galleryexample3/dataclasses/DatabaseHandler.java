@@ -7,10 +7,13 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.example.galleryexample3.userinterface.SearchItemListAdapter;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.security.AllPermission;
 import java.time.format.DateTimeFormatter;
@@ -120,16 +123,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void addImageToAlbum(String albumName, String imageURI){
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME}, AlbumsTable.COL_NAME + " =? AND " + AlbumsTable.COL_IMAGE_URI + " =?", new String[]{albumName, imageURI}, null, null, null)) {
+                if (cursor.getCount() > 0) return;
+            }
             ContentValues values = new ContentValues();
             values.put(AlbumsTable.COL_NAME, albumName);
             values.put(AlbumsTable.COL_IMAGE_URI, imageURI);
             sqLiteDatabase.insert(AlbumsTable.TABLE_NAME, null, values);
-            if (!checkAlbumExisted(albumName)){
+            if (!checkAlbumExisted(albumName)) {
                 setAlbumThumbnail(albumName, imageURI);
                 createAlbum(albumName);
             }
             setAlbumThumbnail(albumName, imageURI);
-
         }
 
         public boolean checkAlbumExisted(String albumName){
@@ -178,9 +183,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             do {
                 int uriCol = cur.getColumnIndex(AlbumsTable.COL_IMAGE_URI);
                 String uri = null;
-                if (uriCol != -1)
+                if (uriCol != -1) {
                     uri = cur.getString(uriCol);
-                result.add(uri);
+                    if (new File(uri).exists())
+                        result.add(uri);
+                    else deleteImage(uri);
+                }
             } while (cur.moveToNext());
 
             cur.close();
@@ -218,7 +226,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             try (Cursor cursor = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME, AlbumsInfoTable.THUMBNAIL_URI}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
                 if (cursor.moveToFirst()) {
                     int uriCol = cursor.getColumnIndex(AlbumsInfoTable.THUMBNAIL_URI);
-                    return cursor.getString(uriCol);
+                    String uri = cursor.getString(uriCol);
+                    if (new File(uri).exists())
+                        return uri;
+                    else {
+                        deleteImage(uri);
+                        return getAlbumThumbnail(albumName);
+                    }
                 }
             } catch (Exception e) {
                 Log.e("Error", "Can not get album thumbnail", e);
@@ -246,7 +260,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         String matchName = cursor.getString(columnName);
                         String albumsTotals = String.valueOf(cursor.getLong(countIndex));
                         String uri = cursor.getString(thumbnailUri);
-                        l.add(new SearchItemListAdapter.MatchItem(matchName, albumsTotals, uri, matchType));
+                        if (new File(uri).exists())
+                            l.add(new SearchItemListAdapter.MatchItem(matchName, albumsTotals, uri, matchType));
+                        else {
+                            deleteImage(uri);
+                            return getMatchAlbumItems(name);
+                        }
                     } while (cursor.moveToNext());
                 }
             }catch (Exception e){
@@ -268,9 +287,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 if (cursor.moveToFirst()){
                     Log.e("Something here", String.valueOf(cursor.getCount()));
                     int columnName = cursor.getColumnIndex("name");
+                    int thumbnailUri = cursor.getColumnIndex("thumbnail_uri");
                     do {
                         String matchName = cursor.getString(columnName);
-                        l.add(matchName);
+                        String uri = cursor.getString(thumbnailUri);
+                        if (new File(uri).exists())
+                            l.add(matchName);
+                        else {
+                            deleteImage(uri);
+                            return getAllAlbumsWithFilters(field, order);
+                        }
                     } while (cursor.moveToNext());
                 }
             }catch (Exception e){
@@ -279,25 +305,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return l;
         }
 
-        public ArrayList<String> getAllAlbumsTemp(){
-            Cursor cur = sqLiteDatabase.query(true, AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME},  null,null, null, null, null, null);
-            ArrayList<String> result = new ArrayList<>();
-
-            if (cur.getCount() == 0)
-                return result;
-
-            cur.moveToFirst();
-            do {
-                int uriCol = cur.getColumnIndex(AlbumsTable.COL_NAME);
-                String uri = null;
-                if (uriCol != -1)
-                    uri = cur.getString(uriCol);
-                result.add(uri);
-            } while (cur.moveToNext());
-
-            cur.close();
-            return result;
-        }
+//        public ArrayList<String> getAllAlbumsTemp(){
+//            Cursor cur = sqLiteDatabase.query(true, AlbumsTable.TABLE_NAME, new String[] {AlbumsTable.COL_NAME},  null,null, null, null, null, null);
+//            ArrayList<String> result = new ArrayList<>();
+//
+//            if (cur.getCount() == 0)
+//                return result;
+//
+//            cur.moveToFirst();
+//            do {
+//                int uriCol = cur.getColumnIndex(AlbumsTable.COL_NAME);
+//                String uri = null;
+//                if (uriCol != -1)
+//                    uri = cur.getString(uriCol);
+//                result.add(uri);
+//            } while (cur.moveToNext());
+//
+//            cur.close();
+//            return result;
+//        }
 
         public void updateAlbum(String albumName, String newAlbumName, String newDescription){
             ContentValues infoValues = new ContentValues();
@@ -349,6 +375,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             ContentValues valueInfo = new ContentValues();
             valueInfo.put(AlbumsInfoTable.COL_NAME, newAlbumName);
             sqLiteDatabase.update(AlbumsInfoTable.TABLE_NAME, valueInfo, AlbumsInfoTable.COL_NAME + " =?", new String[]{oldAlbumName});
+        }
+
+        public void changeImageName(String oldImageName, String newImageName){
+            ContentValues value = new ContentValues();
+            value.put(AlbumsTable.COL_IMAGE_URI, newImageName);
+            sqLiteDatabase.update(AlbumsTable.TABLE_NAME, value, AlbumsTable.COL_IMAGE_URI + " = ?", new String[]{oldImageName});
+            value = new ContentValues();
+            value.put(AlbumsInfoTable.THUMBNAIL_URI, newImageName);
+            sqLiteDatabase.update(AlbumsInfoTable.TABLE_NAME, value, AlbumsInfoTable.THUMBNAIL_URI + " = ?", new String[]{oldImageName});
         }
     }
 
@@ -483,6 +518,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         public void deleteImage(String imageURI) {
             sqLiteDatabase.delete(TagsTable.TABLE_NAME, TagsTable.COL_IMAGE_URI + " = ?", new String[]{imageURI});
+        }
+
+        public void changeImageName(String oldImageName, String newImageName){
+            ContentValues value = new ContentValues();
+            value.put(TagsTable.COL_IMAGE_URI, newImageName);
+            sqLiteDatabase.update(TagsTable.TABLE_NAME, value, TagsTable.COL_IMAGE_URI + " = ?", new String[]{oldImageName});
         }
     }
 }
