@@ -140,13 +140,16 @@ public class PrivateAlbum {
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    subfolder = subfolder + "/" + file.getName();
-                    arrPath.addAll(queryImages(context, subfolder));
+                    String newsubfolder = subfolder + "/" + file.getName();
+
+                    arrPath.addAll(queryImages(context, newsubfolder));
                 } else {
                     arrPath.add(file.getAbsolutePath());
                 }
             }
         }
+        Log.v(PrivateAlbum.class.toString(), subfolder);
+
         Log.v(PrivateAlbum.class.toString(), String.valueOf(arrPath.size()));
         return arrPath;
     }
