@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -18,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.TagGridAdapter;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
@@ -25,17 +25,20 @@ import java.util.ArrayList;
 public class TagManagementActivity extends Activity {
     Context context;
     DatabaseHandler databaseHandler;
+    ArrayList<String> tagList;
+    TagGridAdapter tagGridAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.tag_management_activity);
 
         RecyclerView tagGridView = (RecyclerView) findViewById(R.id.tagGrid);
         databaseHandler = DatabaseHandler.getInstance(this);
-        ArrayList<String> tagList = databaseHandler.tags().getAllTags();
+        tagList = databaseHandler.tags().getAllTags();
 
-        TagGridAdapter tagGridAdapter = new TagGridAdapter(this, tagList);
+        tagGridAdapter = new TagGridAdapter(this, tagList);
         tagGridView.setAdapter(tagGridAdapter);
 
         Button addTagsButton = (Button) findViewById(R.id.addTagsButton);
@@ -68,6 +71,9 @@ public class TagManagementActivity extends Activity {
                             }
                             else {
                                 databaseHandler.tags().createNewTag(tagName);
+                                Toast.makeText(context, "Created tag " + tagName, Toast.LENGTH_LONG).show();
+                                tagList = databaseHandler.tags().getAllTags();
+                                tagGridAdapter.updateDataList(tagList);
                                 dialogInterface.dismiss();
                             }
 

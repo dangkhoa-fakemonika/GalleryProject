@@ -21,6 +21,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 
 public class WidgetProvider extends AppWidgetProvider {
+    private static final String ACTION_CLICKED = "CLICKED";
     private static final String ACTION_SWIPE_LEFT = "SWIPE_LEFT";
     private static final String ACTION_SWIPE_RIGHT = "SWIPE_RIGHT";
 
@@ -48,8 +49,25 @@ public class WidgetProvider extends AppWidgetProvider {
 
             Bitmap bitmap = BitmapFactory.decodeFile(currentImagePath);
 
+            if (bitmap == null) {
+                imagePaths.remove(currentIndex);
+                currentIndex = currentIndex % imagePaths.length();
+
+                prefs.edit()
+                        .putString("imagePaths_" + appWidgetId, imagePaths.toString())
+                        .putInt("currentIndex_" + appWidgetId, currentIndex)
+                        .apply();
+
+                updateWidget(context, appWidgetManager, appWidgetId);
+                return;
+            }
+
+            float h = bitmap.getHeight();
+            float w = bitmap.getWidth();
+            float scale = h > w ? h > 2000 ? h / 2000 : 1 : w > 2000 ? w / 2000 : 1;
+
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-            views.setImageViewBitmap(R.id.widget_image, bitmap);
+            views.setImageViewBitmap(R.id.widget_image, Bitmap.createScaledBitmap(bitmap, (int)(w / scale), (int)(h / scale), true));
 
             setupSwipeActions(context, appWidgetId, views);
 
@@ -68,14 +86,22 @@ public class WidgetProvider extends AppWidgetProvider {
                 .setAction(ACTION_SWIPE_RIGHT)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 
+        Intent clicked = new Intent(context, WidgetProvider.class)
+                .setAction(ACTION_CLICKED)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+
         PendingIntent leftPI = PendingIntent.getBroadcast(context, appWidgetId, swipeLeft,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         PendingIntent rightPI = PendingIntent.getBroadcast(context, appWidgetId, swipeRight,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        PendingIntent clickPI = PendingIntent.getBroadcast(context, appWidgetId, clicked,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         views.setOnClickPendingIntent(R.id.widget_left, leftPI);
         views.setOnClickPendingIntent(R.id.widget_right, rightPI);
+        views.setOnClickPendingIntent(R.id.widget_image, clickPI);
 
     }
 
@@ -92,6 +118,14 @@ public class WidgetProvider extends AppWidgetProvider {
                     break;
                 case ACTION_SWIPE_RIGHT:
                     updateImageIndex(context, appWidgetId, 1);
+                    break;
+                case ACTION_CLICKED:
+                    Intent launchIntent = context.getPackageManager()
+                            .getLaunchIntentForPackage(context.getPackageName());
+                    if (launchIntent != null) {
+                        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(launchIntent);
+                    }
                     break;
             }
         }

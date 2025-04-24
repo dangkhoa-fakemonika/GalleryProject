@@ -7,9 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,18 +18,21 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
+import com.example.galleryexample3.userinterface.ThemeManager;
+
 public class SettingsActivity extends AppCompatActivity {
     boolean isPrivateAlbumEnabled;
     Context context;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.settings_activity);
         context = getApplicationContext();
         SwitchCompat enablePrivateAlbum = findViewById(R.id.enablePrivateAlbum);
 
         SharedPreferences sharedPref = this.getSharedPreferences("appSettings", Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPref.edit();
+        SharedPreferences.Editor editor = sharedPref.edit();
         isPrivateAlbumEnabled = sharedPref.getBoolean("isPrivateAlbumEnabled", false);
         ActivityResultLauncher<Intent> myActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -61,6 +64,16 @@ public class SettingsActivity extends AppCompatActivity {
 
         findViewById(R.id.backButton).setOnClickListener((l) -> {
             finish();
+        });
+
+        ((Button) findViewById(R.id.changeAppTheme)).setOnClickListener((l) -> {
+            int currentTheme = sharedPref.getInt("theme", 0);
+            if (currentTheme == 0){
+                ThemeManager.switchToTheme(this, 1);
+            }
+            else if (currentTheme == 1){
+                ThemeManager.switchToTheme(this, 0);
+            }
         });
 
     }

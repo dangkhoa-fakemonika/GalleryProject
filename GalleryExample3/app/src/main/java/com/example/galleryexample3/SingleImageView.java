@@ -1,27 +1,16 @@
 package com.example.galleryexample3;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.net.ConnectivityManager;
-import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
 import android.net.Uri;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiNetworkSpecifier;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -30,14 +19,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,18 +41,14 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.businessclasses.ImageWallpaperManager;
-import com.example.galleryexample3.businessclasses.PrivateAlbum;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
-import com.example.galleryexample3.imageediting.BarCodeScannerClass;
 import com.example.galleryexample3.imageediting.EditView;
 import com.example.galleryexample3.imageediting.ImageClipboard;
 import com.example.galleryexample3.imageediting.PaintingActivity;
-import com.example.galleryexample3.imageediting.TagAnalyzerClass;
-import com.example.galleryexample3.imageediting.TextRecognitionClass;
 import com.example.galleryexample3.userinterface.SwipeImageAdapter;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -76,7 +62,6 @@ import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.io.File;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -101,6 +86,8 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
     private String matchName;
     private String albumName;
     private String tagName;
+    private SwipeImageAdapter swipeImageAdapter;
+    private TextView dateAddedText;
     public class MediaStoreObserver extends ContentObserver {
         public MediaStoreObserver(Handler handler) {
             super(handler);
@@ -114,21 +101,50 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
                 alertDialog.dismiss();
             }
 
-            imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
-            SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
-            viewPager.setAdapter(swipeImageAdapter);
+            if (matchName != null){
+                imagesList = ImageGalleryProcessing.getImagesByName(getApplicationContext(), matchName, "DATE_ADDED", " DESC");
+                Log.v("matchName", matchName);
+            } else if (albumName != null) {
+                imagesList = databaseHandler.albums().getImagesOfAlbum(albumName);
+                Log.v("albumName", albumName);
+            } else if (tagName != null) {
+//            Currently has no Tag retrieve Logic
+                imagesList = databaseHandler.tags().getImagesOfTag(tagName);
+            } else {
+                imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
+            }
+
+            swipeImageAdapter.updateDataList(imagesList);
             if (!imagesList.contains(imageURI)) {
                 position = Math.min(imagesList.size() - 1, Math.max(0, position - 1));
                 viewPager.setCurrentItem(position, true);
+                imageURI = imagesList.get(position);
+                dateAdded = ImageGalleryProcessing.getImageDateAdded(context, imageURI);
+                dateAddedText.setText(dateAdded);
             } else {
                 position = imagesList.indexOf(imageURI);
                 viewPager.setCurrentItem(position, false);
+            }
+            SingleImageView.this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
+            if (!osv) {
+                Handler handler = new Handler();
+                mediaStoreObserver = new MediaStoreObserver(handler);
+                ContentResolver contentResolver = SingleImageView.this.getContentResolver();
+                if (matchName != null || albumName != null || tagName != null)
+                    for (String imageUri : imagesList) {
+                        contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(SingleImageView.this ,imageUri), true, mediaStoreObserver);
+                    }
+                else
+                    contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
+                osv = true;
             }
         }
     }
     @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.single_image_view);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.screenLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -142,7 +158,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
 
         RelativeLayout utilityLayout = (RelativeLayout) findViewById(R.id.utilityLayout);
         ImageButton backButton = (ImageButton) findViewById(R.id.backButton);
-        TextView dateAddedText = (TextView) findViewById(R.id.dateAddedText);
+        dateAddedText = (TextView) findViewById(R.id.dateAddedText);
 
         ImageButton editModeButton = (ImageButton) findViewById(R.id.editModeButton);
         ImageButton drawModeButton = (ImageButton) findViewById(R.id.drawModeButton);
@@ -213,7 +229,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
         // Set up swiping between images
         Log.e("Received Position", String.valueOf(position) + " " + String.valueOf(imagesList.size()));
 
-        SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
+        swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
         Log.v("From adapter", String.valueOf(swipeImageAdapter.getItemCount()));
 
         viewPager.setAdapter(swipeImageAdapter);
@@ -225,6 +241,8 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
                 super.onPageSelected(pos);
                 imageURI = imagesList.get(pos);
                 position = pos;
+                dateAdded = ImageGalleryProcessing.getImageDateAdded(context, imageURI);
+                dateAddedText.setText(dateAdded);
             }
         });
 
@@ -251,7 +269,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
         });
 
         deleteButton.setOnClickListener((l) -> {
-            alertDialog = new AlertDialog.Builder(this)
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle("Delete Image?")
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
@@ -308,25 +326,36 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
         } else if (tagName != null) {
 //            Currently has no Tag retrieve Logic
             imagesList = databaseHandler.tags().getImagesOfTag(tagName);
-        }else {
+        } else {
             imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
         }
 
-        SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
-        viewPager.setAdapter(swipeImageAdapter);
+        swipeImageAdapter.updateDataList(imagesList);
         if (!imagesList.contains(imageURI)) {
             position = Math.min(imagesList.size() - 1, Math.max(0, position - 1));
             viewPager.setCurrentItem(position, true);
+            imageURI = imagesList.get(position);
+            dateAdded = ImageGalleryProcessing.getImageDateAdded(context, imageURI);
+            dateAddedText.setText(dateAdded);
         } else {
             position = imagesList.indexOf(imageURI);
             viewPager.setCurrentItem(position, false);
+        }
+        if (osv) {
+            this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
         }
 
         if (!osv) {
             Handler handler = new Handler();
             mediaStoreObserver = new MediaStoreObserver(handler);
             ContentResolver contentResolver = this.getContentResolver();
-            contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
+            if (matchName != null || albumName != null || tagName != null)
+                for (String imageUri : imagesList) {
+                    contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(this, imageUri), true, mediaStoreObserver);
+                }
+            else
+                contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
             osv = true;
         }
     }
@@ -355,7 +384,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
             TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
             TextInputEditText editText = dialogView.findViewById(R.id.editText);
             inputTextLayout.setHint("Enter Album Name");
-            alertDialog = new AlertDialog.Builder(this)
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle("Add Album")
                     .setView(dialogView)
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
@@ -383,11 +412,37 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
             alertDialog.show();
             return true;
         }
-        else if (id == R.id.addTag) {
-            //PrivateAlbum.addPrivateAlbum(this, imageURI);
-            //PrivateAlbum.getImage(this, "");
-            //PrivateAlbum.removeImage(this, "");
-            PrivateAlbum.testQuery(this, "");
+//        else if (id == R.id.addTag) {
+//            //PrivateAlbum.addPrivateAlbum(this, imageURI);
+//            //PrivateAlbum.getImage(this, "");
+//            //PrivateAlbum.removeImage(this, "");
+//            PrivateAlbum.testQuery(this, "");
+//            return true;
+//        }
+        else if (id == R.id.setAlbumThumbnail) {
+            View dialogView = LayoutInflater.from(SingleImageView.this).inflate(R.layout.spinner_dialog_layout, null);
+            Spinner spinner = dialogView.findViewById(R.id.spinnerDialog);
+            ArrayList<String> albumList = databaseHandler.albums().getAllAlbums();
+            spinner.setAdapter(new ArrayAdapter<>(context, R.layout.spinner_element, albumList.toArray()));
+            spinner.setSelection(0);
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Change Album Thumbnail")
+                    .setView(dialogView)
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            String albumName = spinner.getSelectedItem().toString();
+                            databaseHandler.albums().setAlbumThumbnail(albumName, imageURI);
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
             return true;
         }
         else if (id == R.id.analyzeText) {
@@ -492,27 +547,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
                                                     public void onClick(DialogInterface dialogInterface, int i) {
                                                         dialogInterface.dismiss();
                                                     }
-                                                }).setNeutralButton("Connect", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                                        if (context.checkSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED ||
-                                                                context.checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED ||
-                                                                context.checkSelfPermission(Manifest.permission.CHANGE_WIFI_STATE) != PackageManager.PERMISSION_GRANTED ||
-                                                                context.checkSelfPermission(Manifest.permission.CHANGE_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
-                                                        ) {
-                                                            ((Activity) context).requestPermissions(new String[]{Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CHANGE_NETWORK_STATE}, 101);
-                                                        }
-
-                                                        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                                                        boolean isConnectable = wifiManager.isEasyConnectSupported();
-                                                        if (isConnectable && wifiManager.isWifiEnabled()){
-                                                            WifiNetworkSpecifier wifiNetworkSpecifier = new WifiNetworkSpecifier.Builder().setSsid(ssid).setWpa2Passphrase(password).build();
-                                                            NetworkRequest networkRequest = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).setNetworkSpecifier(wifiNetworkSpecifier).build();
-
-                                                        }
-                                                    }
-                                                })
-                                                .create();
+                                                }).create();
                                         alertDialogWifi.show();
                                         break;
 

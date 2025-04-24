@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/screenLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="?primaryColor"
     android:paddingHorizontal="12dp">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/imageViewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </androidx.viewpager2.widget.ViewPager2>
+        android:layout_height="match_parent"></androidx.viewpager2.widget.ViewPager2>
 
     <RelativeLayout
         android:id="@+id/utilityLayout"
@@ -23,14 +23,15 @@
             android:layout_height="wrap_content"
             android:minHeight="50dp"
             android:layout_alignParentTop="true"
-            android:background="@color/black">
+            android:background="?primaryColor">
 
             <ImageButton
                 android:id="@+id/backButton"
                 android:src="@drawable/arrow_back_24dp"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"/>
+                android:background="@android:color/transparent"
+                app:tint="?tintIconColor" />
 
             <TextView
                 android:id="@+id/dateAddedText"
@@ -40,7 +41,7 @@
                 android:layout_gravity="center"
                 android:text="Date Added"
                 android:textSize="16sp"
-                android:textColor="@color/white"
+                android:textColor="?textColor"
                 android:textAlignment="center" />
             
             <Space
@@ -55,7 +56,7 @@
             android:layout_height="wrap_content"
             android:minHeight="40dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/black">
+            android:background="?primaryColor">
 
             <Space
                 android:layout_width="0dp"
@@ -63,6 +64,7 @@
                 android:layout_weight="0.25"/>
             
             <ImageButton
+                app:tint="?tintIconColor"
                 android:id="@+id/editModeButton"
                 android:src="@drawable/tune_24dp"
                 android:layout_width="0dp"
@@ -71,6 +73,7 @@
                 android:background="@android:color/transparent"/>
 
             <ImageButton
+                app:tint="?tintIconColor"
                 android:id="@+id/drawModeButton"
                 android:src="@drawable/edit_24dp"
                 android:layout_width="0dp"
@@ -79,6 +82,7 @@
                 android:background="@android:color/transparent"/>
             
             <ImageButton
+                app:tint="?tintIconColor"
                 android:id="@+id/deleteButton"
                 android:src="@drawable/delete_24dp"
                 android:layout_width="0dp"
@@ -87,6 +91,7 @@
                 android:background="@android:color/transparent"/>
 
             <ImageButton
+                app:tint="?tintIconColor"
                 android:id="@+id/shareButton"
                 android:src="@drawable/share_24px"
                 android:layout_width="0dp"
@@ -95,6 +100,7 @@
                 android:background="@android:color/transparent"/>
 
             <ImageButton
+                app:tint="?tintIconColor"
                 android:id="@+id/moreOptionButton"
                 android:src="@drawable/more_vert_24dp"
                 android:layout_width="0dp"

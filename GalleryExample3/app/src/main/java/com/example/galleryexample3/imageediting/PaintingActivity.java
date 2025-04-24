@@ -6,7 +6,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,19 +22,13 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,13 +36,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.galleryexample3.MainActivity;
+import com.example.galleryexample3.MainActivityNew;
 import com.example.galleryexample3.R;
-import com.example.galleryexample3.SingleImageView;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
+import com.example.galleryexample3.userinterface.ThemeManager;
 
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class PaintingActivity extends AppCompatActivity {
@@ -82,7 +72,7 @@ public class PaintingActivity extends AppCompatActivity {
                     .setCancelable(false)
                     .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(PaintingActivity.this, MainActivity.class);
+                            Intent intent = new Intent(PaintingActivity.this, MainActivityNew.class);
                             startActivity(intent);
                         }
                     });
@@ -94,6 +84,7 @@ public class PaintingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         EdgeToEdge.enable(this);
         setContentView(R.layout.paint_activity);
 

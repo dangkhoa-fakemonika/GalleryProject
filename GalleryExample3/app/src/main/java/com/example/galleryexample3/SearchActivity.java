@@ -2,16 +2,10 @@ package com.example.galleryexample3;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -21,9 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,6 +22,7 @@ import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.example.galleryexample3.userinterface.SearchItemListAdapter;
+import com.example.galleryexample3.userinterface.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +41,7 @@ public class SearchActivity extends AppCompatActivity implements MenuProvider {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 //      View bindings
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.search_image_album_view);
         databaseHandler = DatabaseHandler.getInstance(getApplicationContext());
         searchedItemLayout = (RecyclerView) findViewById(R.id.searchRecyclerView);
@@ -178,6 +171,23 @@ public class SearchActivity extends AppCompatActivity implements MenuProvider {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (searchText != null)
+            matchItems = getMatchItems(searchText);
+        if(! matchItems.isEmpty()){
+//            searchFragmentAdapter = new SearchItemListAdapter(SearchActivity.this, new ArrayList<>(matchItems));
+//            searchedItemLayout.setAdapter(searchFragmentAdapter);
+            searchFragmentAdapter.updateDataList(new ArrayList<>(matchItems));
+            searchedItemLayout.setVisibility(RecyclerView.VISIBLE);
+            noResultTextView.setVisibility(TextView.GONE);
+        }else {
+            searchedItemLayout.setVisibility(RecyclerView.GONE);
+            noResultTextView.setVisibility(TextView.VISIBLE);
+        }
+    }
 
     @Override
     public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {

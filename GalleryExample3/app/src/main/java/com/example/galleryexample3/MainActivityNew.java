@@ -1,8 +1,6 @@
 package com.example.galleryexample3;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -11,14 +9,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,9 +32,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
 import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -66,7 +60,7 @@ public class MainActivityNew extends AppCompatActivity{
         if (requestCode == REQUEST_MANAGE_EXTERNAL_STORAGE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (!Environment.isExternalStorageManager()) {
-                    Toast.makeText(this, "Ứng dụng cần cấp quyền để hoạt động bình thường.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "App require permissions to function.", Toast.LENGTH_SHORT).show();
                     finishAffinity();
                 }
             }
@@ -80,7 +74,7 @@ public class MainActivityNew extends AppCompatActivity{
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //
             } else {
-                Toast.makeText(this, "Ứng dụng cần cấp quyền để hoạt động bình thường.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "App require permissions to function.", Toast.LENGTH_SHORT).show();
                 finishAffinity();
             }
         }
@@ -90,7 +84,9 @@ public class MainActivityNew extends AppCompatActivity{
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 //        DrawerLayout drawerLayout = findViewById(R.id.drawer_nav_view);
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.activity_main_new);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
@@ -176,11 +172,13 @@ public class MainActivityNew extends AppCompatActivity{
                     getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, galleryFragment).commit();
                     cameraFAB.show();
                     addAlbumFAB.hide();
+                    bottomNavView.getMenu().getItem(0).setChecked(true);
                 }
                 else{
                     getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, albumOverviewFragment).commit();
                     addAlbumFAB.show();
                     cameraFAB.hide();
+                    bottomNavView.getMenu().getItem(1).setChecked(true);
                 }
 
                 return false;
@@ -207,8 +205,9 @@ public class MainActivityNew extends AppCompatActivity{
                 else if (item.getItemId() == R.id.navPrivateAlbum){
                     intent = new Intent(MainActivityNew.this, PrivateVaultLockScreen.class);
                 }
-                else
+                else{
                     intent = new Intent(MainActivityNew.this, MainActivityNew.class);
+                }
 
                 drawerLayout.closeDrawer(GravityCompat.START);
                 if (item.getItemId() == R.id.navPrivateAlbum){

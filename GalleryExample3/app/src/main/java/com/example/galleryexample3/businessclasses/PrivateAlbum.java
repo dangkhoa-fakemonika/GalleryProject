@@ -49,7 +49,7 @@ public class PrivateAlbum {
             file = new File(pvFile, fileName + " (" + cnt + ")" + fileExtension);
             cnt++;
         }
-        try (DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
+        try {
             Path path1 = Paths.get(URI);
             Path path2 = file.toPath();
             BasicFileAttributes attributes = Files.readAttributes(path1, BasicFileAttributes.class);
@@ -57,17 +57,12 @@ public class PrivateAlbum {
             Files.setAttribute(path2, "basic:creationTime", attributes.creationTime());
             Files.setAttribute(path2, "basic:lastModifiedTime", attributes.lastModifiedTime());
             Files.setAttribute(path2, "basic:lastAccessTime", attributes.lastAccessTime());
+            DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context);
             databaseHandler.tags().deleteImage(URI);
             databaseHandler.albums().deleteImage(URI);
         } catch (IOException e) {
             return;
         }
-//        File[] files = new File(context.getFilesDir(), folderName + "/DCIM/Screenshots").listFiles();
-//        if (files != null) {
-//            for (File f : files) {
-//                Log.i("debug", f.getName() + " - " + (f.isDirectory() ? "Folder" : "File"));
-//            }
-//        }
     }
 
     public static boolean saveImage(Context context, Bitmap bitmap) {
@@ -184,22 +179,12 @@ public class PrivateAlbum {
     }
 
     public static void removeImage(Context context, String URI) {
-        File[] files = new File(context.getFilesDir(), folderName + "/DCIM/Screenshots").listFiles();
-        if (files != null) {
-            for (File f : files) {
-                if (!f.isDirectory()) {
-                    URI = f.getAbsolutePath();
-                }
-            }
-        }
         String[] partPath = URI.split("/");
         String fileName = partPath[partPath.length - 1];
         String fileExtension = fileName.substring(fileName.lastIndexOf('.'));
         fileName = fileName.substring(0, fileName.lastIndexOf('.'));
         partPath = Arrays.copyOfRange(partPath, 7, partPath.length - 1);
         String filePath = TextUtils.join("/", partPath);
-        Log.i("debug", context.getExternalFilesDir(null) + "");
-        Log.i("debug", filePath + "\n" + fileName + "\n" + fileExtension);
         File pvFile = new File("/storage/emulated/0/" + filePath);
         if (!pvFile.exists() || !pvFile.isDirectory()) {
             boolean r = pvFile.mkdirs();

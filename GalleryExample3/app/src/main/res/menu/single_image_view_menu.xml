@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/addAlbum"
         android:title="Add to album"/>
-    <item android:id="@+id/addTag"
-        android:title="Add tag"/>
     <item android:id="@+id/analyzeText"
         android:title="Extract text"/>
     <item android:id="@+id/qrread"
         android:title="Read QR" />
+    <item android:id="@+id/setAlbumThumbnail"
+        android:title="Set as Album Thumbnail"/>
     <item android:id="@+id/setWallpaper"
         android:title="Set Wallpaper"/>
     <item android:id="@+id/copyImageClipboard"

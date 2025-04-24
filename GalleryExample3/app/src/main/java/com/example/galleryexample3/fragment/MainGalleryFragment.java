@@ -1,30 +1,29 @@
 package com.example.galleryexample3.fragment;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
+import android.database.ContentObserver;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,7 +50,24 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
     private ArrayList<String> imagesList;
     boolean selectionEnabled = false;
     DatabaseHandler databaseHandler;
-    String sortType;
+    String[] sortType = {"DATE_ADDED", " ASC"};
+    GalleryImageGridAdapter galleryAdapter;
+
+    private MediaStoreObserver mediaStoreObserver;
+    private boolean osv = false;
+    public class MediaStoreObserver extends ContentObserver {
+        public MediaStoreObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            imagesList = ImageGalleryProcessing.getImages(requireContext(), sortType[0], sortType[1]);
+            galleryAdapter.updateDataList(imagesList);
+            gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+        }
+    }
 
     public MainGalleryFragment() { }
 
@@ -65,37 +81,17 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                              Bundle savedInstanceState) {
         // Set up data
         View view = inflater.inflate(R.layout.main_gallery_fragment, container, false);
-        Intent gotIntent = requireActivity().getIntent();
-        Bundle gotBundle = gotIntent.getExtras();
-        sortType = gotBundle == null ? "Date - Ascending" : gotBundle.getString("sortType", "Date - Ascending");
-        switch (Objects.requireNonNull(sortType)) {
-            case "Name - Ascending":
-                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " ASC");
-                break;
-            case "Name - Descending":
-                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " DESC");
-                break;
-            case "Date - Ascending":
-                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
-                break;
-            case "Date - Descending":
-                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " DESC");
-                break;
-            case "Size - Ascending":
-                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " ASC");
-                break;
-            case "Size - Descending":
-                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " DESC");
-                break;
-        }
+//        sortType = gotBundle == null ? "Date - Ascending" : gotBundle.getString("sortType", "Date - Ascending");
+
 
 //        imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
         databaseHandler = DatabaseHandler.getInstance(requireContext());
+        imagesList = ImageGalleryProcessing.getImages(requireContext(), sortType[0], sortType[1]);
 
         // RecyclerView
         gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
-        final GalleryImageGridAdapter[] galleryAdapter = {new GalleryImageGridAdapter(requireContext(), imagesList)};
-        gridRecyclerView.setAdapter(galleryAdapter[0]);
+        galleryAdapter = new GalleryImageGridAdapter(requireContext(), imagesList);
+        gridRecyclerView.setAdapter(galleryAdapter);
         gridRecyclerView.scrollToPosition(imagesList.size() - 1);
 
         Toolbar myToolbar = (Toolbar) requireActivity().findViewById(R.id.toolBar);
@@ -111,30 +107,36 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                         public boolean onMenuItemClick(MenuItem menuItem) {
                             int id = menuItem.getItemId();
                             if (id == R.id.name_asc){
-                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " ASC");
+                                sortType[0] = "DISPLAY_NAME";
+                                sortType[1] = " ASC";
                             }
                             if (id == R.id.name_desc){
-                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DISPLAY_NAME", " DESC");
+                                sortType[0] = "DISPLAY_NAME";
+                                sortType[1] = " DESC";
 
                             }
                             if (id == R.id.date_asc){
-                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " ASC");
+                                sortType[0] = "DATE_ADDED";
+                                sortType[1] = " ASC";
 
                             }
                             if (id == R.id.date_desc){
-                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "DATE_ADDED", " DESC");
+                                sortType[0] = "DATE_ADDED";
+                                sortType[1] = " DESC";
 
                             }
                             if (id == R.id.size_asc){
-                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " ASC");
+                                sortType[0] = "SIZE";
+                                sortType[1] = " ASC";
 
                             }
                             if (id == R.id.size_desc){
-                                imagesList = ImageGalleryProcessing.getImages(requireContext(), "SIZE", " DESC");
+                                sortType[0] = "SIZE";
+                                sortType[1] = " DESC";
 
                             }
-                            galleryAdapter[0] = new GalleryImageGridAdapter(requireContext(), imagesList);
-                            gridRecyclerView.setAdapter(galleryAdapter[0]);
+                            imagesList = ImageGalleryProcessing.getImages(requireContext(), sortType[0], sortType[1]);
+                            galleryAdapter.updateDataList(imagesList);
                             gridRecyclerView.scrollToPosition(imagesList.size() - 1);
                             return true;
                         }
@@ -156,7 +158,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
         // Set up on click events
         moreOptionButton.setOnClickListener(this::showMenu);
         deleteButton.setOnClickListener((l) -> {
-            if (galleryAdapter[0].getSelectedImagesCount() == 0){
+            if (galleryAdapter.getSelectedImagesCount() == 0){
                 Toast.makeText(requireContext(), "Select an image first", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -167,11 +169,9 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
-                            HashSet<Integer> positions = galleryAdapter[0].getSelectedPositions();
+                            HashSet<Integer> positions = galleryAdapter.getSelectedPositions();
                             positions.forEach((pos) -> {
                                 ImageGalleryProcessing.deleteImage(requireContext(), imagesList.get(pos));
-                                databaseHandler.tags().deleteImage(imagesList.get(pos));
-                                databaseHandler.albums().deleteImage(imagesList.get(pos));
                             });
                             Toast.makeText(requireContext(), "All images deleted.", Toast.LENGTH_LONG).show();
                             dialogInterface.dismiss();
@@ -188,7 +188,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
 
         cancelSelectionButton.setOnClickListener(v -> {
             selectionEnabled = false;
-            galleryAdapter[0].setSelectionMode(selectionEnabled);
+            galleryAdapter.setSelectionMode(selectionEnabled);
 
             optionBars.setVisibility(View.GONE);
             if (getActivity() instanceof MainActivityNew) {
@@ -202,8 +202,8 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 Context context = requireContext();
                 if (selectionEnabled) {
-                    galleryAdapter[0].toggleSelection(position);
-                    int selectedImagesCount = galleryAdapter[0].getSelectedImagesCount();
+                    galleryAdapter.toggleSelection(position);
+                    int selectedImagesCount = galleryAdapter.getSelectedImagesCount();
                     if (selectedImagesCount != 0)
                         selectionTextView.setText("Selected " + selectedImagesCount + " image" + (selectedImagesCount > 1 ? "s" : ""));
                     else
@@ -218,7 +218,6 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                     Log.e("uri", imageUri);
                     bundle.putString("dateAdded", dateAdded);
                     bundle.putInt("position", position);
-                    bundle.putString("sortType", sortType);
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }
@@ -231,8 +230,8 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             public boolean onItemLongClicked(RecyclerView recyclerView, int position, View v) {
                 if (!selectionEnabled) {
                     selectionEnabled = true;
-                    galleryAdapter[0].setSelectionMode(selectionEnabled);
-                    galleryAdapter[0].toggleSelection(position);
+                    galleryAdapter.setSelectionMode(selectionEnabled);
+                    galleryAdapter.toggleSelection(position);
                     selectionTextView.setText("Selected 1 image");
 
                     optionBars.setVisibility(View.VISIBLE);
@@ -363,5 +362,31 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        imagesList = ImageGalleryProcessing.getImages(requireContext(), sortType[0], sortType[1]);
+        galleryAdapter.updateDataList(imagesList);
+        gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+
+        if (!osv) {
+            Handler handler = new Handler();
+            mediaStoreObserver = new MediaStoreObserver(handler);
+
+            ContentResolver contentResolver = requireContext().getContentResolver();
+            contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
+            osv = true;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        requireContext().getContentResolver().unregisterContentObserver(mediaStoreObserver);
+        osv = false;
     }
 }
