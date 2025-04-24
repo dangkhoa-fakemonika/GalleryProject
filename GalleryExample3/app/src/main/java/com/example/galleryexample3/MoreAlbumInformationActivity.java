@@ -5,37 +5,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
-import com.example.galleryexample3.userinterface.TagListAdapter;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.label.ImageLabel;
-import com.google.mlkit.vision.label.ImageLabeler;
-import com.google.mlkit.vision.label.ImageLabeling;
-import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MoreAlbumInformationActivity extends Activity {
     public static String BUKEY_GROUP_TYPE = "groupType";
@@ -50,6 +31,7 @@ public class MoreAlbumInformationActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.album_more_information_activity);
 
         TextView titleTextView = findViewById(R.id.titleTextView);
@@ -58,7 +40,6 @@ public class MoreAlbumInformationActivity extends Activity {
         ImageButton backButton = findViewById(R.id.backButton);
         Button deleteAlbum = findViewById(R.id.deleteAlbum);
         Button renameAlbum = findViewById(R.id.renameAlbum);
-        Button changeThumbnail = findViewById(R.id.changeAlbumThumbnail);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -129,10 +110,6 @@ public class MoreAlbumInformationActivity extends Activity {
                         }
                     }).create();
             alertDialog.show();
-        });
-
-        changeThumbnail.setOnClickListener((l) -> {
-
         });
 
     }

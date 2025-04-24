@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?primaryColor">
     <ImageView
         android:id="@+id/editingImageView"
         android:layout_alignParentTop="true"
@@ -22,6 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:labelFor="@+id/newWidthInput"
+                android:textColor="?textColor"
                 android:text="W:"/>
             <EditText
                 style="@style/Widget.Design.TextInputLayout"
@@ -29,6 +31,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:autofillHints="New Width"
+                android:textColor="?textColor"
                 android:inputType="number" />
         </LinearLayout>
         <LinearLayout
@@ -38,6 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:labelFor="@+id/newHeigthInput"
+                android:textColor="?textColor"
                 android:text="H:"/>
             <EditText
                 style="@style/Widget.Design.TextInputLayout"
@@ -45,18 +49,23 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:autofillHints="New Width"
+                android:textColor="?textColor"
                 android:inputType="number" />
         </LinearLayout>
         <Button
             android:id="@+id/resizeApplyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="?textColor"
+            android:background="?primaryColor"
             android:text="Apply">
         </Button>
         <Button
             android:id="@+id/resizeResetButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="?textColor"
+            android:background="?primaryColor"
             android:text="Reset">
         </Button>
     </LinearLayout>

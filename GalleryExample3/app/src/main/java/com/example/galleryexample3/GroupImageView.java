@@ -1,10 +1,8 @@
 package com.example.galleryexample3;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,7 +32,7 @@ import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.example.galleryexample3.userinterface.SearchItemListAdapter;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -58,6 +56,7 @@ public class GroupImageView extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.group_image_view);
 
         Context context = this;

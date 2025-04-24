@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="?primaryColor">
    <androidx.appcompat.widget.Toolbar
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:background="@color/color_primary"
-       style="@style/Widget.AppCompat.SearchView"
+       android:background="?primaryColor"
        android:id="@+id/searchToolBar" />
    <androidx.recyclerview.widget.RecyclerView
        android:layout_width="match_parent"
@@ -23,6 +23,7 @@
        android:gravity="center"
        android:textSize="40dp"
        android:text="No matchings item"
+       android:textColor="?textColor"
        android:layout_below="@+id/searchToolBar"
        android:id="@+id/noResultRecyclerView"
        tools:listitem="@layout/search_list_item">

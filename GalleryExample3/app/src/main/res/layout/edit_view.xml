@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black">
+    android:background="?primaryColor">
 
     <LinearLayout
         android:id="@+id/topBar"
@@ -17,6 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            android:textColor="?textColor"
             android:text="Cancel" />
 
         <TextView
@@ -27,7 +28,7 @@
             android:layout_weight="1"
             android:text="Adjustment"
             android:textAlignment="center"
-            android:textColor="@color/white"
+            android:textColor="?textColor"
             android:textSize="16sp"/>
 
         <Button
@@ -36,7 +37,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:text="Save"
-            android:textColor="#F0A01E"/>
+            android:textColor="?textColor"/>
 
     </LinearLayout>
 
@@ -76,7 +77,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/undo_24dp"
-            android:background="@android:color/transparent"/>
+            android:background="@android:color/transparent"
+            app:tint="?tintIconColor" />
 
         <ImageButton
             android:id="@+id/redoButton"
@@ -84,6 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/redo_24dp"
+            app:tint="?tintIconColor"
             android:background="@android:color/transparent"/>
 
         <Space
@@ -97,6 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/reset_24dp"
+            app:tint="?tintIconColor"
             android:background="@android:color/transparent"/>
 
     </LinearLayout>
@@ -116,6 +120,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/rotate_left_24dp"
+            app:tint="?tintIconColor"
             android:background="@android:color/transparent"/>
 
         <ImageButton
@@ -124,6 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/rotate_right_24dp"
+            app:tint="?tintIconColor"
             android:background="@android:color/transparent"/>
 
         <Space
@@ -137,6 +143,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/flip_24dp"
+            app:tint="?tintIconColor"
             android:background="@android:color/transparent"/>
 
     </LinearLayout>
@@ -152,7 +159,7 @@
         android:paddingHorizontal="4sp"
         android:paddingVertical="2sp"
         android:text="Brightness"
-        android:textColor="#FFFFFF"/>
+        android:textColor="?textColor"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/adjustmentOption"
@@ -203,7 +210,7 @@
                 android:background="@android:color/transparent"
                 android:minWidth="100dp"
                 android:text="Adjustment"
-                android:textColor="#FFFFFF"/>
+                android:textColor="?textColor"/>
 
             <Button
                 android:id="@+id/filterButton"
@@ -213,7 +220,7 @@
                 android:background="@android:color/transparent"
                 android:minWidth="100dp"
                 android:text="Filter"
-                android:textColor="#323232"/>
+                android:textColor="?mediumTextColor"/>
 
             <Button
                 android:id="@+id/transformButton"
@@ -223,7 +230,7 @@
                 android:background="@android:color/transparent"
                 android:minWidth="100dp"
                 android:text="Transform"
-                android:textColor="#323232"/>
+                android:textColor="?mediumTextColor"/>
 
         </LinearLayout>
 

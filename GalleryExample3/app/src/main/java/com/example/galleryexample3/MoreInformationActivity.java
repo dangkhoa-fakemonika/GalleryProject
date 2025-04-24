@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,15 +18,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.TagListAdapter;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.mlkit.vision.common.InputImage;
@@ -47,6 +45,7 @@ public class MoreInformationActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.more_information_activity);
 
         TextView titleTextView = findViewById(R.id.titleTextView);

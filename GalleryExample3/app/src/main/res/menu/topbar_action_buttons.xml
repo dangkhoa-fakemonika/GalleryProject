@@ -5,6 +5,7 @@
         android:id="@+id/filterButton"
         android:icon="@drawable/filter_list_24px"
         app:showAsAction="ifRoom"
-        android:title="Filter Button"/>
+        android:title="Filter Button"
+        android:iconTint="?tintIconColor"/>
 
 </menu>
