@@ -61,6 +61,9 @@ public class TagGridAdapter extends RecyclerView.Adapter<TagGridAdapter.TagGridV
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             databaseHandler.tags().deleteTag(tagList.get(pos));
+                            Toast.makeText(context, "Deleted tag " + tagName, Toast.LENGTH_LONG).show();
+                            tagList = databaseHandler.tags().getAllTags();
+                            notifyDataSetChanged();
                             dialogInterface.dismiss();
                         }
                     })
