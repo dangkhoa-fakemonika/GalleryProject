@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/mainDrawerLayout"
-    android:background="@color/black"
+    android:background="?primaryColor"
     tools:openDrawer="start">
 
     <RelativeLayout
@@ -20,9 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:elevation="4dp"
-            android:background="@color/black"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+            android:background="?primaryColor"
+            app:titleTextColor="?textColor"/>
     
     <!--    <com.google.android.material.appbar.AppBarLayout-->
     <!--        android:id="@+id/appBarLayout"-->
@@ -42,34 +41,39 @@
             android:layout_marginBottom="0dp">
     
         </FrameLayout>
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_camera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/photo_camera_24dp"
-            android:contentDescription="Add new camera"
-            android:layout_above="@+id/bottomNavigationBar"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="16dp"
-            />
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_new_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/library_add_24px"
-            android:contentDescription="Create new album"
-            android:layout_above="@+id/bottomNavigationBar"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="16dp"
-            />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:src="@drawable/photo_camera_24dp"
+                android:background="?secondaryColor"
+                android:tint="?altTintIconColor"
+                android:contentDescription="Add new camera"
+                android:layout_above="@+id/bottomNavigationBar"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="16dp"
+                />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_new_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:src="@drawable/library_add_24px"
+                android:contentDescription="Create new album"
+                android:layout_above="@+id/bottomNavigationBar"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="16dp"
+                />
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:itemActiveIndicatorStyle="@android:color/transparent"
+            android:background="?primaryColor"
+            app:itemIconTint="?tintIconColor"
+            app:itemTextColor="?textColor"
             app:menu="@menu/main_bottom_nav">
     
         </com.google.android.material.bottomnavigation.BottomNavigationView>
@@ -80,10 +84,11 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/drawer_nav_view"
-        android:background="@color/black"
-        app:itemTextColor="@color/white"
+        android:background="?primaryColor"
+        app:itemTextColor="?textColor"
+        app:itemShapeFillColor="@android:color/transparent"
         app:menu="@menu/main_navigation_menu"
-        app:itemIconTint="@color/white"
+        app:itemIconTint="?tintIconColor"
         android:layout_gravity="start"
         />
 

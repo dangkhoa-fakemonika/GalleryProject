@@ -46,6 +46,7 @@ import com.example.galleryexample3.dataclasses.FilterPreview;
 import com.example.galleryexample3.userinterface.AdjustmenOptionAdapter;
 import com.example.galleryexample3.userinterface.FilterPreviewAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
+import com.example.galleryexample3.userinterface.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -100,6 +101,7 @@ public class EditView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.edit_view);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="96dp"
     android:layout_gravity="center_horizontal"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="?primaryColor">
 
     <ImageView
         android:id="@+id/itemImage"
@@ -14,6 +15,7 @@
         android:minWidth="48dp"
         android:scaleType="centerCrop"
         android:background="@drawable/photo_camera_24dp"
+        android:backgroundTint="?tintIconColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -33,11 +35,13 @@
             android:textFontWeight="900"
             android:textSize="20sp"
             android:text="Matche name"
+            android:textColor="?textColor"
             android:id="@+id/matchName"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Match Type"
+            android:textColor="?textColor"
             android:id="@+id/matchType"/>
     </LinearLayout>
     <TextView
@@ -46,6 +50,7 @@
         android:textSize="24sp"
         android:id="@+id/matchCount"
         android:text="Counts"
+        android:textColor="?textColor"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

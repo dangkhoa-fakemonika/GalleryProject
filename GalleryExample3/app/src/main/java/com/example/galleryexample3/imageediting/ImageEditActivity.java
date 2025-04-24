@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.example.galleryexample3.userinterface.ThemeManager;
 
 
 public class ImageEditActivity extends Activity {
@@ -27,6 +28,7 @@ public class ImageEditActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.single_image_edit);
 
         imageView = (ImageView) findViewById(R.id.imageView);

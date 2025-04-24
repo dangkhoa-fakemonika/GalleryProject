@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -18,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.TagGridAdapter;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ public class TagManagementActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.tag_management_activity);
 
         RecyclerView tagGridView = (RecyclerView) findViewById(R.id.tagGrid);

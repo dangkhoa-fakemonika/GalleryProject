@@ -1,13 +1,10 @@
 package com.example.galleryexample3.imageediting;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,12 +16,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.bumptech.glide.Glide;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.fragment.DimensionEditResizeFragment;
 import com.example.galleryexample3.fragment.DimensionEditRotateFragment;
+import com.example.galleryexample3.userinterface.ThemeManager;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -45,6 +41,7 @@ public class DimensionEditActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeManager.setTheme(this);
         setContentView(R.layout.dimension_edit_view);
         myFragmentManager = getSupportFragmentManager();
         rotateButton = (Button) findViewById(R.id.rotateButton);
