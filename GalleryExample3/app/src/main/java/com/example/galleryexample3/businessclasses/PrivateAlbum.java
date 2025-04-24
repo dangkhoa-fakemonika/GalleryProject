@@ -48,7 +48,7 @@ public class PrivateAlbum {
             file = new File(pvFile, fileName + " (" + cnt + ")" + fileExtension);
             cnt++;
         }
-        try (DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
+        try {
             Path path1 = Paths.get(URI);
             Path path2 = file.toPath();
             BasicFileAttributes attributes = Files.readAttributes(path1, BasicFileAttributes.class);
@@ -56,6 +56,7 @@ public class PrivateAlbum {
             Files.setAttribute(path2, "basic:creationTime", attributes.creationTime());
             Files.setAttribute(path2, "basic:lastModifiedTime", attributes.lastModifiedTime());
             Files.setAttribute(path2, "basic:lastAccessTime", attributes.lastAccessTime());
+            DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context);
             databaseHandler.tags().deleteImage(URI);
             databaseHandler.albums().deleteImage(URI);
         } catch (IOException e) {

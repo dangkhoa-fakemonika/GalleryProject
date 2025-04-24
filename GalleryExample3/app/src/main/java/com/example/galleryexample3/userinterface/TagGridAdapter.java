@@ -34,6 +34,11 @@ public class TagGridAdapter extends RecyclerView.Adapter<TagGridAdapter.TagGridV
         return tagList.get(position);
     }
 
+    public void updateDataList(ArrayList<String> tagList){
+        this.tagList = tagList;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public TagGridViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

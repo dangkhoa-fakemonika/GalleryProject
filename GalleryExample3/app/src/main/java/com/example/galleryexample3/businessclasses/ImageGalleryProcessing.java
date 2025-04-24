@@ -75,10 +75,9 @@ public class ImageGalleryProcessing {
 
     public static boolean deleteImage(Context context, String URI) {
         int res = context.getContentResolver().delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA + " = ?", new String[]{URI});
-        try (DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
-            databaseHandler.tags().deleteImage(URI);
-            databaseHandler.albums().deleteImage(URI);
-        }
+        DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context);
+        databaseHandler.tags().deleteImage(URI);
+        databaseHandler.albums().deleteImage(URI);
         return (res > 0);
     }
 
@@ -291,12 +290,12 @@ public class ImageGalleryProcessing {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
         //values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        try(Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {URI}, null);
-            DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
+        try(Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.Media.DATA + " = ?", new String[] {URI}, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 String oldName = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
                 Uri uri2 = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
                 int row = context.getContentResolver().update(uri2, values, null, null);
+                DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context);
                 databaseHandler.albums().changeImageName(oldName, newName);
                 databaseHandler.tags().changeImageName(oldName, newName);
                 return row > 0;

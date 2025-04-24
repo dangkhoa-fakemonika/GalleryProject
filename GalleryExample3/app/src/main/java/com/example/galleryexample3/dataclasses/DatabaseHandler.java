@@ -395,7 +395,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         public void createNewTag(String tagName){
             if (!checkTagExisted(tagName)){
-                createNewTag(tagName);
+                return;
             }
             ContentValues values = new ContentValues();
             values.put(TagsInfoTable.COL_NAME, tagName);
@@ -403,19 +403,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public boolean checkTagExisted(String tagName){
-            Cursor cur = sqLiteDatabase.query(TagsInfoTable.TABLE_NAME, new String[] {TagsInfoTable.COL_NAME}, TagsTable.COL_NAME + " =?", new String[]{tagName}, null, null, null, null);
-            int count = cur.getCount();
-            cur.close();
-            return count != 0;
+            try (Cursor cur = sqLiteDatabase.query(TagsInfoTable.TABLE_NAME, new String[] {TagsInfoTable.COL_NAME}, TagsTable.COL_NAME + " =?", new String[]{tagName}, null, null, null, null)) {
+                int count = cur.getCount();
+                return count != 0;
+            }
         }
 
         public void addTagsToImage(String tagName, String imageURI){
+            try (Cursor cursor = sqLiteDatabase.query(TagsTable.TABLE_NAME, new String[] {TagsTable.COL_NAME}, TagsTable.COL_NAME + " =? AND " + AlbumsTable.COL_IMAGE_URI + " =?", new String[]{tagName, imageURI}, null, null, null)) {
+                if (cursor.getCount() > 0) return;
+            }
             createNewTag(tagName);
-
             ContentValues values = new ContentValues();
             values.put(TagsTable.COL_NAME, tagName);
             values.put(TagsTable.COL_IMAGE_URI, imageURI);
-            long a = sqLiteDatabase.insert(TagsTable.TABLE_NAME, null, values);
+            sqLiteDatabase.insert(TagsTable.TABLE_NAME, null, values);
         }
 
         public void deleteTag(String tagName){
@@ -428,43 +430,48 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public ArrayList<String> getAllTags(){
-            Cursor cur = sqLiteDatabase.query(TagsInfoTable.TABLE_NAME, new String[] {TagsInfoTable.COL_NAME}, null, null, null, null, null, null);
-            ArrayList<String> result = new ArrayList<>();
+            try (Cursor cur = sqLiteDatabase.query(TagsInfoTable.TABLE_NAME, new String[] {TagsInfoTable.COL_NAME}, null, null, null, null, null, null)) {
+                ArrayList<String> result = new ArrayList<>();
 
-            if (cur.getCount() == 0)
+                if (cur.getCount() == 0)
+                    return result;
+
+                cur.moveToFirst();
+                do {
+                    int uriCol = cur.getColumnIndex(TagsInfoTable.COL_NAME);
+                    String uri = null;
+                    if (uriCol != -1) {
+                        uri = cur.getString(uriCol);
+                        result.add(uri);
+                    } else {
+                        deleteImage(uri);
+                        return getAllTags();
+                    }
+                } while (cur.moveToNext());
+
                 return result;
-
-            cur.moveToFirst();
-            do {
-                int uriCol = cur.getColumnIndex(TagsInfoTable.COL_NAME);
-                String uri = null;
-                if (uriCol != -1)
-                    uri = cur.getString(uriCol);
-                result.add(uri);
-            } while (cur.moveToNext());
-
-            cur.close();
-            return result;
+            }
         }
 
         public ArrayList<String> getTagsOfImage(String imageURI){
-            Cursor cur = sqLiteDatabase.query(TagsTable.TABLE_NAME, new String[] {TagsTable.COL_NAME}, TagsTable.COL_IMAGE_URI + " =?", new String[]{imageURI}, null, null, null);
-            ArrayList<String> result = new ArrayList<>();
+            try (Cursor cur = sqLiteDatabase.query(TagsTable.TABLE_NAME, new String[] {TagsTable.COL_NAME}, TagsTable.COL_IMAGE_URI + " =?", new String[]{imageURI}, null, null, null)) {
+                ArrayList<String> result = new ArrayList<>();
 
-            if (cur.getCount() == 0)
+                if (cur.getCount() == 0) {
+                    return result;
+                }
+                cur.moveToFirst();
+                do {
+                    int uriCol = cur.getColumnIndex(TagsTable.COL_NAME);
+                    String uri = null;
+                    if (uriCol != -1)
+                        uri = cur.getString(uriCol);
+                    result.add(uri);
+                } while (cur.moveToNext());
+
+                cur.close();
                 return result;
-
-            cur.moveToFirst();
-            do {
-                int uriCol = cur.getColumnIndex(TagsTable.COL_NAME);
-                String uri = null;
-                if (uriCol != -1)
-                    uri = cur.getString(uriCol);
-                result.add(uri);
-            } while (cur.moveToNext());
-
-            cur.close();
-            return result;
+            }
         }
         public ArrayList<SearchItemListAdapter.MatchItem> getMatchTagsItem(String name){
             ArrayList<SearchItemListAdapter.MatchItem> l = new ArrayList<>();
@@ -487,7 +494,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         String matchName = cursor.getString(columnName);
                         String albumsTotals = String.valueOf(cursor.getLong(countIndex));
                         String uri = cursor.getString(thumbnailUri);
-                        l.add(new SearchItemListAdapter.MatchItem(matchName, albumsTotals, uri, matchType));
+                        if (new File(uri).exists()) {
+                            l.add(new SearchItemListAdapter.MatchItem(matchName, albumsTotals, uri, matchType));
+                        } else {
+                            deleteImage(uri);
+                            return getMatchTagsItem(name);
+                        }
                     } while (cursor.moveToNext());
                 }
             }catch (Exception e){
@@ -496,24 +508,30 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return l;
         }
         public ArrayList<String> getImagesOfTag(String tagName){
-            Cursor cur = sqLiteDatabase.query(TagsTable.TABLE_NAME, new String[] {TagsTable.COL_IMAGE_URI}, TagsTable.COL_NAME + " =?", new String[]{tagName}, null, null, null);
-            ArrayList<String> result = new ArrayList<>();
+            try (Cursor cur = sqLiteDatabase.query(TagsTable.TABLE_NAME, new String[] {TagsTable.COL_IMAGE_URI}, TagsTable.COL_NAME + " =?", new String[]{tagName}, null, null, null)) {
+                ArrayList<String> result = new ArrayList<>();
 
-            if (cur.getCount() == 0)
+                if (cur.getCount() == 0)
+                    return result;
+
+                cur.moveToFirst();
+
+                do {
+                    int uriCol = cur.getColumnIndex(TagsTable.COL_IMAGE_URI);
+                    String uri = null;
+                    if (uriCol != -1) {
+                        uri = cur.getString(uriCol);
+                        if (new File(uri).exists()) {
+                            result.add(uri);
+                        } else {
+                            deleteImage(uri);
+                            return getImagesOfTag(tagName);
+                        }
+                    }
+                } while (cur.moveToNext());
+
                 return result;
-
-            cur.moveToFirst();
-
-            do {
-                int uriCol = cur.getColumnIndex(TagsTable.COL_IMAGE_URI);
-                String uri = null;
-                if (uriCol != -1)
-                    uri = cur.getString(uriCol);
-                result.add(uri);
-            } while (cur.moveToNext());
-
-            cur.close();
-            return result;
+            }
         }
 
         public void deleteImage(String imageURI) {

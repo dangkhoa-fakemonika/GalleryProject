@@ -3,6 +3,7 @@ package com.example.galleryexample3.userinterface;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,11 @@ public class TagListAdapter extends RecyclerView.Adapter<TagListAdapter.ViewHold
         this.imageUri = imageUri;
         databaseHandler = DatabaseHandler.getInstance(context);
         this.context = context;
+    }
+
+    public void updateDataList(ArrayList<String> localDataSet){
+        this.localDataSet = localDataSet;
+        notifyDataSetChanged();
     }
 
     // Create new views (invoked by the layout manager)

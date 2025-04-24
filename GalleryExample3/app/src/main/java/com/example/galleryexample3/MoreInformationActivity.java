@@ -41,6 +41,7 @@ public class MoreInformationActivity extends Activity {
     private String imageURI;
     private DatabaseHandler databaseHandler;
     Context context;
+    TagListAdapter tagListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +73,7 @@ public class MoreInformationActivity extends Activity {
         sizeTextView.setText(ImageGalleryProcessing.getSize(this, imageURI));
         locationTextView.setText(imageURI.startsWith("/storage/") ? imageURI.substring(20) : imageURI.substring(45));
 
-        TagListAdapter tagListAdapter = new TagListAdapter(this, databaseHandler.tags().getTagsOfImage(imageURI), imageURI);
-
+        tagListAdapter = new TagListAdapter(this, databaseHandler.tags().getTagsOfImage(imageURI), imageURI);
         RecyclerView tagRecyclerView = findViewById(R.id.tagRecyclerView);
 //        tagRecyclerView.layoutManager = new LinearLayoutManager(this);
         tagRecyclerView.setAdapter(tagListAdapter);
@@ -143,6 +143,8 @@ public class MoreInformationActivity extends Activity {
                                 Toast.makeText(context, "Tag names' length must be at least 4 and at most 20 characters.", Toast.LENGTH_LONG).show();
                             } else {
                                 databaseHandler.tags().addTagsToImage(tagName, imageURI);
+                                Toast.makeText(context, "Added tag " + tagName, Toast.LENGTH_LONG).show();
+                                tagListAdapter.updateDataList(databaseHandler.tags().getTagsOfImage(imageURI));
                                 dialogInterface.dismiss();
                             }
                         }
@@ -170,6 +172,7 @@ public class MoreInformationActivity extends Activity {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             String imageNewName = editText.getText().toString().trim();
                             ImageGalleryProcessing.changeNameImage(context, imageURI, imageNewName);
+                            titleTextView.setText(imageNewName);
                             Toast.makeText(context, "Image renamed", Toast.LENGTH_LONG).show();
                             dialogInterface.dismiss();
                         }

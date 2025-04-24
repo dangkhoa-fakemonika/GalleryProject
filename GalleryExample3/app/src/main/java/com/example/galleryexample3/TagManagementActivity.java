@@ -25,6 +25,8 @@ import java.util.ArrayList;
 public class TagManagementActivity extends Activity {
     Context context;
     DatabaseHandler databaseHandler;
+    ArrayList<String> tagList;
+    TagGridAdapter tagGridAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,9 +36,9 @@ public class TagManagementActivity extends Activity {
 
         RecyclerView tagGridView = (RecyclerView) findViewById(R.id.tagGrid);
         databaseHandler = DatabaseHandler.getInstance(this);
-        ArrayList<String> tagList = databaseHandler.tags().getAllTags();
+        tagList = databaseHandler.tags().getAllTags();
 
-        TagGridAdapter tagGridAdapter = new TagGridAdapter(this, tagList);
+        tagGridAdapter = new TagGridAdapter(this, tagList);
         tagGridView.setAdapter(tagGridAdapter);
 
         Button addTagsButton = (Button) findViewById(R.id.addTagsButton);
@@ -69,6 +71,9 @@ public class TagManagementActivity extends Activity {
                             }
                             else {
                                 databaseHandler.tags().createNewTag(tagName);
+                                Toast.makeText(context, "Created tag " + tagName, Toast.LENGTH_LONG).show();
+                                tagList = databaseHandler.tags().getAllTags();
+                                tagGridAdapter.updateDataList(tagList);
                                 dialogInterface.dismiss();
                             }
 
