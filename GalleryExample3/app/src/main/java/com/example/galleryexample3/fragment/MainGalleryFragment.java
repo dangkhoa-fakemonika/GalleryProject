@@ -32,6 +32,7 @@ import com.example.galleryexample3.MainActivityNew;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.SingleImageView;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
+import com.example.galleryexample3.businessclasses.PrivateAlbum;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
@@ -42,6 +43,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuItemClickListener {
     RecyclerView gridRecyclerView;
@@ -325,6 +327,35 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+            return true;
+        } else if (id == R.id.addToPrivate) {
+            AlertDialog alertDialog = new AlertDialog.Builder(context)
+                    .setTitle("Confirm your action")
+                    .setMessage("Hidden images will only be visible in private album, and be deleted from the device when the app is uninstalled")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            HashSet<Integer> selectedPositions = galleryAdapter.getSelectedPositions();
+                            for (int position : selectedPositions){
+                                Log.v("PLease run", imagesList.get(position));
+                                PrivateAlbum.addPrivateAlbum(context, imagesList.get(position));
+
+                            }
+                            selectionEnabled = false;
+                            galleryAdapter.setSelectionMode(selectionEnabled);
+                            optionBars.setVisibility(View.GONE);
+                            if (getActivity() instanceof MainActivityNew) {
+                                ((MainActivityNew) getActivity()).showBottomNavigation();
+                            }
+                            Toast.makeText(context, "Added to The Heaven", Toast.LENGTH_LONG).show();
+                        }
+                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i){
                             dialogInterface.dismiss();
                         }
                     }).create();

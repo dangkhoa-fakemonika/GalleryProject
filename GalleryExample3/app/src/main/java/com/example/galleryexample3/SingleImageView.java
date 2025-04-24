@@ -262,8 +262,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
                             //boolean r = ImageGalleryProcessing.changeNameImage(this, imageURI, "newtest1.png");
                             if (r){
                                 Toast.makeText(context, "Image deleted.", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
-                                startActivity(intent);
+                                getOnBackPressedDispatcher().onBackPressed();
                             }
                             else{
                                 Toast.makeText(context, "Image can't be deleted.", Toast.LENGTH_LONG).show();
@@ -620,8 +619,25 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
             ImageClipboard.getImageToClipBoard(context, imageURI);
             Toast.makeText(context, "Image copied to clipboard.", Toast.LENGTH_SHORT).show();
             return true;
-        }
-        else
+        } else if (id == R.id.addToPrivate) {
+            AlertDialog alertDialog = new AlertDialog.Builder(context)
+                    .setTitle("Confirm your action")
+                    .setMessage("Hidden images will only be visible in private album, and be deleted from the device when the app is uninstalled")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            Toast.makeText(context, "Added to The Heaven", Toast.LENGTH_LONG).show();
+                        }
+                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i){
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+            return true;
+        } else
             return false;
     }
 }

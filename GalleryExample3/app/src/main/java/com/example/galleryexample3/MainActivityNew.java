@@ -22,6 +22,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,6 +56,7 @@ public class MainActivityNew extends AppCompatActivity{
     final int REQUEST_WRITE_EXTERNAL_STORAGE = 101;
     final int REQUEST_READ_EXTERNAL_STORAGE = 102;
     final int REQUEST_CAMERA = 103;
+    private ActivityResultLauncher<Intent> launcher;
 
     private FloatingActionButton cameraFAB;
     private FloatingActionButton addAlbumFAB;
@@ -143,7 +148,18 @@ public class MainActivityNew extends AppCompatActivity{
         MenuItem menuItem = menu.findItem(R.id.navPrivateAlbum);
         Log.i("PRIVATE", privateAlbum + "");
         menuItem.setVisible(privateAlbum);
-
+        launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult o) {
+                        if (o.getResultCode() ==  RESULT_OK){
+                            Intent myIntent = new Intent(MainActivityNew.this, PrivateVaultActivity.class);
+                            startActivity(myIntent);
+                        }else {
+                            Toast.makeText(MainActivityNew.this, "Not this time bro", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
         myToolbar.setNavigationIcon(R.drawable.menu_24px);
         myToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,13 +204,16 @@ public class MainActivityNew extends AppCompatActivity{
                     intent = new Intent(MainActivityNew.this, SearchActivity.class);
                 else if (item.getItemId() == R.id.navSettings)
                     intent = new Intent(MainActivityNew.this, SettingsActivity.class);
-                else if (item.getItemId() == R.id.navPrivateAlbum)
-                    intent = new Intent(MainActivityNew.this, MainActivityNew.class);
+                else if (item.getItemId() == R.id.navPrivateAlbum){
+                    intent = new Intent(MainActivityNew.this, PrivateVaultLockScreen.class);
+                }
                 else
                     intent = new Intent(MainActivityNew.this, MainActivityNew.class);
 
                 drawerLayout.closeDrawer(GravityCompat.START);
-                startActivity(intent);
+                if (item.getItemId() == R.id.navPrivateAlbum){
+                    launcher.launch(intent);
+                }else startActivity(intent);
                 return true;
             }
         });

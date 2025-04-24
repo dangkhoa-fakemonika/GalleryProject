@@ -4,4 +4,6 @@
         android:title="Add to album"/>
     <item android:id="@+id/addTag"
         android:title="Add tag"/>
+    <item android:id="@+id/addToPrivate"
+        android:title="Move to private"/>
 </menu>

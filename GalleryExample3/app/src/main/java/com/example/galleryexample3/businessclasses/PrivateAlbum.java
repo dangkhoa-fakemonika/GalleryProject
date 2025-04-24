@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.galleryexample3.PrivateVaultLockScreen;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 
 import java.io.File;
@@ -145,12 +146,13 @@ public class PrivateAlbum {
             for (File file : files) {
                 if (file.isDirectory()) {
                     subfolder = subfolder + "/" + file.getName();
-                    arrPath = queryImages(context, subfolder);
+                    arrPath.addAll(queryImages(context, subfolder));
                 } else {
                     arrPath.add(file.getAbsolutePath());
                 }
             }
         }
+        Log.v(PrivateAlbum.class.toString(), String.valueOf(arrPath.size()));
         return arrPath;
     }
 

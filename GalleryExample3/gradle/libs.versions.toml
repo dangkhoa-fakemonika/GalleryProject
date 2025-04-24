@@ -1,6 +1,7 @@
 [versions]
 agp = "8.7.3"
 barcodeScanning = "17.3.0"
+biometricVersion = "1.1.0"
 cameraCamera2 = "1.4.2"
 digitalInkRecognition = "18.1.0"
 glide = "4.16.0"
@@ -13,6 +14,7 @@ appcompat = "1.7.0"
 material = "1.12.0"
 activity = "1.10.0"
 constraintlayout = "2.2.0"
+pinview = "1.4.4"
 textRecognition = "16.0.1"
 linkfirebase = "17.0.0"
 imageLabelingCommon = "18.1.0"
@@ -21,6 +23,7 @@ cameraView = "1.4.2"
 viewpager2Version = "1.1.0"
 
 [libraries]
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometricVersion" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2Version" }
 barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
@@ -39,6 +42,7 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 mlkit-image-labeling = { module = "com.google.mlkit:image-labeling", version.ref = "imageLabeling" }
 mlkit-text-recognition-chinese = { module = "com.google.mlkit:text-recognition-chinese", version.ref = "textRecognition" }
+pinview = { module = "io.github.chaosleung:pinview", version.ref = "pinview" }
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
 text-recognition-devanagari = { module = "com.google.mlkit:text-recognition-devanagari", version.ref = "textRecognition" }
 text-recognition-japanese = { module = "com.google.mlkit:text-recognition-japanese", version.ref = "textRecognition" }

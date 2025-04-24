@@ -14,4 +14,6 @@
         android:title="Copy to Clipboard"/>
     <item android:id="@+id/moreInfo"
         android:title="More info"/>
+    <item android:id="@+id/addToPrivate"
+        android:title="Move to private"/>
 </menu>
