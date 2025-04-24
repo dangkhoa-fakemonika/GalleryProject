@@ -32,6 +32,7 @@ import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
+import com.example.galleryexample3.userinterface.ThemeManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class PrivateVaultActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         osv = false;
+        ThemeManager.setTheme(this);
         setContentView(R.layout.private_vault_layout);
         myToolBar = findViewById(R.id.myToolBar);
         myLinearLayout = findViewById(R.id.optionBars);
