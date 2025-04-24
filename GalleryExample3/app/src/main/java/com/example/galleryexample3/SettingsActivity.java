@@ -33,6 +33,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = this.getSharedPreferences("appSettings", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
+
         isPrivateAlbumEnabled = sharedPref.getBoolean("isPrivateAlbumEnabled", false);
         ActivityResultLauncher<Intent> myActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -56,8 +57,14 @@ public class SettingsActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 isPrivateAlbumEnabled = b;
                 if (b){
-                    Intent myIntent = new Intent(SettingsActivity.this, PrivateVaultCodeSettings.class);
-                    myActivityResultLauncher.launch(myIntent);
+                    if (sharedPref.contains("heaven_key")){
+                        Toast.makeText(context,"Heaven's door is opened", Toast.LENGTH_SHORT).show();
+                        enablePrivateAlbum.setChecked(isPrivateAlbumEnabled);
+                    }else{
+                        Intent myIntent = new Intent(SettingsActivity.this, PrivateVaultCodeSettings.class);
+                        myActivityResultLauncher.launch(myIntent);
+                    }
+
                 }
             }
         });

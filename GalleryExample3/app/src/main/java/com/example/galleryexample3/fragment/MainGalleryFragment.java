@@ -36,6 +36,7 @@ import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -193,6 +194,8 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
             optionBars.setVisibility(View.GONE);
             if (getActivity() instanceof MainActivityNew) {
                 ((MainActivityNew) getActivity()).showBottomNavigation();
+                ((FloatingActionButton) getActivity().findViewById(R.id.fab_camera)).show();
+
             }
         });
 
@@ -236,6 +239,7 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
 
                     optionBars.setVisibility(View.VISIBLE);
                     if (getActivity() instanceof MainActivityNew) {
+                        ((FloatingActionButton) getActivity().findViewById(R.id.fab_camera)).hide();
                         BottomNavigationView bottomNavView = (BottomNavigationView) getActivity().findViewById(R.id.bottomNavigationBar);
                         optionBars.setMinimumHeight(bottomNavView.getHeight());
                         optionBars.setPadding(0, 0, 0, bottomNavView.getHeight() / 2);

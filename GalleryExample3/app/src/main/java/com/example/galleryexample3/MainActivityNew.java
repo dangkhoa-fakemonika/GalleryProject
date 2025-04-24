@@ -50,6 +50,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.HashSet;
 
 public class MainActivityNew extends AppCompatActivity{
+    NavigationView navigationView;
     private Context context;
     private Toolbar myToolbar;
     private AppBarLayout myAppBarLayout;
@@ -140,7 +141,7 @@ public class MainActivityNew extends AppCompatActivity{
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, galleryFragment).commit();
 
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.mainDrawerLayout);
-        NavigationView navigationView = (NavigationView) findViewById(R.id.drawer_nav_view);
+        navigationView = (NavigationView) findViewById(R.id.drawer_nav_view);
 
         SharedPreferences sharedPref = this.getSharedPreferences("appSettings", Context.MODE_PRIVATE);
         boolean privateAlbum = sharedPref.getBoolean("isPrivateAlbumEnabled", false);
@@ -234,5 +235,18 @@ public class MainActivityNew extends AppCompatActivity{
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.topbar_action_buttons, menu);
         return true;
+    }
+
+    public FloatingActionButton getCameraFAB() {
+        return cameraFAB;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences = getSharedPreferences("appSettings", Context.MODE_PRIVATE);
+        Menu menu = navigationView.getMenu();;
+        MenuItem menuItem = menu.findItem(R.id.navPrivateAlbum);
+        menuItem.setVisible(sharedPreferences.getBoolean("isPrivateAlbumEnabled", false));
     }
 }

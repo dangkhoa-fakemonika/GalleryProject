@@ -243,6 +243,7 @@ public class EditActivity extends AppCompatActivity {
             else {
                 ImageGalleryProcessing.saveImage(this, getCroppedBitmap());
             }
+            finish();
         });
 
         adjustmentSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -274,7 +275,7 @@ public class EditActivity extends AppCompatActivity {
                             adjustmentOptionAdapter.updateValue(2, value);
                             break;
                         case "Blur | Sharp":
-                            value = progress - 10f;
+                            value = progress - 5f;
                             newParams.radius = (int) value;
                             adjustmentOptionAdapter.updateValue(3, value);
                             break;
@@ -580,8 +581,8 @@ public class EditActivity extends AppCompatActivity {
                 break;
             case "Blur | Sharp":
                 adjustmentSeekBar.setMin(0);
-                adjustmentSeekBar.setMax(20);
-                adjustmentSeekBar.setProgress(imageEditingController.getCurrentParams().radius + 10);
+                adjustmentSeekBar.setMax(10);
+                adjustmentSeekBar.setProgress(imageEditingController.getCurrentParams().radius + 5);
         }
     }
 

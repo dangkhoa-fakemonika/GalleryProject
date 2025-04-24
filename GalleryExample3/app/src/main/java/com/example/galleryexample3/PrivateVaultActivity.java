@@ -1,7 +1,11 @@
 package com.example.galleryexample3;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -25,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.businessclasses.PrivateAlbum;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
+import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -40,15 +45,26 @@ public class PrivateVaultActivity extends AppCompatActivity {
     private GalleryImageGridAdapter myAdapter;
     private ArrayList<String> imageList;
     private DatabaseHandler myDatabaseHandler;
+    private Context context = PrivateVaultActivity.this;
     private Button cancleButton;
     private ImageButton deleteButton;
     private ImageButton removeFromPrivateButton;
     private TextView selectedImage;
+
     boolean selectMode;
+    boolean osv;
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        osv = false;
         setContentView(R.layout.private_vault_layout);
         myToolBar = findViewById(R.id.myToolBar);
         myLinearLayout = findViewById(R.id.optionBars);
@@ -99,6 +115,10 @@ public class PrivateVaultActivity extends AppCompatActivity {
                 for(int pos : selectedImageList){
                     PrivateAlbum.deleteImage(PrivateVaultActivity.this, imageList.get(pos));
                 }
+                forceUpdateList();
+                selectMode = false;
+                myAdapter.setSelectionMode(selectMode);
+                myLinearLayout.setVisibility(View.GONE);
             }
         });
 
@@ -172,5 +192,20 @@ public class PrivateVaultActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+    public void forceUpdateList(){
+        ArrayList<String> newList = PrivateAlbum.getImages(context, "DATE_ADDED", "DESC");
+        imageList = newList;
+        myAdapter.updateDataList(imageList);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ArrayList<String> newList = PrivateAlbum.getImages(context, "DATE_ADDED", "DESC");
+        if (imageList.size() != newList.size()){
+            imageList = newList;
+            myAdapter.updateDataList(imageList);
+        }
+
     }
 }

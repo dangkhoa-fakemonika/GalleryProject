@@ -51,12 +51,14 @@ public class PrivateVaultCodeSettings extends AppCompatActivity {
         startVaultButton = findViewById(R.id.set_pin);
         mySwitch = findViewById(R.id.fingerprintSwitch);
         fingerPrintOption = findViewById(R.id.fingerPrintOptions);
-
+        SharedPreferences sharedPreferences = getSharedPreferences("appSettings", Context.MODE_PRIVATE);
+        mySwitch.setChecked(sharedPreferences.getBoolean("heaven_use_fingerprint", false));
         Intent intent = getIntent();
         settingMode = intent.getBooleanExtra("settingMode", false);
-        mySwitch.setChecked(settingMode);
         if (!settingMode){
             fingerPrintOption.setVisibility(LinearLayout.GONE);
+        }else{
+            startVaultButton.setText("Update your pin");
         }
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -98,6 +100,12 @@ public class PrivateVaultCodeSettings extends AppCompatActivity {
                             .setNegativeButtonText("User App Pin")
                             .build();
                     biometricPrompt.authenticate(promptInfo);
+                }else{
+                    mySwitch.setChecked(false);
+                    SharedPreferences sharedPreferences = getSharedPreferences("appSettings", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("heaven_use_fingerprint", mySwitch.isChecked());
+                    editor.apply();
                 }
             }
         });
@@ -124,11 +132,11 @@ public class PrivateVaultCodeSettings extends AppCompatActivity {
         startVaultButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (pinView.getText() == null){
+                if (pinView.getText() == null || pinView.getText().toString().isEmpty()){
                     return;
                 }
                 String pinCode = pinView.getText().toString();
-                if (confirmPinView.getText() == null){
+                if (confirmPinView.getText() == null || confirmPinView.getText().toString().isEmpty()){
                     Toast.makeText(PrivateVaultCodeSettings.this, "Please confirm your PIN Code", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -138,13 +146,13 @@ public class PrivateVaultCodeSettings extends AppCompatActivity {
                     return;
                 }
                 try {
-
                     PinUtils.savePinWithEncoded(PrivateVaultCodeSettings.this,  pinView.getText().toString());
                     Toast.makeText(PrivateVaultCodeSettings.this, "Your settings is updated", Toast.LENGTH_SHORT).show();
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("pin_code", pinView.getText().toString());
                     setResult(RESULT_OK, resultIntent);
                     finish();
+
                 } catch (Exception e) {
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("Exception", e.getMessage());
@@ -156,12 +164,11 @@ public class PrivateVaultCodeSettings extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         SharedPreferences sharedPreferences = getSharedPreferences("appSettings", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("heaven_use_fingerprint", mySwitch.isChecked());
         editor.apply();
-        editor.commit();
     }
 }

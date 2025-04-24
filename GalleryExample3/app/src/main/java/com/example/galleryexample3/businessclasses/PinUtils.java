@@ -118,7 +118,7 @@ public class PinUtils {
         String storedPin = sharedPreferences.getString(PREF_KEY, "");
         Log.i("PRIVATE SET", sharedPreferences.getString(PREF_KEY, "Not set yet"));
 
-        if (storedSalt.isEmpty() || storedPin.isEmpty()) throw new Exception("Missing Salt or Pin");
+        if (storedPin.isEmpty()) throw new Exception("Missing Pin");
         byte[] decodedSalt = Base64.decode(storedSalt, Base64.DEFAULT);
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         md.update(decodedSalt);
