@@ -61,12 +61,6 @@ public class PrivateAlbum {
         } catch (IOException e) {
             return;
         }
-//        File[] files = new File(context.getFilesDir(), folderName + "/DCIM/Screenshots").listFiles();
-//        if (files != null) {
-//            for (File f : files) {
-//                Log.i("debug", f.getName() + " - " + (f.isDirectory() ? "Folder" : "File"));
-//            }
-//        }
     }
 
     public static boolean saveImage(Context context, Bitmap bitmap) {
@@ -182,22 +176,12 @@ public class PrivateAlbum {
     }
 
     public static void removeImage(Context context, String URI) {
-        File[] files = new File(context.getFilesDir(), folderName + "/DCIM/Screenshots").listFiles();
-        if (files != null) {
-            for (File f : files) {
-                if (!f.isDirectory()) {
-                    URI = f.getAbsolutePath();
-                }
-            }
-        }
         String[] partPath = URI.split("/");
         String fileName = partPath[partPath.length - 1];
         String fileExtension = fileName.substring(fileName.lastIndexOf('.'));
         fileName = fileName.substring(0, fileName.lastIndexOf('.'));
         partPath = Arrays.copyOfRange(partPath, 7, partPath.length - 1);
         String filePath = TextUtils.join("/", partPath);
-        Log.i("debug", context.getExternalFilesDir(null) + "");
-        Log.i("debug", filePath + "\n" + fileName + "\n" + fileExtension);
         File pvFile = new File("/storage/emulated/0/" + filePath);
         if (!pvFile.exists() || !pvFile.isDirectory()) {
             boolean r = pvFile.mkdirs();
