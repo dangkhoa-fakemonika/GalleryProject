@@ -36,6 +36,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.galleryexample3.MainActivity;
+import com.example.galleryexample3.MainActivityNew;
 import com.example.galleryexample3.R;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.userinterface.ThemeManager;
@@ -71,7 +72,7 @@ public class PaintingActivity extends AppCompatActivity {
                     .setCancelable(false)
                     .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(PaintingActivity.this, MainActivity.class);
+                            Intent intent = new Intent(PaintingActivity.this, MainActivityNew.class);
                             startActivity(intent);
                         }
                     });

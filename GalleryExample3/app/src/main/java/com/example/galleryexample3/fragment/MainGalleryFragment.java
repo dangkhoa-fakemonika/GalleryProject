@@ -170,8 +170,6 @@ public class MainGalleryFragment extends Fragment implements PopupMenu.OnMenuIte
                             HashSet<Integer> positions = galleryAdapter.getSelectedPositions();
                             positions.forEach((pos) -> {
                                 ImageGalleryProcessing.deleteImage(requireContext(), imagesList.get(pos));
-                                databaseHandler.tags().deleteImage(imagesList.get(pos));
-                                databaseHandler.albums().deleteImage(imagesList.get(pos));
                             });
                             Toast.makeText(requireContext(), "All images deleted.", Toast.LENGTH_LONG).show();
                             dialogInterface.dismiss();
