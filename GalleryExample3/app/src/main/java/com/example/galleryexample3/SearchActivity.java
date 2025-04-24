@@ -171,6 +171,23 @@ public class SearchActivity extends AppCompatActivity implements MenuProvider {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (searchText != null)
+            matchItems = getMatchItems(searchText);
+        if(! matchItems.isEmpty()){
+//            searchFragmentAdapter = new SearchItemListAdapter(SearchActivity.this, new ArrayList<>(matchItems));
+//            searchedItemLayout.setAdapter(searchFragmentAdapter);
+            searchFragmentAdapter.updateDataList(new ArrayList<>(matchItems));
+            searchedItemLayout.setVisibility(RecyclerView.VISIBLE);
+            noResultTextView.setVisibility(TextView.GONE);
+        }else {
+            searchedItemLayout.setVisibility(RecyclerView.GONE);
+            noResultTextView.setVisibility(TextView.VISIBLE);
+        }
+    }
 
     @Override
     public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {

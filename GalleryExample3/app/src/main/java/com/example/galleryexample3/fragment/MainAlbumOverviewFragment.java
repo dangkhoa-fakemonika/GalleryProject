@@ -85,7 +85,7 @@ public class MainAlbumOverviewFragment extends Fragment {
 
                 ContentResolver contentResolver = requireContext().getContentResolver();
                 for (String thumb : albumThumbnailsList) {
-                    contentResolver.registerContentObserver(Uri.fromFile(new File(thumb)), true, mediaStoreObserver);
+                    contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(requireContext(),thumb), true, mediaStoreObserver);
                 }
                 osv = true;
             }

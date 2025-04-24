@@ -50,6 +50,10 @@ public class SearchItemListAdapter extends RecyclerView.Adapter<SearchItemListAd
         return super.getItemViewType(position);
     }
 
+    public void updateDataList(ArrayList<SearchItemListAdapter.MatchItem> matchItems){
+        this.matchItems = matchItems;
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
