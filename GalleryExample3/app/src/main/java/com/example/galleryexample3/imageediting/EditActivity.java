@@ -51,7 +51,7 @@ import com.example.galleryexample3.userinterface.ThemeManager;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class EditView extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity {
     ImageView imageView;
     SeekBar adjustmentSeekBar;
     private String mode = "Adjustment";
@@ -84,12 +84,12 @@ public class EditView extends AppCompatActivity {
                 alertDialog.dismiss();
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(EditView.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(EditActivity.this);
             builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
                     .setCancelable(false)
                     .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(EditView.this, MainActivityNew.class);
+                            Intent intent = new Intent(EditActivity.this, MainActivityNew.class);
                             startActivity(intent);
                         }
                     });
@@ -383,12 +383,12 @@ public class EditView extends AppCompatActivity {
                     alertDialog.dismiss();
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(EditView.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(EditActivity.this);
                 builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
                         .setCancelable(false)
                         .setPositiveButton("Xác nhận", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Intent intent = new Intent(EditView.this, MainActivity.class);
+                                Intent intent = new Intent(EditActivity.this, MainActivity.class);
                                 startActivity(intent);
                             }
                         });

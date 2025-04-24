@@ -42,7 +42,7 @@ import com.example.galleryexample3.businessclasses.ClipBoardProcessing;
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.businessclasses.ImageWallpaperManager;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
-import com.example.galleryexample3.imageediting.EditView;
+import com.example.galleryexample3.imageediting.EditActivity;
 import com.example.galleryexample3.imageediting.ImageClipboard;
 import com.example.galleryexample3.imageediting.PaintingActivity;
 import com.example.galleryexample3.userinterface.SwipeImageAdapter;
@@ -253,7 +253,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
         });
 
         editModeButton.setOnClickListener(listener -> {
-            Intent intent = new Intent(SingleImageView.this, EditView.class);
+            Intent intent = new Intent(SingleImageView.this, EditActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("imageURI", imageURI);
             intent.putExtras(bundle);

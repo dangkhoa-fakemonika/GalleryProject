@@ -33,7 +33,7 @@
             android:id="@+id/cancelSelectionButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.4"
+            android:layout_weight="0.6"
             android:text="Cancel"
             android:textColor="?textColor"
             android:background="@android:color/transparent"/>

@@ -31,6 +31,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashSet;
 
 public class PrivateVaultActivity extends AppCompatActivity {
     private Toolbar myToolBar;
@@ -55,6 +56,7 @@ public class PrivateVaultActivity extends AppCompatActivity {
         cancleButton = findViewById(R.id.cancelSelectionButton);
         deleteButton = findViewById(R.id.deleteButton);
         selectedImage = findViewById(R.id.selectionTextView);
+        removeFromPrivateButton = findViewById(R.id.removeFromPrivateButton);
         setSupportActionBar(myToolBar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -92,7 +94,22 @@ public class PrivateVaultActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(PrivateVaultActivity.this, "Developing", Toast.LENGTH_SHORT).show();
+                HashSet<Integer> selectedImageList = myAdapter.getSelectedPositions();
+                Toast.makeText(PrivateVaultActivity.this, "Deleted", Toast.LENGTH_SHORT).show();
+                for(int pos : selectedImageList){
+                    PrivateAlbum.deleteImage(PrivateVaultActivity.this, imageList.get(pos));
+                }
+            }
+        });
+
+        removeFromPrivateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HashSet<Integer> selectedImageList = myAdapter.getSelectedPositions();
+                Toast.makeText(PrivateVaultActivity.this, "Removed", Toast.LENGTH_SHORT).show();
+                for(int pos : selectedImageList){
+                    PrivateAlbum.removeImage(PrivateVaultActivity.this, imageList.get(pos));
+                }
             }
         });
         selectedImage = findViewById(R.id.selectionTextView);
@@ -107,6 +124,7 @@ public class PrivateVaultActivity extends AppCompatActivity {
                     else
                         selectedImage.setText("Select image");
                 }else{
+                    Log.v("Private Position", String.valueOf(position));
                     Intent myIntent = new Intent(PrivateVaultActivity.this, SingleImageViewPrivate.class);
                     Bundle myBundle = new Bundle();
                     myBundle.putString("imageURI", imageList.get(position));

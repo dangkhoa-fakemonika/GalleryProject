@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -26,21 +27,27 @@ import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.businessclasses.PrivateAlbum;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.userinterface.SwipeImageAdapter;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class SingleImageViewPrivate extends AppCompatActivity {
+    private Context context;
     private String imageURI;
     private int position;
     private String dateAdded;
     private int shortAnimationDuration;
     private DatabaseHandler databaseHandler;
-    private Context context;
     private SingleImageView.MediaStoreObserver mediaStoreObserver;
     private AlertDialog alertDialog;
     private ArrayList<String> imagesList;
     private ViewPager2 viewPager;
     private View.OnClickListener toggleUtility;
+    private ImageButton moreInformation;
+    private ImageButton removeFrom;
+    private ImageButton deleteButton;
     private boolean osv = false;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,6 +58,7 @@ public class SingleImageViewPrivate extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        context = this;
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
         imagesList = new ArrayList<>();
         RelativeLayout screenLayout = (RelativeLayout) findViewById(R.id.screenLayout);
@@ -60,8 +68,9 @@ public class SingleImageViewPrivate extends AppCompatActivity {
         ImageButton backButton = (ImageButton) findViewById(R.id.backButton);
         TextView dateAddedText = (TextView) findViewById(R.id.dateAddedText);
 
-        ImageButton deleteButton = (ImageButton) findViewById(R.id.deleteButton);
-        ImageButton moreOptionButton = (ImageButton) findViewById(R.id.removeFromPrivate);
+        deleteButton = (ImageButton) findViewById(R.id.deleteButton);
+        removeFrom = findViewById(R.id.removeFromPrivate);
+        moreInformation = (ImageButton) findViewById(R.id.moreInfomation);
         imagesList = PrivateAlbum.getImages(this, "DATE_ADDED", "DESC");
         toggleUtility = new View.OnClickListener() {
             @Override
@@ -91,6 +100,8 @@ public class SingleImageViewPrivate extends AppCompatActivity {
         imageURI = myBundle.getString("imageURI");
         dateAdded = myBundle.getString("dateAdded");
         position = myBundle.getInt("position");
+        Log.v("Private View Position", String.valueOf(position));
+
         dateAddedText.setText("Private Images");
 
         viewPager.setPageTransformer(new ViewPager2.PageTransformer() {
@@ -107,7 +118,7 @@ public class SingleImageViewPrivate extends AppCompatActivity {
         Log.v("From adapter", String.valueOf(swipeImageAdapter.getItemCount()));
 
         viewPager.setAdapter(swipeImageAdapter);
-//        viewPager.setCurrentItem(imagesList.size()-1, false);
+        viewPager.setCurrentItem(position, false);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -128,17 +139,9 @@ public class SingleImageViewPrivate extends AppCompatActivity {
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            boolean r = ImageGalleryProcessing.deleteImage(context, imageURI);
-                            databaseHandler.tags().deleteImage(imageURI);
-                            databaseHandler.albums().deleteImage(imageURI);
-                            //boolean r = ImageGalleryProcessing.changeNameImage(this, imageURI, "newtest1.png");
-                            if (r){
-                                Toast.makeText(context, "Image deleted.", Toast.LENGTH_LONG).show();
-                                getOnBackPressedDispatcher().onBackPressed();
-                            }
-                            else{
-                                Toast.makeText(context, "Image can't be deleted.", Toast.LENGTH_LONG).show();
-                            }
+                            PrivateAlbum.deleteImage(context, imageURI);
+                            Toast.makeText(context, "Image is deleted", Toast.LENGTH_SHORT).show();
+                            getOnBackPressedDispatcher().onBackPressed();
                             dialogInterface.dismiss();
                         }
                     })
@@ -149,6 +152,55 @@ public class SingleImageViewPrivate extends AppCompatActivity {
                         }
                     }).create();
             alertDialog.show();
+        });
+
+        moreInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View dialogView = LayoutInflater.from(context).inflate(R.layout.more_information_dialog, null);
+                TextView infoPathText = dialogView.findViewById(R.id.infoPath);
+                TextView infoSizeText = dialogView.findViewById(R.id.infoSize);
+                TextView infoResolutionText = dialogView.findViewById(R.id.infoResolution);
+                String infoPath = PrivateAlbum.getName(context, imageURI);
+                String infoSize = PrivateAlbum.getSize(context, imageURI);
+                String infoResolution = PrivateAlbum.getResolution(context, imageURI);
+                infoPathText.setText("Name: " + infoPath);
+                infoSizeText.setText("Size: " + infoSize);
+                infoResolutionText.setText("Resolution: " +  infoResolution);
+                AlertDialog alertDialog = new AlertDialog.Builder(context)
+                        .setTitle("Information")
+                        .setView(dialogView)
+                        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        }).create();
+                alertDialog.show();
+            }
+        });
+        removeFrom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog = new AlertDialog.Builder(context)
+                        .setTitle("Delete Image?")
+                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                PrivateAlbum.removeImage(context, imageURI);
+                                Toast.makeText(context, "Removed image from Private.", Toast.LENGTH_SHORT).show();
+                                getOnBackPressedDispatcher().onBackPressed();
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        }).create();
+                alertDialog.show();
+            }
         });
     }
 }
