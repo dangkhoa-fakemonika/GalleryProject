@@ -9,7 +9,7 @@ import com.example.galleryexample3.R;
 public class ThemeManager {
     public static void setTheme(Activity activity){
         SharedPreferences preferences = activity.getSharedPreferences("appSettings", Context.MODE_PRIVATE);
-        int themeID = preferences.getInt("theme", 0);
+        int themeID = preferences.getInt("theme", 1);
         switch (themeID){
             case 0:
                 activity.setTheme(R.style.SimpleBrightTheme);

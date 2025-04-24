@@ -28,8 +28,10 @@ public class FilterPreviewAdapter extends RecyclerView.Adapter<FilterPreviewAdap
         this.filterList = filterList;
     }
 
-    public FilterPreview getFilter(int position) {
-        return filterList.get(position);
+    public void updateFilterList(ArrayList<FilterPreview> filterList) {
+        this.filterList.clear();
+        this.filterList.addAll(filterList);
+        notifyDataSetChanged();
     }
 
     @NonNull

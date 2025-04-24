@@ -20,7 +20,8 @@ import androidx.annotation.NonNull;
 
 public class CropOverlayView extends View {
     private static final int HANDLE_RADIUS = 30;
-    private static final int MIN_CROP_SIZE = 200;
+    private static final int MIN_CROP_SIZE = 100;
+    private float aspectRatio = 0f;
 
     private enum HandleType {
         TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, NONE
@@ -63,6 +64,9 @@ public class CropOverlayView extends View {
         cropRect = new RectF(bound);
         boundRect = new RectF(bound);
 
+        if (aspectRatio != 0f)
+            adjustToAspectRatio();
+
 //        Log.d("debug", "Rect - left: " + cropRect.left +
 //        ", top: " + cropRect.top +
 //        ", right: " + cropRect.right +
@@ -92,8 +96,16 @@ public class CropOverlayView extends View {
         canvas.drawCircle(cropRect.right, cropRect.bottom, HANDLE_RADIUS, handlePaint);
     }
 
+    public void setRatio(float ratio) {
+        this.aspectRatio = ratio;
+    }
+
     public RectF getCropRect() {
         return cropRect;
+    }
+
+    public RectF getBoundRect() {
+        return boundRect;
     }
 
     @Override
@@ -135,24 +147,133 @@ public class CropOverlayView extends View {
     }
 
     private void resizeCropRect(int x, int y) {
-        switch (activeHandle) {
-            case TOP_LEFT:
-                cropRect.left = Math.min(x, cropRect.right - MIN_CROP_SIZE);
-                cropRect.top = Math.min(y, cropRect.bottom - MIN_CROP_SIZE);
-                break;
-            case TOP_RIGHT:
-                cropRect.right = Math.max(x, cropRect.left + MIN_CROP_SIZE);
-                cropRect.top = Math.min(y, cropRect.bottom - MIN_CROP_SIZE);
-                break;
-            case BOTTOM_LEFT:
-                cropRect.left = Math.min(x, cropRect.right - MIN_CROP_SIZE);
-                cropRect.bottom = Math.max(y, cropRect.top + MIN_CROP_SIZE);
-                break;
-            case BOTTOM_RIGHT:
-                cropRect.right = Math.max(x, cropRect.left + MIN_CROP_SIZE);
-                cropRect.bottom = Math.max(y, cropRect.top + MIN_CROP_SIZE);
-                break;
+        if (aspectRatio == 0f)
+            switch (activeHandle) {
+                case TOP_LEFT:
+                    cropRect.left = Math.min(x, cropRect.right - MIN_CROP_SIZE);
+                    cropRect.top = Math.min(y, cropRect.bottom - MIN_CROP_SIZE);
+                    break;
+                case TOP_RIGHT:
+                    cropRect.right = Math.max(x, cropRect.left + MIN_CROP_SIZE);
+                    cropRect.top = Math.min(y, cropRect.bottom - MIN_CROP_SIZE);
+                    break;
+                case BOTTOM_LEFT:
+                    cropRect.left = Math.min(x, cropRect.right - MIN_CROP_SIZE);
+                    cropRect.bottom = Math.max(y, cropRect.top + MIN_CROP_SIZE);
+                    break;
+                case BOTTOM_RIGHT:
+                    cropRect.right = Math.max(x, cropRect.left + MIN_CROP_SIZE);
+                    cropRect.bottom = Math.max(y, cropRect.top + MIN_CROP_SIZE);
+                    break;
+            }
+        else {
+            float minWidth = MIN_CROP_SIZE, minHeight = MIN_CROP_SIZE;
+
+            if (aspectRatio > 1f)
+                minWidth = minHeight * aspectRatio;
+            else
+                minHeight = minWidth / aspectRatio;
+
+            float width;
+            float height;
+
+            switch (activeHandle) {
+                case TOP_LEFT: {
+                    float possibleWidth = cropRect.right - boundRect.left;
+                    float possibleHeight = cropRect.bottom - boundRect.top;
+
+                    float maxWidthFromBounds = Math.min(possibleWidth, possibleHeight * aspectRatio);
+
+                    width = Math.min(maxWidthFromBounds, Math.max(minWidth, cropRect.right - x));
+                    height = width / aspectRatio;
+
+                    cropRect.left = cropRect.right - width;
+                    cropRect.top = cropRect.bottom - height;
+                    break;
+                }
+
+                case TOP_RIGHT: {
+                    float maxLeft = cropRect.left;
+                    float maxBottom = cropRect.bottom;
+
+                    float maxW = boundRect.right - maxLeft;
+                    float maxH = maxBottom - boundRect.top;
+
+                    float maxWidthFromBounds = Math.min(maxW, maxH * aspectRatio);
+
+                    width = Math.min(maxWidthFromBounds, Math.max(minWidth, x - cropRect.left));
+                    height = width / aspectRatio;
+
+                    cropRect.right = cropRect.left + width;
+                    cropRect.top = cropRect.bottom - height;
+                    break;
+                }
+
+                case BOTTOM_LEFT: {
+                    float maxRight = cropRect.right;
+                    float maxTop = cropRect.top;
+
+                    float maxW = maxRight - boundRect.left;
+                    float maxH = boundRect.bottom - maxTop;
+
+                    float maxWidthFromBounds = Math.min(maxW, maxH * aspectRatio);
+
+                    width = Math.min(maxWidthFromBounds, Math.max(minWidth, cropRect.right - x));
+                    height = width / aspectRatio;
+
+                    cropRect.left = cropRect.right - width;
+                    cropRect.bottom = cropRect.top + height;
+                    break;
+                }
+
+                case BOTTOM_RIGHT: {
+                    float maxLeft = cropRect.left;
+                    float maxTop = cropRect.top;
+
+                    float maxW = boundRect.right - maxLeft;
+                    float maxH = boundRect.bottom - maxTop;
+
+                    float maxWidthFromBounds = Math.min(maxW, maxH * aspectRatio);
+
+                    width = Math.min(maxWidthFromBounds, Math.max(minWidth, x - cropRect.left));
+                    height = width / aspectRatio;
+
+                    cropRect.right = cropRect.left + width;
+                    cropRect.bottom = cropRect.top + height;
+                    break;
+                }
+            }
         }
+
+        constrainRect();
+    }
+
+    private void adjustToAspectRatio() {
+        float currentWidth = cropRect.width();
+        float currentHeight = cropRect.height();
+        float currentRatio = currentWidth / currentHeight;
+
+        if (Math.abs(currentRatio - aspectRatio) < 0.01f)
+            return;
+
+        float centerX = cropRect.centerX();
+        float centerY = cropRect.centerY();
+
+        float newWidth;
+        float newHeight;
+
+        if (currentRatio > aspectRatio) {
+            newHeight = currentHeight;
+            newWidth = newHeight * aspectRatio;
+        } else {
+            newWidth = currentWidth;
+            newHeight = newWidth / aspectRatio;
+        }
+
+        cropRect.left = centerX - newWidth / 2f;
+        cropRect.right = centerX + newWidth / 2f;
+        cropRect.top = centerY - newHeight / 2f;
+        cropRect.bottom = centerY + newHeight / 2f;
 
         constrainRect();
     }

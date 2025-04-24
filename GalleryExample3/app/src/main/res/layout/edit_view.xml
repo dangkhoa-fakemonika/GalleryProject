@@ -14,6 +14,7 @@
         android:layout_height="wrap_content">
 
         <Button
+            android:id="@+id/cancelButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -26,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Adjustment"
+            android:text="Mode"
             android:textAlignment="center"
             android:textColor="?textColor"
             android:textSize="16sp"/>
@@ -46,7 +47,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/effectButtonBar"
-        android:layout_below="@+id/topBar">
+        android:layout_below="@+id/topBar"
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/imageView"
@@ -155,11 +157,11 @@
         android:layout_alignBottom="@id/frameLayout"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="5dp"
-        android:background="@android:color/transparent"
         android:paddingHorizontal="4sp"
         android:paddingVertical="2sp"
-        android:text="Brightness"
-        android:textColor="?textColor"/>
+        android:text="Submode"
+        android:textColor="?textColor"
+        android:background="?altTintIconColor" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/adjustmentOption"

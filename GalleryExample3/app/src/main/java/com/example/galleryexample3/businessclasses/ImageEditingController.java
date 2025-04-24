@@ -17,9 +17,12 @@ public class ImageEditingController {
     private Stack<EditParams> undoStack = new Stack<>();
     private Stack<EditParams> redoStack = new Stack<>();
     private EditParams currentParams;
+    private Bitmap processed = null;
+    private int last_radius;
 
     public ImageEditingController(EditParams initialParams) {
         currentParams = initialParams.copy();
+        last_radius = currentParams.radius;
     }
 
     public EditParams getCurrentParams() {
@@ -42,6 +45,7 @@ public class ImageEditingController {
 
     public EditParams undo() {
         if (!canUndo()) return currentParams.copy();
+        last_radius = currentParams.radius;
         redoStack.push(currentParams.copy());
         currentParams = undoStack.pop();
         return currentParams.copy();
@@ -49,15 +53,41 @@ public class ImageEditingController {
 
     public EditParams redo() {
         if (!canRedo()) return currentParams.copy();
+        last_radius = currentParams.radius;
         undoStack.push(currentParams.copy());
         currentParams = redoStack.pop();
         return currentParams.copy();
     }
 
-    public Bitmap applyEdit(Bitmap original) {
+    public EditParams reset() {
+        if (!canUndo()) return currentParams.copy();
+        redoStack.clear();
+        undoStack.clear();
+        processed = null;
+        currentParams = new EditParams(0, 1, 1, "normal", 0);
+        return currentParams.copy();
+    }
+
+    public Bitmap applyEdit(Bitmap source) {
         ColorMatrix resultMatrix = new ColorMatrix();
 
-        boolean modified = false;
+        boolean isModified = false;
+
+        if (currentParams.radius != last_radius && currentParams.radius != 0) {
+            int radius = currentParams.radius;
+
+            if (radius < 0)
+                processed = applyGaussianBlur(source, -radius);
+            else
+                processed = applyUnsharpMask(source, radius);
+
+            last_radius = currentParams.radius;
+        } else if (processed == null)
+            processed = source.copy(source.getConfig() != null
+                    ? source.getConfig()
+                    : Bitmap.Config.ARGB_8888,
+                    true
+            );
 
         if (currentParams.brightness != 100f) {
             float b = currentParams.brightness;
@@ -68,7 +98,7 @@ public class ImageEditingController {
                     0, 0, 0, 1, 0
             });
             resultMatrix.postConcat(brightnessMatrix);
-            modified = true;
+            isModified = true;
         }
 
         if (currentParams.contrast != 1f) {
@@ -81,7 +111,7 @@ public class ImageEditingController {
                     0,     0,     0,     1, 0
             });
             resultMatrix.postConcat(contrastMatrix);
-            modified = true;
+            isModified = true;
         }
 
         if (currentParams.saturation != 1f) {
@@ -94,26 +124,31 @@ public class ImageEditingController {
                     0,               0,               0,               1, 0
             });
             resultMatrix.postConcat(saturationMatrix);
-            modified = true;
+            isModified = true;
         }
 
         if (!currentParams.filter.equals("normal")) {
             resultMatrix.postConcat(getFilterMatrix(currentParams.filter));
-            modified = true;
+            isModified = true;
         }
 
-        if (!modified) {
-            Log.i("debug", "real");
-            return original.copy(original.getConfig(), true);
+        if (!isModified) {
+            return processed;
         }
 
-        Bitmap output = Bitmap.createBitmap(original.getWidth(), original.getHeight(), original.getConfig());
-        Canvas canvas = new Canvas(output);
+        Bitmap modified = Bitmap.createBitmap(
+                processed.getWidth(),
+                processed.getHeight(),
+                processed.getConfig() != null
+                        ? processed.getConfig()
+                        : Bitmap.Config.ARGB_8888
+        );
+        Canvas canvas = new Canvas(modified);
         Paint paint = new Paint();
         paint.setColorFilter(new ColorMatrixColorFilter(resultMatrix));
-        canvas.drawBitmap(original, 0, 0, paint);
+        canvas.drawBitmap(processed, 0, 0, paint);
 
-        return output;
+        return modified;
     }
 
     private static ColorMatrix getFilterMatrix(String filterName) {
@@ -202,21 +237,26 @@ public class ImageEditingController {
         Log.d("ColorMatrixDebug", sb.toString());
     }
 
-    public ArrayList<FilterPreview> generateFilterPreviews(Bitmap originalBitmap) {
-        Bitmap adjustedBitmap = applyEdit(originalBitmap);
+    public ArrayList<FilterPreview> generateFilterPreviews(Bitmap sourceBitmap) {
+        Bitmap adjustedBitmap = applyEdit(sourceBitmap);
         ArrayList<FilterPreview> previewList = new ArrayList<>();
 
         int targetSize = 200;
-        int originalWidth = adjustedBitmap.getWidth();
-        int originalHeight = adjustedBitmap.getHeight();
+        int sourceWidth = adjustedBitmap.getWidth();
+        int sourceHeight = adjustedBitmap.getHeight();
         float ratio = Math.min(
-                (float) targetSize / originalWidth,
-                (float) targetSize / originalHeight
+                (float) targetSize / sourceWidth,
+                (float) targetSize / sourceHeight
         );
-        int targetWidth = Math.round(ratio * originalWidth);
-        int targetHeight = Math.round(ratio * originalHeight);
+        int targetWidth = Math.round(ratio * sourceWidth);
+        int targetHeight = Math.round(ratio * sourceHeight);
 
-        Bitmap previewSource = Bitmap.createScaledBitmap(adjustedBitmap, targetWidth, targetHeight, true);
+        Bitmap previewSource = Bitmap.createScaledBitmap(
+                adjustedBitmap,
+                targetWidth,
+                targetHeight,
+                true
+        );
         previewList.add(new FilterPreview("Normal", previewSource));
 
         String[] filterNames = new String[]{
@@ -239,12 +279,151 @@ public class ImageEditingController {
         return previewList;
     }
 
-    private Bitmap applyColorMatrix(Bitmap source, ColorMatrix matrix) {
-        Bitmap output = Bitmap.createBitmap(source.getWidth(), source.getHeight(), source.getConfig());
+    private Bitmap applyColorMatrix(Bitmap sourceBitmap, ColorMatrix matrix) {
+        Bitmap output = Bitmap.createBitmap(
+                sourceBitmap.getWidth(),
+                sourceBitmap.getHeight(),
+                sourceBitmap.getConfig() != null
+                        ? sourceBitmap.getConfig()
+                        : Bitmap.Config.ARGB_8888
+        );
         Canvas canvas = new Canvas(output);
         Paint paint = new Paint();
         paint.setColorFilter(new ColorMatrixColorFilter(matrix));
-        canvas.drawBitmap(source, 0, 0, paint);
+        canvas.drawBitmap(sourceBitmap, 0, 0, paint);
         return output;
+    }
+
+    public static Bitmap applyGaussianBlur(Bitmap sourceBitmap, int radius) {
+        int width = sourceBitmap.getWidth();
+        int height = sourceBitmap.getHeight();
+
+        Bitmap blurred = Bitmap.createBitmap(
+                width,
+                height,
+                sourceBitmap.getConfig() != null
+                        ? sourceBitmap.getConfig()
+                        : Bitmap.Config.ARGB_8888
+        );
+
+        float[] kernel = generateGaussianKernel(radius * 2 + 1);
+
+        int[] pixels = new int[width * height];
+        sourceBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        int[] temp = new int[width * height];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float r = 0, g = 0, b = 0, sum = 0;
+                for (int i = -radius; i <= radius; i++) {
+                    int xIndex = x + i;
+                    if (xIndex < 0) xIndex = -xIndex;
+                    if (xIndex >= width) xIndex = 2 * width - xIndex - 1;
+                    int color = pixels[y * width + xIndex];
+                    float weight = kernel[i + radius];
+
+                    r += ((color >> 16) & 0xFF) * weight;
+                    g += ((color >> 8) & 0xFF) * weight;
+                    b += (color & 0xFF) * weight;
+                    sum += weight;
+                }
+
+                int ir = (int)(r / sum);
+                int ig = (int)(g / sum);
+                int ib = (int)(b / sum);
+                temp[y * width + x] = (0xFF << 24) | (ir << 16) | (ig << 8) | ib;
+            }
+        }
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                float r = 0, g = 0, b = 0, sum = 0;
+                for (int i = -radius; i <= radius; i++) {
+                    int yIndex = y + i;
+                    if (yIndex < 0) yIndex = -yIndex;
+                    if (yIndex >= height) yIndex = 2 * height - yIndex - 1;
+                    int color = temp[yIndex * width + x];
+                    float weight = kernel[i + radius];
+
+                    r += ((color >> 16) & 0xFF) * weight;
+                    g += ((color >> 8) & 0xFF) * weight;
+                    b += (color & 0xFF) * weight;
+                    sum += weight;
+                }
+
+                int ir = (int) (r / sum);
+                int ig = (int) (g / sum);
+                int ib = (int) (b / sum);
+                blurred.setPixel(x, y, (0xFF << 24) | (ir << 16) | (ig << 8) | ib);
+            }
+        }
+
+        Log.i("debug", "blur normal " + blurred.getPixel(0, 0) + " " + pixels[0]);
+
+        return blurred;
+    }
+
+    public static Bitmap applyUnsharpMask(Bitmap sourceBitmap, int radius) {
+        Log.d("debug", "sharp");
+
+        Bitmap blurred = applyGaussianBlur(sourceBitmap, radius);
+        Bitmap sharpened = Bitmap.createBitmap(
+                sourceBitmap.getWidth(),
+                sourceBitmap.getHeight(),
+                sourceBitmap.getConfig() != null
+                        ? sourceBitmap.getConfig()
+                        : Bitmap.Config.ARGB_8888
+        );
+
+        int width = sourceBitmap.getWidth();
+        int height = sourceBitmap.getHeight();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int origColor = sourceBitmap.getPixel(x, y);
+                int blurColor = blurred.getPixel(x, y);
+
+                int rOrig = (origColor >> 16) & 0xFF;
+                int gOrig = (origColor >> 8) & 0xFF;
+                int bOrig = origColor & 0xFF;
+
+                int rBlur = (blurColor >> 16) & 0xFF;
+                int gBlur = (blurColor >> 8) & 0xFF;
+                int bBlur = blurColor & 0xFF;
+
+                int r = clampColor(rOrig + (int)(rOrig - rBlur));
+                int g = clampColor(gOrig + (int)(gOrig - gBlur));
+                int b = clampColor(bOrig + (int)(bOrig - bBlur));
+
+                int sharpColor = (0xFF << 24) | (r << 16) | (g << 8) | b;
+                sharpened.setPixel(x, y, sharpColor);
+            }
+        }
+
+        Log.i("debug", "blur sharp " + blurred.getPixel(0, 0) + " " + sharpened.getPixel(0, 0));
+
+
+        return sharpened;
+    }
+
+    private static float[] generateGaussianKernel(int size) {
+        float[] kernel = new float[size];
+        double sigma = size / 1.5;
+        float sum = 0;
+        int mid = size / 2;
+        for (int i = 0; i < size; i++) {
+            kernel[i] = (float) Math.exp(-((i - mid) * (i - mid)) / (2 * sigma * sigma));
+            sum += kernel[i];
+        }
+
+        for (int i = 0; i < kernel.length; i++) {
+            kernel[i] /= sum;
+        }
+        return kernel;
+    }
+
+    private static int clampColor(int val) {
+        return Math.max(0, Math.min(255, val));
     }
 }

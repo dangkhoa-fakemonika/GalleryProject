@@ -16,11 +16,24 @@
         android:layout_weight="1" />
 
     <ImageView
+        android:id="@+id/icon"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1.5"
         android:src="@drawable/edit_24dp"
-        app:tint="?tintIconColor" />
+        app:tint="?tintIconColor"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/value"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
+        android:text="value"
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:textColor="?textColor"
+        android:visibility="gone"/>
 
     <Space
         android:layout_width="match_parent"
