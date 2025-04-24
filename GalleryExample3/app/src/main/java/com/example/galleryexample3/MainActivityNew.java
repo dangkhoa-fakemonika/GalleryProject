@@ -1,6 +1,8 @@
 package com.example.galleryexample3;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -10,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +35,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.galleryexample3.dataclasses.DatabaseHandler;
 import com.example.galleryexample3.fragment.MainAlbumOverviewFragment;
 import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.example.galleryexample3.userinterface.ThemeManager;
@@ -40,6 +44,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.HashSet;
 
 public class MainActivityNew extends AppCompatActivity{
     private Context context;
@@ -117,11 +125,7 @@ public class MainActivityNew extends AppCompatActivity{
                 startActivity(myIntent);
             }
         });
-        addAlbumFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
-        });
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
@@ -171,12 +175,10 @@ public class MainActivityNew extends AppCompatActivity{
                 if (id == R.id.gallery){
                     getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, galleryFragment).commit();
                     cameraFAB.show();
-                    addAlbumFAB.hide();
                     bottomNavView.getMenu().getItem(0).setChecked(true);
                 }
                 else{
                     getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, albumOverviewFragment).commit();
-                    addAlbumFAB.show();
                     cameraFAB.hide();
                     bottomNavView.getMenu().getItem(1).setChecked(true);
                 }

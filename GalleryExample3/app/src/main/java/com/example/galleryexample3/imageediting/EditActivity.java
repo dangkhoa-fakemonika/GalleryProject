@@ -97,8 +97,7 @@ public class EditActivity extends AppCompatActivity {
             builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
                     .setCancelable(false)
                     .setPositiveButton("Xác nhận", (dialog, id) -> {
-                        Intent intent = new Intent(EditView.this, MainActivityNew.class);
-                        startActivity(intent);
+                        finish();
                     });
             AlertDialog alert = builder.create();
             alert.show();
@@ -529,7 +528,7 @@ public class EditActivity extends AppCompatActivity {
                 builder.setMessage("Ảnh không tồn tại hoặc đã bị sửa đổi.")
                         .setCancelable(false)
                         .setPositiveButton("Xác nhận", (dialog, id) -> {
-                            Intent intent = new Intent(EditView.this, MainActivityNew.class);
+                            Intent intent = new Intent(EditActivity.this, MainActivityNew.class);
                             startActivity(intent);
                         });
                 AlertDialog alert = builder.create();
