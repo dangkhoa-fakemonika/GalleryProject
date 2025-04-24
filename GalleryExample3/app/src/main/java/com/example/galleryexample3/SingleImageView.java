@@ -86,6 +86,8 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
     private String matchName;
     private String albumName;
     private String tagName;
+    private SwipeImageAdapter swipeImageAdapter;
+    private TextView dateAddedText;
     public class MediaStoreObserver extends ContentObserver {
         public MediaStoreObserver(Handler handler) {
             super(handler);
@@ -99,15 +101,43 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
                 alertDialog.dismiss();
             }
 
-            imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
-            SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
-            viewPager.setAdapter(swipeImageAdapter);
+            if (matchName != null){
+                imagesList = ImageGalleryProcessing.getImagesByName(getApplicationContext(), matchName, "DATE_ADDED", " DESC");
+                Log.v("matchName", matchName);
+            } else if (albumName != null) {
+                imagesList = databaseHandler.albums().getImagesOfAlbum(albumName);
+                Log.v("albumName", albumName);
+            } else if (tagName != null) {
+//            Currently has no Tag retrieve Logic
+                imagesList = databaseHandler.tags().getImagesOfTag(tagName);
+            } else {
+                imagesList = ImageGalleryProcessing.getImages(SingleImageView.this, "DATE_ADDED", " DESC");
+            }
+
+            swipeImageAdapter.updateDataList(imagesList);
             if (!imagesList.contains(imageURI)) {
                 position = Math.min(imagesList.size() - 1, Math.max(0, position - 1));
                 viewPager.setCurrentItem(position, true);
+                imageURI = imagesList.get(position);
+                dateAdded = ImageGalleryProcessing.getImageDateAdded(context, imageURI);
+                dateAddedText.setText(dateAdded);
             } else {
                 position = imagesList.indexOf(imageURI);
                 viewPager.setCurrentItem(position, false);
+            }
+            SingleImageView.this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
+            if (!osv) {
+                Handler handler = new Handler();
+                mediaStoreObserver = new MediaStoreObserver(handler);
+                ContentResolver contentResolver = SingleImageView.this.getContentResolver();
+                if (matchName != null || albumName != null || tagName != null)
+                    for (String imageUri : imagesList) {
+                        contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(SingleImageView.this ,imageUri), true, mediaStoreObserver);
+                    }
+                else
+                    contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
+                osv = true;
             }
         }
     }
@@ -128,7 +158,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
 
         RelativeLayout utilityLayout = (RelativeLayout) findViewById(R.id.utilityLayout);
         ImageButton backButton = (ImageButton) findViewById(R.id.backButton);
-        TextView dateAddedText = (TextView) findViewById(R.id.dateAddedText);
+        dateAddedText = (TextView) findViewById(R.id.dateAddedText);
 
         ImageButton editModeButton = (ImageButton) findViewById(R.id.editModeButton);
         ImageButton drawModeButton = (ImageButton) findViewById(R.id.drawModeButton);
@@ -199,7 +229,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
         // Set up swiping between images
         Log.e("Received Position", String.valueOf(position) + " " + String.valueOf(imagesList.size()));
 
-        SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
+        swipeImageAdapter = new SwipeImageAdapter(this, imagesList);
         Log.v("From adapter", String.valueOf(swipeImageAdapter.getItemCount()));
 
         viewPager.setAdapter(swipeImageAdapter);
@@ -211,6 +241,8 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
                 super.onPageSelected(pos);
                 imageURI = imagesList.get(pos);
                 position = pos;
+                dateAdded = ImageGalleryProcessing.getImageDateAdded(context, imageURI);
+                dateAddedText.setText(dateAdded);
             }
         });
 
@@ -248,8 +280,7 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
                             //boolean r = ImageGalleryProcessing.changeNameImage(this, imageURI, "newtest1.png");
                             if (r){
                                 Toast.makeText(context, "Image deleted.", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(SingleImageView.this, MainActivityNew.class);
-                                startActivity(intent);
+                                getOnBackPressedDispatcher().onBackPressed();
                             }
                             else{
                                 Toast.makeText(context, "Image can't be deleted.", Toast.LENGTH_LONG).show();
@@ -295,25 +326,36 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
         } else if (tagName != null) {
 //            Currently has no Tag retrieve Logic
             imagesList = databaseHandler.tags().getImagesOfTag(tagName);
-        }else {
+        } else {
             imagesList = ImageGalleryProcessing.getImages(this, "DATE_ADDED", " DESC");
         }
 
-        SwipeImageAdapter swipeImageAdapter = new SwipeImageAdapter(SingleImageView.this, imagesList);
-        viewPager.setAdapter(swipeImageAdapter);
+        swipeImageAdapter.updateDataList(imagesList);
         if (!imagesList.contains(imageURI)) {
             position = Math.min(imagesList.size() - 1, Math.max(0, position - 1));
             viewPager.setCurrentItem(position, true);
+            imageURI = imagesList.get(position);
+            dateAdded = ImageGalleryProcessing.getImageDateAdded(context, imageURI);
+            dateAddedText.setText(dateAdded);
         } else {
             position = imagesList.indexOf(imageURI);
             viewPager.setCurrentItem(position, false);
+        }
+        if (osv) {
+            this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
         }
 
         if (!osv) {
             Handler handler = new Handler();
             mediaStoreObserver = new MediaStoreObserver(handler);
             ContentResolver contentResolver = this.getContentResolver();
-            contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
+            if (matchName != null || albumName != null || tagName != null)
+                for (String imageUri : imagesList) {
+                    contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(this, imageUri), true, mediaStoreObserver);
+                }
+            else
+                contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaStoreObserver);
             osv = true;
         }
     }
@@ -612,8 +654,25 @@ public class SingleImageView extends AppCompatActivity implements PopupMenu.OnMe
             ImageClipboard.getImageToClipBoard(context, imageURI);
             Toast.makeText(context, "Image copied to clipboard.", Toast.LENGTH_SHORT).show();
             return true;
-        }
-        else
+        } else if (id == R.id.addToPrivate) {
+            AlertDialog alertDialog = new AlertDialog.Builder(context)
+                    .setTitle("Confirm your action")
+                    .setMessage("Hidden images will only be visible in private album, and be deleted from the device when the app is uninstalled")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            Toast.makeText(context, "Added to The Heaven", Toast.LENGTH_LONG).show();
+                        }
+                    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i){
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+            return true;
+        } else
             return false;
     }
 }

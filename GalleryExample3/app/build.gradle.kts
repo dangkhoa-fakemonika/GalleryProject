@@ -61,7 +61,8 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
     implementation(libs.camera.core)
-
+    implementation(libs.androidx.biometric)
+    implementation(libs.pinview);
     // Scan barcodes
     implementation(libs.barcode.scanning)
 

@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.galleryexample3.PrivateVaultLockScreen;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
 
 import java.io.File;
@@ -48,7 +49,7 @@ public class PrivateAlbum {
             file = new File(pvFile, fileName + " (" + cnt + ")" + fileExtension);
             cnt++;
         }
-        try (DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context)) {
+        try {
             Path path1 = Paths.get(URI);
             Path path2 = file.toPath();
             BasicFileAttributes attributes = Files.readAttributes(path1, BasicFileAttributes.class);
@@ -56,6 +57,7 @@ public class PrivateAlbum {
             Files.setAttribute(path2, "basic:creationTime", attributes.creationTime());
             Files.setAttribute(path2, "basic:lastModifiedTime", attributes.lastModifiedTime());
             Files.setAttribute(path2, "basic:lastAccessTime", attributes.lastAccessTime());
+            DatabaseHandler databaseHandler = DatabaseHandler.getInstance(context);
             databaseHandler.tags().deleteImage(URI);
             databaseHandler.albums().deleteImage(URI);
         } catch (IOException e) {
@@ -138,13 +140,17 @@ public class PrivateAlbum {
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    subfolder = subfolder + "/" + file.getName();
-                    arrPath = queryImages(context, subfolder);
+                    String newsubfolder = subfolder + "/" + file.getName();
+
+                    arrPath.addAll(queryImages(context, newsubfolder));
                 } else {
                     arrPath.add(file.getAbsolutePath());
                 }
             }
         }
+        Log.v(PrivateAlbum.class.toString(), subfolder);
+
+        Log.v(PrivateAlbum.class.toString(), String.valueOf(arrPath.size()));
         return arrPath;
     }
 

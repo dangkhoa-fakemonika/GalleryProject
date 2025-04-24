@@ -1,7 +1,9 @@
 package com.example.galleryexample3.fragment;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -9,6 +11,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,6 +37,7 @@ import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.example.galleryexample3.userinterface.SearchItemListAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -43,6 +48,49 @@ public class MainAlbumOverviewFragment extends Fragment {
     DatabaseHandler databaseHandler;
     private final String[] sortType = {"albums.name", " ASC"};
     GalleryAlbumGridAdapter albumAdapter;
+    RecyclerView gridRecyclerView;
+    TextView noAlbumText;
+
+    private MediaStoreObserver mediaStoreObserver;
+    private boolean osv = false;
+    public class MediaStoreObserver extends ContentObserver {
+        public MediaStoreObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            albumsList = databaseHandler.albums().getAllAlbumsWithFilters(sortType[0], sortType[1]);
+            if (albumsList.isEmpty()) {
+                albumThumbnailsList.clear();
+                gridRecyclerView.setVisibility(View.GONE);
+                noAlbumText.setVisibility(View.VISIBLE);
+            } else {
+                albumThumbnailsList.clear();
+                for (String album : albumsList) {
+                    String thumbnail = databaseHandler.albums().getAlbumThumbnail(album);
+                    albumThumbnailsList.add(thumbnail);
+                }
+                albumAdapter.updateDataList(albumsList, albumThumbnailsList);
+                noAlbumText.setVisibility(View.GONE);
+                gridRecyclerView.setVisibility(View.VISIBLE);
+                gridRecyclerView.scrollToPosition(albumsList.size() - 1);
+            }
+            requireContext().getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
+            if (!osv) {
+                Handler handler = new Handler();
+                mediaStoreObserver = new MediaStoreObserver(handler);
+
+                ContentResolver contentResolver = requireContext().getContentResolver();
+                for (String thumb : albumThumbnailsList) {
+                    contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(requireContext(),thumb), true, mediaStoreObserver);
+                }
+                osv = true;
+            }
+        }
+    }
 
     public MainAlbumOverviewFragment() { }
 
@@ -60,8 +108,8 @@ public class MainAlbumOverviewFragment extends Fragment {
         albumsList = databaseHandler.albums().getAllAlbumsWithFilters(sortType[0], sortType[1]);
 
         albumThumbnailsList = new ArrayList<>();
-        RecyclerView gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
-        TextView noAlbumText = view.findViewById(R.id.noAlbumText);
+        gridRecyclerView = view.findViewById(R.id.gridRecyclerView);
+        noAlbumText = view.findViewById(R.id.noAlbumText);
 
         if (albumsList.isEmpty()) {
             gridRecyclerView.setVisibility(View.GONE);
@@ -151,5 +199,50 @@ public class MainAlbumOverviewFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        albumsList = databaseHandler.albums().getAllAlbumsWithFilters(sortType[0], sortType[1]);
+        if (albumsList.isEmpty()) {
+            albumThumbnailsList.clear();
+            gridRecyclerView.setVisibility(View.GONE);
+            noAlbumText.setVisibility(View.VISIBLE);
+        } else {
+            albumThumbnailsList.clear();
+            for (String album : albumsList) {
+                String thumbnail = databaseHandler.albums().getAlbumThumbnail(album);
+                albumThumbnailsList.add(thumbnail);
+            }
+            albumAdapter.updateDataList(albumsList, albumThumbnailsList);
+            noAlbumText.setVisibility(View.GONE);
+            gridRecyclerView.setVisibility(View.VISIBLE);
+            gridRecyclerView.scrollToPosition(albumsList.size() - 1);
+        }
+
+        if (osv) {
+            requireContext().getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
+        }
+
+        if (!osv) {
+            Handler handler = new Handler();
+            mediaStoreObserver = new MediaStoreObserver(handler);
+            ContentResolver contentResolver = requireContext().getContentResolver();
+            for (String thumb : albumThumbnailsList) {
+                contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(requireContext(),thumb), true, mediaStoreObserver);
+            }
+            osv = true;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        requireContext().getContentResolver().unregisterContentObserver(mediaStoreObserver);
+        osv = false;
     }
 }

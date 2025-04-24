@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/screenLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:paddingHorizontal="12dp">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/imageViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </androidx.viewpager2.widget.ViewPager2>
+
+    <RelativeLayout
+        android:id="@+id/utilityLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/black">
+
+            <ImageButton
+                android:id="@+id/backButton"
+                android:src="@drawable/arrow_back_24dp"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"/>
+
+            <TextView
+                android:id="@+id/dateAddedText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:text="Date Added"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:textAlignment="center" />
+
+            <Space
+                android:layout_width="40dp"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/black">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"/>
+
+
+
+            <ImageButton
+                android:id="@+id/deleteButton"
+                android:src="@drawable/delete_24dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"/>
+
+            <ImageButton
+                android:id="@+id/removeFromPrivate"
+                android:src="@drawable/visibility_lock_24px"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"/>
+
+            <ImageButton
+                android:id="@+id/moreInfomation"
+                android:src="@drawable/info_i_24px"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

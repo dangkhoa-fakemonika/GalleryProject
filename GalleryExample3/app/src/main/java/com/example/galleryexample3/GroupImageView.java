@@ -1,9 +1,13 @@
 package com.example.galleryexample3;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.galleryexample3.businessclasses.ImageGalleryProcessing;
 import com.example.galleryexample3.dataclasses.DatabaseHandler;
+import com.example.galleryexample3.fragment.MainGalleryFragment;
 import com.example.galleryexample3.userinterface.GalleryImageGridAdapter;
 import com.example.galleryexample3.userinterface.ItemClickSupporter;
 import com.example.galleryexample3.userinterface.SearchItemListAdapter;
@@ -52,6 +57,37 @@ public class GroupImageView extends AppCompatActivity {
     ArrayList<String> imagesList;
     DatabaseHandler databaseHandler = DatabaseHandler.getInstance(this);
     boolean selectionEnabled = false;
+    GalleryImageGridAdapter galleryAdapter;
+    RecyclerView gridRecyclerView;
+    private MediaStoreObserver mediaStoreObserver;
+    private boolean osv = false;
+
+    public class MediaStoreObserver extends ContentObserver {
+        public MediaStoreObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            setImageList();
+            galleryAdapter.updateDataList(imagesList);
+            gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+            GroupImageView.this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
+
+            if (!osv) {
+                Handler handler = new Handler();
+                mediaStoreObserver = new MediaStoreObserver(handler);
+                ContentResolver contentResolver = GroupImageView.this.getContentResolver();
+                for (String imageUri : imagesList) {
+                    contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(GroupImageView.this, imageUri), true, mediaStoreObserver);
+                }
+                osv = true;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,7 +103,7 @@ public class GroupImageView extends AppCompatActivity {
         groupName = gotBundle.getString(BUKEY_GROUP_NAME);
         groupItemCounts = gotBundle.getInt(BUKEY_GROUP_COUNT, 0);
 
-        RecyclerView gridRecyclerView = (RecyclerView) findViewById(R.id.gridRecyclerView);
+        gridRecyclerView = (RecyclerView) findViewById(R.id.gridRecyclerView);
 
         LinearLayout optionBars = (LinearLayout) findViewById(R.id.optionBars);
         Button cancelSelectionButton = (Button) findViewById(R.id.cancelSelectionButton);
@@ -81,7 +117,7 @@ public class GroupImageView extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         setImageList();
         addMenuToToolBarForAlbum();
-        GalleryImageGridAdapter galleryAdapter = new GalleryImageGridAdapter(this, imagesList);
+        galleryAdapter = new GalleryImageGridAdapter(this, imagesList);
         gridRecyclerView.setAdapter(galleryAdapter);
         OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
@@ -170,8 +206,6 @@ public class GroupImageView extends AppCompatActivity {
                                         HashSet<Integer> positions = galleryAdapter.getSelectedPositions();
                                         positions.forEach((pos) -> {
                                             ImageGalleryProcessing.deleteImage(context, imagesList.get(pos));
-                                            databaseHandler.tags().deleteImage(imagesList.get(pos));
-                                            databaseHandler.albums().deleteImage(imagesList.get(pos));
                                         });
                                         Toast.makeText(context, "All images deleted.", Toast.LENGTH_LONG).show();
                                         dialogInterface.dismiss();
@@ -261,6 +295,39 @@ public class GroupImageView extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        setImageList();
+        galleryAdapter.updateDataList(imagesList);
+        gridRecyclerView.scrollToPosition(imagesList.size() - 1);
+
+        if (osv) {
+            this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+            osv = false;
+        }
+
+        if (!osv) {
+            Handler handler = new Handler();
+            mediaStoreObserver = new MediaStoreObserver(handler);
+            ContentResolver contentResolver = this.getContentResolver();
+            for (String imageUri : imagesList) {
+                contentResolver.registerContentObserver(ImageGalleryProcessing.getUriFromPath(this, imageUri), true, mediaStoreObserver);
+            }
+            osv = true;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        this.getContentResolver().unregisterContentObserver(mediaStoreObserver);
+        osv = false;
+    }
+
     public void setImageList(){
         if (groupType == SearchItemListAdapter.MATCH_IMAGE_NAME){
             imagesList = ImageGalleryProcessing.getImagesByName(this, groupName, "DATE_ADDED", "ASC");

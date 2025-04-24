@@ -85,7 +85,10 @@
         <activity android:name=".TagManagementActivity" android:exported="true"/>
         <activity android:name=".SettingsActivity" android:exported="true"/>
         <activity android:name=".MoreAlbumInformationActivity" android:exported="true"/>
-
+        <activity android:name=".PrivateVaultLockScreen" android:exported="true"/>
+        <activity android:name=".PrivateVaultCodeSettings" android:exported="true"/>
+        <activity android:name=".PrivateVaultActivity" android:exported="true"/>
+        <activity android:name=".SingleImageViewPrivate" android:exported="true"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.galleryexample3.provider"

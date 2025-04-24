@@ -25,6 +25,11 @@ public class SwipeImageAdapter extends RecyclerView.Adapter<SwipeImageAdapter.Im
         this.imagesList = imagesList;
     }
 
+    public void updateDataList(ArrayList<String> imagesList){
+        this.imagesList = imagesList;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public SwipeImageAdapter.ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

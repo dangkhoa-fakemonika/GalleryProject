@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/myToolBar"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:menu="@menu/group_view_album_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imageRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/grid_image_item"
+        android:layout_below="@id/myToolBar"
+        app:spanCount="3"/>
+    <LinearLayout
+        android:id="@+id/optionBars"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="top"
+        android:visibility="gone"
+        android:background="@color/black">
+
+        <Button
+            android:id="@+id/cancelSelectionButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:background="@android:color/transparent"/>
+
+        <TextView
+            android:id="@+id/selectionTextView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:gravity="center"
+            android:text="Select image"
+            android:textSize="16sp"
+            android:textColor="@color/white"/>
+
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:src="@drawable/delete_24dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"/>
+        <ImageButton
+            android:id="@+id/removeFromPrivateButton"
+            android:src="@drawable/visibility_lock_24px"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"/>
+    </LinearLayout>
+</RelativeLayout>
