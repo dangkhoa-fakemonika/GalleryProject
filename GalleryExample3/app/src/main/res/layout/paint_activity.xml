@@ -39,6 +39,14 @@
         android:isScrollContainer="true"
         android:orientation="horizontal">
 
+            <ImageButton
+                app:tint="?tintIconColor"
+                android:id="@+id/buttonErasure"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/arrow_back_24dp"/>
+
         <ImageButton
             android:id="@+id/buttonSelectColor"
             android:layout_width="58dp"
@@ -47,13 +55,6 @@
             android:src="@drawable/border_color_24px"
             app:tint="?tintIconColor" />
 
-            <ImageButton
-                app:tint="?tintIconColor"
-                android:id="@+id/buttonErasure"
-                android:layout_width="58dp"
-                android:layout_height="58dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ink_eraser_24px"/>
 
             <ImageButton
                 app:tint="?tintIconColor"

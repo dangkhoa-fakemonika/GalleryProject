@@ -18,7 +18,7 @@ import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Deprecated
 public class TagAnalyzerClass {
     ImageLabeler labeler;
 

@@ -114,8 +114,7 @@ public class PaintingActivity extends AppCompatActivity {
 
         ImageButton eraserButton = findViewById(R.id.buttonErasure);
         eraserButton.setOnClickListener((l) -> {
-            paintView.setEraser(true);
-            eraserButton.setBackgroundColor(Color.LTGRAY);
+            finish();
         });
         findViewById(R.id.buttonReset).setOnClickListener((l) -> paintView.clearCanvas());
         findViewById(R.id.buttonUndo).setOnClickListener((l) -> paintView.undo());

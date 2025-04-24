@@ -8,7 +8,8 @@
    <androidx.appcompat.widget.Toolbar
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:background="?primaryColor"
+       android:background="#2222FF"
+       app:titleTextColor="@color/white"
        android:id="@+id/searchToolBar" />
    <androidx.recyclerview.widget.RecyclerView
        android:layout_width="match_parent"

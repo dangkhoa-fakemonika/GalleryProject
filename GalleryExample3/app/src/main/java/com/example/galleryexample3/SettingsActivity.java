@@ -70,18 +70,27 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.backButton).setOnClickListener((l) -> {
-            finish();
+//            finish();
+            Intent intent = new Intent(SettingsActivity.this, MainActivityNew.class);
+            startActivity(intent);
         });
 
-        ((Button) findViewById(R.id.changeAppTheme)).setOnClickListener((l) -> {
-            int currentTheme = sharedPref.getInt("theme", 0);
-            if (currentTheme == 0){
-                ThemeManager.switchToTheme(this, 1);
-            }
-            else if (currentTheme == 1){
-                ThemeManager.switchToTheme(this, 0);
-            }
+        ((Button) findViewById(R.id.changeAppTheme1)).setOnClickListener((l) -> {
+            ThemeManager.switchToTheme(this, 0);
         });
+
+        ((Button) findViewById(R.id.changeAppTheme2)).setOnClickListener((l) -> {
+            ThemeManager.switchToTheme(this, 1);
+        });
+
+        ((Button) findViewById(R.id.changeAppTheme3)).setOnClickListener((l) -> {
+            ThemeManager.switchToTheme(this, 2);
+        });
+
+        ((Button) findViewById(R.id.changeAppTheme4)).setOnClickListener((l) -> {
+            ThemeManager.switchToTheme(this, 3);
+        });
+
 
     }
 

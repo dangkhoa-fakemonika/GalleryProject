@@ -4,6 +4,7 @@
     <item
         android:id="@+id/filterButton"
         android:icon="@drawable/filter_list_24px"
+        android:iconTintMode="?tintIconColor"
         app:showAsAction="ifRoom"
         android:title="Filter Button"
         android:iconTint="?tintIconColor"/>

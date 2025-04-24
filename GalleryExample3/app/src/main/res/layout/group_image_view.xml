@@ -10,7 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/myToolBar"
-        app:menu="@menu/group_view_album_menu"/>
+        app:menu="@menu/group_view_album_menu"
+        app:titleTextColor="@color/white"
+        android:background="#2222FF"
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gridRecyclerView"

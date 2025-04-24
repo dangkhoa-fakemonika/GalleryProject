@@ -102,8 +102,7 @@ public class CameraActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.backToMain).setOnClickListener((l) -> {
-            Intent intent = new Intent(CameraActivity.this, MainActivityNew.class);
-            startActivity(intent);
+            finish();
         });
 
     }

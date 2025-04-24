@@ -161,7 +161,7 @@ public class MainActivityNew extends AppCompatActivity{
                         }
                     }
                 });
-        myToolbar.setNavigationIcon(R.drawable.menu_24px);
+//        myToolbar.setNavigationIcon(R.drawable.menu_24px);
         myToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

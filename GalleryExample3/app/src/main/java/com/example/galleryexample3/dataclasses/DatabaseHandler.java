@@ -338,6 +338,31 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             sqLiteDatabase.update(AlbumsTable.TABLE_NAME, albumValues, AlbumsTable.COL_NAME + " =?", new String[]{albumName});
         }
 
+        public String getAlbumCreateTime(String albumName){
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME, AlbumsInfoTable.COL_TIME_CREATE}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
+                if (cursor.moveToFirst()) {
+                    int timeCol = cursor.getColumnIndex(AlbumsInfoTable.COL_TIME_CREATE);
+                    return cursor.getString(timeCol);
+                }
+            } catch (Exception e) {
+                Log.e("Error", "Can not get time", e);
+            }
+            return null;
+        }
+
+        public String getAlbumDescription(String albumName){
+            try (Cursor cursor = sqLiteDatabase.query(AlbumsInfoTable.TABLE_NAME, new String[] {AlbumsInfoTable.COL_NAME, AlbumsInfoTable.COL_DESCRIPTION}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
+                if (cursor.moveToFirst()) {
+                    int timeCol = cursor.getColumnIndex(AlbumsInfoTable.COL_DESCRIPTION);
+                    return cursor.getString(timeCol);
+                }
+            } catch (Exception e) {
+                Log.e("Error", "Can not get description", e);
+            }
+            return null;
+        }
+
+
         public void changeAlbumThumbnail (String albumName) {
             try (Cursor cursor = sqLiteDatabase.query(AlbumsTable.TABLE_NAME, new String[]{AlbumsTable.COL_IMAGE_URI}, AlbumsTable.COL_NAME + " = ?", new String[]{albumName}, null, null, null)) {
                 if (cursor.moveToLast()) {
@@ -377,6 +402,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             sqLiteDatabase.update(AlbumsInfoTable.TABLE_NAME, valueInfo, AlbumsInfoTable.COL_NAME + " =?", new String[]{oldAlbumName});
         }
 
+        public void changeDescription(String albumName, String newDescription){
+            ContentValues valueInfo = new ContentValues();
+            valueInfo.put(AlbumsInfoTable.COL_DESCRIPTION, newDescription);
+            sqLiteDatabase.update(AlbumsInfoTable.TABLE_NAME, valueInfo, AlbumsInfoTable.COL_NAME + " =?", new String[]{albumName});
+        }
+
         public void changeImageName(String oldImageName, String newImageName){
             ContentValues value = new ContentValues();
             value.put(AlbumsTable.COL_IMAGE_URI, newImageName);
@@ -394,7 +425,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         public void createNewTag(String tagName){
-            if (!checkTagExisted(tagName)){
+            if (checkTagExisted(tagName)){
                 return;
             }
             ContentValues values = new ContentValues();

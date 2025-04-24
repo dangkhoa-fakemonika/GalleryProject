@@ -20,8 +20,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:elevation="4dp"
-            android:background="?primaryColor"
-            app:titleTextColor="?textColor"/>
+            app:navigationIcon="@drawable/menu_24px"
+            android:background="#2222FF"
+            app:titleTextColor="@color/white"/>
     
     <!--    <com.google.android.material.appbar.AppBarLayout-->
     <!--        android:id="@+id/appBarLayout"-->

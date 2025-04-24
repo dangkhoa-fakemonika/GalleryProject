@@ -140,6 +140,7 @@ public class GroupImageView extends AppCompatActivity {
                     Bundle bundle = new Bundle();
                     bundle.putInt(GroupImageView.BUKEY_GROUP_TYPE, SearchItemListAdapter.MATCH_ALBUM);
                     bundle.putString(GroupImageView.BUKEY_GROUP_NAME, groupName);
+                    bundle.putInt(GroupImageView.BUKEY_GROUP_COUNT, groupItemCounts);
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }

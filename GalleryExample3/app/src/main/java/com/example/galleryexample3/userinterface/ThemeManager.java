@@ -17,6 +17,12 @@ public class ThemeManager {
             case 1:
                 activity.setTheme(R.style.SimpleDarkTheme);
                 break;
+            case 2:
+                activity.setTheme(R.style.SimpleBlueTheme);
+                break;
+            case 3:
+                activity.setTheme(R.style.SimplePinkTheme);
+                break;
             default:
                 activity.setTheme(R.style.SimpleBrightTheme);
                 break;
@@ -36,6 +42,13 @@ public class ThemeManager {
             case 1:
                 activity.setTheme(R.style.SimpleDarkTheme);
                 break;
+            case 2:
+                activity.setTheme(R.style.SimpleBlueTheme);
+                break;
+            case 3:
+                activity.setTheme(R.style.SimplePinkTheme);
+                break;
+
             default:
                 activity.setTheme(R.style.SimpleBrightTheme);
                 break;

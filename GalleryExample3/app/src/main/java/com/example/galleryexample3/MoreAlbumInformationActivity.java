@@ -27,6 +27,7 @@ public class MoreAlbumInformationActivity extends Activity {
     int groupType;
     String groupName;
     int groupItemCounts;
+    String groupDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +38,11 @@ public class MoreAlbumInformationActivity extends Activity {
         TextView titleTextView = findViewById(R.id.titleTextView);
         TextView timeTextView = findViewById(R.id.timeTextView);
         TextView sizeTextView = findViewById(R.id.sizeTextView);
+        TextView description = findViewById(R.id.albumDescription);
         ImageButton backButton = findViewById(R.id.backButton);
         Button deleteAlbum = findViewById(R.id.deleteAlbum);
         Button renameAlbum = findViewById(R.id.renameAlbum);
+        Button setDescription = findViewById(R.id.changeDescription);
 
         Intent gotIntent = getIntent();
         Bundle gotBundle = gotIntent.getExtras();
@@ -47,17 +50,19 @@ public class MoreAlbumInformationActivity extends Activity {
         if (gotBundle == null) return;
 
         groupName = gotBundle.getString(BUKEY_GROUP_NAME);
+        groupItemCounts = gotBundle.getInt(BUKEY_GROUP_COUNT);
         databaseHandler = DatabaseHandler.getInstance(this);
         context = this;
+        groupDescription = databaseHandler.albums().getAlbumDescription(groupName);
 
         titleTextView.setText(groupName);
-        timeTextView.setText("Placeholder Text");
-        sizeTextView.setText("Placeholder Text");
+        timeTextView.setText(databaseHandler.albums().getAlbumCreateTime(groupName));
+        sizeTextView.setText(groupItemCounts + "");
+        description.setText(groupDescription);
 
         backButton.setOnClickListener(listener -> {
             finish();
         });
-
 
         deleteAlbum.setOnClickListener(listener -> {
             AlertDialog alertDialog = new AlertDialog.Builder(this)
@@ -85,9 +90,10 @@ public class MoreAlbumInformationActivity extends Activity {
             View dialogView = LayoutInflater.from(MoreAlbumInformationActivity.this).inflate(R.layout.one_field_dialog_layout, null);
             TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
             TextInputEditText editText = dialogView.findViewById(R.id.editText);
+            editText.setText(groupName);
             inputTextLayout.setHint("New name");
             AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle("Rename Image")
+                    .setTitle("Rename Album")
                     .setView(dialogView)
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
@@ -98,9 +104,40 @@ public class MoreAlbumInformationActivity extends Activity {
                             }
                             else {
                                 databaseHandler.albums().changeName(groupName, albumNewName);
+                                titleTextView.setText(albumNewName);
                                 Toast.makeText(context, "Album renamed", Toast.LENGTH_LONG).show();
                                 dialogInterface.dismiss();
                             }
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+        });
+
+        setDescription.setOnClickListener((l) -> {
+            View dialogView = LayoutInflater.from(MoreAlbumInformationActivity.this).inflate(R.layout.one_field_dialog_layout, null);
+            TextInputLayout inputTextLayout = dialogView.findViewById(R.id.inputTextLayout);
+            TextInputEditText editText = dialogView.findViewById(R.id.editText);
+            editText.setText(groupDescription);
+            inputTextLayout.setHint("New description");
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("New Description")
+                    .setView(dialogView)
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            String newDescription = editText.getText().toString().trim();
+
+                            databaseHandler.albums().changeDescription(groupName, newDescription);
+                            description.setText(newDescription);
+                            Toast.makeText(context, "Description changed", Toast.LENGTH_LONG).show();
+                            dialogInterface.dismiss();
+
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

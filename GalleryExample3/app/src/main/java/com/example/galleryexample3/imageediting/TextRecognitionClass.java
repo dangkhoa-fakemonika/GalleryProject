@@ -22,7 +22,7 @@ import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.io.IOException;
-
+@Deprecated
 public class TextRecognitionClass {
     static TextRecognizer recognizer;
 

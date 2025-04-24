@@ -99,7 +99,6 @@ public class MoreInformationActivity extends Activity {
 
             InputImage image = InputImage.fromBitmap(BitmapFactory.decodeFile(imageURI), 0);
 
-
             labeler.process(image).addOnSuccessListener(new OnSuccessListener<List<ImageLabel>>() {
                         @Override
                         public void onSuccess(List<ImageLabel> labels) {

@@ -20,7 +20,7 @@ import com.google.mlkit.vision.common.InputImage;
 
 import java.util.List;
 import java.util.Objects;
-
+@Deprecated
 public class BarCodeScannerClass {
     static BarcodeScannerOptions options;
 
