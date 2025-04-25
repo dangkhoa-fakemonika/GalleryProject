@@ -76,11 +76,11 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         ((Button) findViewById(R.id.changeAppTheme1)).setOnClickListener((l) -> {
-            ThemeManager.switchToTheme(this, 0);
+            ThemeManager.switchToTheme(this, 1);
         });
 
         ((Button) findViewById(R.id.changeAppTheme2)).setOnClickListener((l) -> {
-            ThemeManager.switchToTheme(this, 1);
+            ThemeManager.switchToTheme(this, 0);
         });
 
         ((Button) findViewById(R.id.changeAppTheme3)).setOnClickListener((l) -> {

@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="20dp"
     android:layout_margin="2sp"
-    android:background="?secondaryColor"
     app:cardBackgroundColor="?secondaryColor"
     >
 
@@ -40,11 +39,11 @@
 
 
             <ImageButton
+                app:tint="?tintIconColor"
                 android:id="@+id/deleteTag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/close_24px"
-                app:tint="?tintIconColor"
                 android:background="@android:color/transparent"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"

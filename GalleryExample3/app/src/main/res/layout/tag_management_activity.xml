@@ -17,12 +17,12 @@
         android:background="?primaryColor">
 
         <ImageButton
+            app:tint="?tintIconColor"
             android:id="@+id/backButton"
             android:src="@drawable/arrow_back_24dp"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
-            app:tint="?tintIconColor"
             />
 
         <TextView

@@ -82,7 +82,7 @@ public class TagListAdapter extends RecyclerView.Adapter<TagListAdapter.ViewHold
                         public void onClick(DialogInterface dialogInterface, int i) {
                             databaseHandler.tags().removeTag(localDataSet.get(pos), imageUri);
                             Toast.makeText(context, "Removed tag " + localDataSet.get(pos), Toast.LENGTH_LONG).show();
-                            localDataSet = databaseHandler.tags().getTagsOfImage(imageUri));
+                            localDataSet = databaseHandler.tags().getTagsOfImage(imageUri);
                             notifyDataSetChanged();
                             dialogInterface.dismiss();
                         }
